@@ -1,0 +1,25 @@
+# Core data
+pandas
+numpy
+pyarrow
+
+# Machine learning
+scikit-learn
+lightgbm
+scipy
+statsmodels
+
+# NLP / emotion
+sentence-transformers
+transformers
+datasets
+torch
+vaderSentiment
+nrclex
+
+# Experiment tracking / utilities
+mlflow
+matplotlib
+seaborn
+tqdm
+jupyter

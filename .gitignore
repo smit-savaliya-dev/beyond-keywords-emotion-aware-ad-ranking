@@ -216,3 +216,19 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Research project data
+data/
+
+# MLflow
+mlruns/
+
+# Generated model/result files
+results/scores/
+
+# Local environment/config
+.env
+.vscode/
