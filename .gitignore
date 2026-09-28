@@ -222,12 +222,15 @@ __marimo__/
 
 # Research project data
 data/
+data/raw/*
+data/processed/*
 
 # MLflow
 mlruns/
 
 # Generated model/result files
 results/scores/
+results/per_impression/
 
 # Local environment/config
 .env
