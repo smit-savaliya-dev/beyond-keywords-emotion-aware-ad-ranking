@@ -1,37 +1,36 @@
-"""Step 2: parse MIND-small into clean parquet files + a data summary.
-
-Run from the repo root:  python scripts/02_prepare_mind.py
-"""
+"""Parse MIND-small into data/processed/*.parquet and verify it."""
 import argparse
 import json
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-from src.config import PROCESSED, RAW  # noqa: E402
-from src.data import build_all, save_all  # noqa: E402
+import _bootstrap  # noqa: F401
+from src.config import PROCESSED, RAW
+from src.data import build_all, check_official_counts, integrity_problems, save_all
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--raw", type=Path, default=RAW)
     ap.add_argument("--out", type=Path, default=PROCESSED)
+    ap.add_argument("--skip-official-check", action="store_true")
     args = ap.parse_args()
 
     news, beh, imps, summary = build_all(args.raw)
-    save_all(news, beh, imps, summary, args.out)
-    print(json.dumps(summary, indent=2))
+    print(json.dumps({k: v for k, v in summary.items() if k not in ("raw_sha256", "run_info")}, indent=2))
 
-    problems = []
-    if summary["missing_candidate_ids"]:
-        problems.append("some candidate IDs are not in news.parquet")
-    if summary["missing_history_ids"]:
-        problems.append("some history IDs are not in news.parquet")
-    for part, p in summary["parts"].items():
-        if p["impressions_without_click"] or p["impressions_without_nonclick"]:
-            problems.append(f"{part}: impressions with only one label class")
-    print("\nCHECKS:", "all passed" if not problems else "; ".join(problems))
-    print(f"Saved to {args.out}")
+    problems = integrity_problems(summary)
+    if not args.skip_official_check:
+        problems += check_official_counts(summary)
+    if problems:
+        print("\nCHECKS FAILED (nothing saved):")
+        for p in problems:
+            print(" -", p)
+        sys.exit(1)
+
+    save_all(news, beh, imps, summary, args.out)
+    note = "" if args.skip_official_check else " (counts match official MIND-small)"
+    print(f"\nCHECKS: all passed{note}\nSaved to {args.out}")
 
 
 if __name__ == "__main__":

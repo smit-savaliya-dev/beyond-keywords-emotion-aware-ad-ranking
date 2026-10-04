@@ -1,0 +1,64 @@
+{
+  "news_items": 65238,
+  "empty_abstract_pct": 5.23,
+  "empty_title": 0,
+  "categories": 18,
+  "missing_candidate_ids": 0,
+  "missing_history_ids": 0,
+  "parts": {
+    "fit": {
+      "impressions": 126695,
+      "users": 46012,
+      "candidate_rows": 4621015,
+      "candidates_per_impression": {
+        "mean": 36.47,
+        "median": 24.0,
+        "min": 2,
+        "max": 299
+      },
+      "clicks_per_impression_mean": 1.496,
+      "impressions_without_click": 0,
+      "impressions_without_nonclick": 0,
+      "cold_start_pct": 1.95,
+      "history_len_median": 19.0,
+      "first_time": "2019-11-09 00:00:19",
+      "last_time": "2019-11-13 23:59:21"
+    },
+    "valid": {
+      "impressions": 30270,
+      "users": 20179,
+      "candidate_rows": 1222429,
+      "candidates_per_impression": {
+        "mean": 40.38,
+        "median": 27.0,
+        "min": 2,
+        "max": 295
+      },
+      "clicks_per_impression_mean": 1.547,
+      "impressions_without_click": 0,
+      "impressions_without_nonclick": 0,
+      "cold_start_pct": 2.55,
+      "history_len_median": 20.0,
+      "first_time": "2019-11-14 00:00:00",
+      "last_time": "2019-11-14 23:59:13"
+    },
+    "dev": {
+      "impressions": 73152,
+      "users": 50000,
+      "candidate_rows": 2740998,
+      "candidates_per_impression": {
+        "mean": 37.47,
+        "median": 23.0,
+        "min": 2,
+        "max": 295
+      },
+      "clicks_per_impression_mean": 1.523,
+      "impressions_without_click": 0,
+      "impressions_without_nonclick": 0,
+      "cold_start_pct": 3.03,
+      "history_len_median": 19.0,
+      "first_time": "2019-11-15 00:00:01",
+      "last_time": "2019-11-15 23:58:03"
+    }
+  }
+}

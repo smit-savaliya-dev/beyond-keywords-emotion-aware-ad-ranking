@@ -1,41 +1,27 @@
-"""Load, clean and reshape MIND-small.
-
-Creates in data/processed/:
-  news.parquet         one row per news item (train + dev combined, no duplicates)
-  behaviors.parquet    one row per impression, click history parsed into a list
-  impressions.parquet  one row per (impression, candidate) with its 0/1 click label
-  data_summary.json    counts and checks to quote in the thesis
-
-Parts (column "part"):
-  fit   = train impressions except the last day  -> train models here
-  valid = last day of train impressions          -> tune alpha / hyperparameters here
-  dev   = MIND-small dev set                     -> final test, report once
-"""
 import csv
 import json
 
 import numpy as np
 import pandas as pd
 
-from .config import BEHAVIOR_COLS, NEWS_COLS, PROCESSED, RAW, TIME_FORMAT
+from .config import BEHAVIOR_COLS, NEWS_COLS, OFFICIAL_COUNTS, PROCESSED, RAW, TIME_FORMAT
+from .provenance import run_info, sha256_file
 
 SPLITS = ("train", "dev")
+PARTS = ("fit", "valid", "dev")
 
 
 def find_split_dir(split, raw=RAW):
-    """Folder holding behaviors.tsv + news.tsv (works whether or not the zip had a subfolder)."""
     hits = sorted((raw / split).rglob("behaviors.tsv"))
     if not hits:
-        raise FileNotFoundError(
-            f"No behaviors.tsv under {raw / split}. Run scripts/01_download_mind.py first.")
+        raise FileNotFoundError(f"No behaviors.tsv under {raw / split}. Run scripts/01_download_mind.py first.")
     return hits[0].parent
 
 
 def read_tsv(path, cols):
-    # QUOTE_NONE: some titles contain " characters; normal quoting silently merges rows.
-    # keep_default_na=False: empty abstract stays "" (not NaN) and a title like "NA" stays text.
+    # QUOTE_NONE: titles contain stray quotes. keep_default_na=False: "" and "NA" stay text.
     return pd.read_csv(path, sep="\t", header=None, names=cols, dtype=str,
-                       quoting=csv.QUOTE_NONE, keep_default_na=False)
+                       quoting=csv.QUOTE_NONE, keep_default_na=False, encoding="utf-8")
 
 
 def load_news(raw=RAW):
@@ -44,9 +30,7 @@ def load_news(raw=RAW):
     news = news.drop(columns=["url", "title_entities", "abstract_entities"])
     news["title"] = news["title"].str.strip()
     news["abstract"] = news["abstract"].str.strip()
-    # text used later by TF-IDF, SBERT and the emotion classifier
-    news["text"] = np.where(news["abstract"] == "", news["title"],
-                            news["title"] + ". " + news["abstract"])
+    news["text"] = np.where(news["abstract"] == "", news["title"], news["title"] + ". " + news["abstract"])
     return news.reset_index(drop=True)
 
 
@@ -68,17 +52,18 @@ def load_behaviors(raw=RAW):
         frames.append(b)
     beh = pd.concat(frames, ignore_index=True)
     beh["time"] = pd.to_datetime(beh["time"], format=TIME_FORMAT)
-    # impression IDs are only unique inside one split, so build a key unique across splits
+    # impression ids repeat across splits, so build a globally unique key
     beh["imp_key"] = beh["split"].astype(str) + "-" + beh["impression_id"].astype(str)
-    # history is in time order: oldest first, newest last. "" becomes []
-    beh["history"] = beh["history"].astype(str).apply(str.split)
+    if not beh["imp_key"].is_unique:
+        raise ValueError("duplicate impression ids inside a split")
+    beh["history"] = beh["history"].astype(str).apply(str.split)  # oldest -> newest
     beh["history_len"] = beh["history"].apply(len).astype("int32")
     beh["part"] = assign_parts(beh)
     return beh
 
 
 def explode_impressions(beh):
-    """One row per candidate. `position` = order shown in the log; NEVER use it as a model feature."""
+    """One row per candidate. `position` is log order: never use it as a model feature."""
     ex = beh[["imp_key", "part", "user_id", "time", "impressions"]].copy()
     ex["impressions"] = ex["impressions"].astype(str).apply(str.split)
     ex = ex.explode("impressions", ignore_index=True).dropna(subset=["impressions"])
@@ -86,6 +71,8 @@ def explode_impressions(beh):
     pair = ex["impressions"].astype(str).str.rsplit("-", n=1, expand=True)
     ex["news_id"] = pair[0]
     ex["label"] = pair[1].astype("int8")
+    if not ex["label"].isin([0, 1]).all():
+        raise ValueError("labels other than 0/1 found in impressions")
     ex = ex.drop(columns="impressions").reset_index(drop=True)
     for col in ("imp_key", "part", "user_id", "news_id"):
         ex[col] = ex[col].astype("category")
@@ -93,12 +80,12 @@ def explode_impressions(beh):
 
 
 def summarise(news, beh, imps):
-    """Numbers to check now and to quote in the Data section of the thesis."""
     known = news["news_id"]
     history_ids = pd.Series(sorted({i for h in beh["history"] for i in h}), dtype=object)
     summary = {
         "news_items": int(len(news)),
         "empty_abstract_pct": round(100 * float((news["abstract"] == "").mean()), 2),
+        "empty_title": int((news["title"] == "").sum()),
         "categories": int(news["category"].nunique()),
         "missing_candidate_ids": int((~imps["news_id"].astype(str).isin(known)).sum()),
         "missing_history_ids": int((~history_ids.isin(known)).sum()),
@@ -106,10 +93,9 @@ def summarise(news, beh, imps):
     }
     per_imp = imps.groupby("imp_key", observed=True)["label"].agg(n="size", clicks="sum")
     per_imp.index = per_imp.index.astype(str)
-    part_of = beh.set_index("imp_key")["part"]
-    per_imp["part"] = part_of.reindex(per_imp.index).to_numpy()
+    per_imp["part"] = beh.set_index("imp_key")["part"].reindex(per_imp.index).to_numpy()
 
-    for part in ("fit", "valid", "dev"):
+    for part in PARTS:
         b = beh[beh["part"] == part]
         g = per_imp[per_imp["part"] == part]
         if b.empty:
@@ -132,11 +118,37 @@ def summarise(news, beh, imps):
     return summary
 
 
+def integrity_problems(summary):
+    problems = []
+    if summary["missing_candidate_ids"]:
+        problems.append("some candidate ids are not in the news table")
+    if summary["missing_history_ids"]:
+        problems.append("some history ids are not in the news table")
+    for part, p in summary["parts"].items():
+        if p["impressions_without_click"] or p["impressions_without_nonclick"]:
+            problems.append(f"{part}: impressions with only one label class")
+    return problems
+
+
+def check_official_counts(summary, official=OFFICIAL_COUNTS):
+    parts = summary["parts"]
+    got = {
+        "news_items": summary["news_items"],
+        "train_impressions": parts["fit"]["impressions"] + parts["valid"]["impressions"],
+        "dev_impressions": parts["dev"]["impressions"],
+    }
+    return [f"{k}: expected {official[k]:,}, got {got[k]:,}" for k in official if got[k] != official[k]]
+
+
 def build_all(raw=RAW):
     news = load_news(raw)
     beh = load_behaviors(raw)
     imps = explode_impressions(beh)
-    return news, beh, imps, summarise(news, beh, imps)
+    summary = summarise(news, beh, imps)
+    summary["raw_sha256"] = {f"{s}/{n}": sha256_file(find_split_dir(s, raw) / n)
+                             for s in SPLITS for n in ("news.tsv", "behaviors.tsv")}
+    summary["run_info"] = run_info()
+    return news, beh, imps, summary
 
 
 def save_all(news, beh, imps, summary, out=PROCESSED):
@@ -144,9 +156,8 @@ def save_all(news, beh, imps, summary, out=PROCESSED):
     news.to_parquet(out / "news.parquet", index=False)
     beh.drop(columns="impressions").to_parquet(out / "behaviors.parquet", index=False)
     imps.to_parquet(out / "impressions.parquet", index=False)
-    (out / "data_summary.json").write_text(json.dumps(summary, indent=2))
+    (out / "data_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
 
 def load_processed(name, out=PROCESSED):
-    """Later steps use this, e.g. load_processed('news')."""
     return pd.read_parquet(out / f"{name}.parquet")

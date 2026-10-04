@@ -1,21 +1,27 @@
-"""All paths and fixed settings live here, so every script uses the same values."""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW = ROOT / "data" / "raw"              # unzipped MIND files (never edit these)
-PROCESSED = ROOT / "data" / "processed"  # parquet files we create
+RAW = ROOT / "data" / "raw"
+PROCESSED = ROOT / "data" / "processed"
 RESULTS = ROOT / "results"
+FIGURES = RESULTS / "figures"
+ANNOTATION = ROOT / "annotation"
 
 MIND_URLS = {
     "train": "https://mind201910small.blob.core.windows.net/release/MINDsmall_train.zip",
     "dev": "https://mind201910small.blob.core.windows.net/release/MINDsmall_dev.zip",
 }
 
-# MIND files have NO header row, so we name the columns ourselves.
 NEWS_COLS = ["news_id", "category", "subcategory", "title", "abstract",
              "url", "title_entities", "abstract_entities"]
 BEHAVIOR_COLS = ["impression_id", "user_id", "time", "history", "impressions"]
-TIME_FORMAT = "%m/%d/%Y %I:%M:%S %p"     # e.g. 11/15/2019 8:55:22 AM
+TIME_FORMAT = "%m/%d/%Y %I:%M:%S %p"
 
-SEED = 42          # used for random baselines and metric tie-breaking
-K_VALUES = (5, 10) # K for nDCG@K, Precision@K, Recall@K, HitRate@K
+SEED = 42
+K_VALUES = (5, 10)
+
+EMOTION_MODEL = "SamLowe/roberta-base-go_emotions"
+EMOTION_MAX_LENGTH = 128
+
+# Official MIND-small sizes: catches partial downloads and parsing bugs.
+OFFICIAL_COUNTS = {"news_items": 65238, "train_impressions": 156965, "dev_impressions": 73152}
