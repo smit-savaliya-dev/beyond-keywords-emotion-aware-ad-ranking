@@ -21,7 +21,41 @@ SEED = 42
 K_VALUES = (5, 10)
 
 EMOTION_MODEL = "SamLowe/roberta-base-go_emotions"
-EMOTION_MAX_LENGTH = 128
+EMOTION_MAX_LENGTH = 128  # combined `text` baseline (news_emotion.parquet)
+
+# Weighted emotion layer: title and abstract scored separately, then combined.
+TITLE_WEIGHT = 0.3
+ABSTRACT_WEIGHT = 0.6  # normalised by the sum -> 1/3 title, 2/3 abstract; empty abstract -> title only
+TITLE_MAX_LENGTH = 128
+ABSTRACT_MAX_LENGTH = 256  # 0.48% of abstracts exceed 128 tokens, 0.055% exceed 256 (token_lengths.json)
+TITLE_BATCH_SIZE = 64
+ABSTRACT_BATCH_SIZE = 64  # smoke: batch 32 x 256 tokens peaked at 0.73 of 6 GB
+
+# GoEmotions features: name -> source labels (2+ labels are combined by noisy-OR).
+GO_FEATURES = {
+    "curiosity": ["curiosity"],
+    "desire": ["desire"],
+    "excitement": ["excitement"],
+    "joy": ["joy", "amusement"],
+    "optimism": ["optimism"],
+    "nervousness": ["nervousness"],  # anxiety
+    "annoyance": ["annoyance"],      # frustration
+    "fear": ["fear"],
+}
+
+# NRC lexicons: research-only licence, never commit (data/ is git-ignored).
+EXTERNAL = ROOT / "data" / "external"
+NRC_DIR = EXTERNAL / "nrc"
+EMOLEX_PATH = NRC_DIR / "NRC-Emotion-Lexicon" / "NRC-Emotion-Lexicon-Wordlevel-v0.92.txt"
+VAD_PATH = NRC_DIR / "NRC-VAD-Lexicon-v2.1" / "NRC-VAD-Lexicon-v2.1.txt"
+EMOLEX_URL = "https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm"
+VAD_URL = "https://saifmohammad.com/WebPages/nrc-vad.html"
+NRC_EMOTIONS = ["anger", "anticipation", "disgust", "fear", "joy", "sadness", "surprise", "trust"]
+NRC_SENTIMENTS = ["negative", "positive"]
+VAD_DIMS = ["valence", "arousal", "dominance"]
+TOKEN_PATTERN = r"[a-z]+"
+# GoEmotions label -> VAD term, used only if the label word itself is missing from the VAD lexicon.
+GO_VAD_OVERRIDES = {}
 
 # Official MIND-small sizes: catches partial downloads and parsing bugs.
 OFFICIAL_COUNTS = {"news_items": 65238, "train_impressions": 156965, "dev_impressions": 73152}

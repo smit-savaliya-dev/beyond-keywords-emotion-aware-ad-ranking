@@ -224,6 +224,8 @@ __marimo__/
 data/
 data/raw/*
 data/processed/*
+# NRC lexicons: research-only licence, never commit
+data/external/
 
 # MLflow
 mlruns/

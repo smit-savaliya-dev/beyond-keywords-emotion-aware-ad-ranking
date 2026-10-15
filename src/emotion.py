@@ -80,19 +80,19 @@ def score_texts(clf, texts, batch_size=64, max_length=EMOTION_MAX_LENGTH):
     return out
 
 
-def texts_fingerprint(news):
+def texts_fingerprint(news, text_col="text"):
     h = hashlib.sha256()
-    for nid, text in zip(news["news_id"], news["text"]):
+    for nid, text in zip(news["news_id"], news[text_col]):
         h.update(nid.encode("utf-8"))
         h.update(text.encode("utf-8"))
     return h.hexdigest()[:16]
 
 
-def label_corpus(news, clf, chunk_dir, settings, chunk_size=2000, batch_size=64, log=print):
-    """Raw 28-score table for every item. Resumable; refuses to mix chunks made with different settings."""
+def label_corpus(news, clf, chunk_dir, settings, chunk_size=2000, batch_size=64, log=print, text_col="text"):
+    """Raw 28-score table for every item of news[text_col]. Resumable; refuses to mix chunks made with different settings."""
     chunk_dir.mkdir(parents=True, exist_ok=True)
     settings = {**settings, "chunk_size": chunk_size, "n_items": len(news),
-                "texts_sha": texts_fingerprint(news), "labels": GOEMOTIONS_LABELS}
+                "texts_sha": texts_fingerprint(news, text_col), "labels": GOEMOTIONS_LABELS}
     meta = chunk_dir / "settings.json"
     if meta.exists():
         if json.loads(meta.read_text(encoding="utf-8")) != settings:
@@ -110,7 +110,7 @@ def label_corpus(news, clf, chunk_dir, settings, chunk_size=2000, batch_size=64,
             log(f"[skip] chunk {i + 1}/{n_chunks}")
             continue
         part = news.iloc[i * chunk_size:(i + 1) * chunk_size]
-        mat = score_texts(clf, part["text"].tolist(), batch_size, settings["max_length"])
+        mat = score_texts(clf, part[text_col].tolist(), batch_size, settings["max_length"])
         df = pd.DataFrame(mat, columns=GOEMOTIONS_LABELS)
         df.insert(0, "news_id", part["news_id"].to_numpy())
         tmp = path.with_name(path.name + ".tmp")

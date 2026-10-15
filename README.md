@@ -26,6 +26,18 @@ python scripts/08_goemotions_check.py            # optional: in-domain check on 
 ```
 Colab: upload `src/`, `scripts/` and `data/processed/news.parquet`, run step 04, download `data/processed/emotion_chunks/` and `news_emotion*.parquet` back.
 
+## 3. Weighted emotion features (title + abstract, GoEmotions + NRC lexicons)
+NRC lexicons (research-only licence, git-ignored, never commit). Unzip so these files exist:
+- `data/external/nrc/NRC-Emotion-Lexicon/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt` ([EmoLex](https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm))
+- `data/external/nrc/NRC-VAD-Lexicon-v2.1/NRC-VAD-Lexicon-v2.1.txt` ([NRC VAD](https://saifmohammad.com/WebPages/nrc-vad.html); v1 also works, set `VAD_PATH`)
+```bash
+python scripts/09_check_lexicons.py              # detected format/scale, GoEmotions label words in VAD
+python scripts/10_score_fields.py --measure      # token lengths -> results/tables/token_lengths.json
+python scripts/10_score_fields.py --smoke        # 12 items + GPU memory check, writes nothing
+python scripts/10_score_fields.py                # title/abstract scoring (resumable), weighted raw28, go_* features
+python scripts/10_score_fields.py --report       # combined vs weighted: dominant class and neutral distribution
+```
+
 ## Rules that protect the results
 - `fit` trains, `valid` (last day of train) tunes, `dev` is reported once. Never tune on dev.
 - Every model returns `imp_key, news_id, score` for all candidates and is scored with `src.evaluate.evaluate_model`.
