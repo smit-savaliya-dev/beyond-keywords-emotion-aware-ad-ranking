@@ -1,0 +1,11 @@
+feature_a,feature_b,rows,n,pearson,spearman
+go_joy,nrc_joy,nrc_has_hits,60109,0.1987,0.2197
+go_excitement,nrc_joy,nrc_has_hits,60109,0.1936,0.256
+go_fear,nrc_fear,nrc_has_hits,60109,0.187,0.4196
+go_nervousness,nrc_fear,nrc_has_hits,60109,0.1165,0.36
+go_annoyance,nrc_anger,nrc_has_hits,60109,0.1175,0.2496
+go_optimism,nrc_anticipation,nrc_has_hits,60109,0.0692,0.2104
+go_emotionality,nrc_coverage,all,65238,0.0892,0.0947
+go_vad_valence,vad_valence,vad_has_hits,65226,0.5246,0.5507
+go_vad_arousal,vad_arousal,vad_has_hits,65226,-0.0115,-0.0098
+go_vad_dominance,vad_dominance,vad_has_hits,65226,0.2425,0.2408

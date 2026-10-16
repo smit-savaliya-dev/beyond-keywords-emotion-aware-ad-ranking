@@ -25,6 +25,13 @@ No ranking model is built yet; do not build one unless asked.
 - NRC -> 6 classes (validation only): anger + disgust -> anger, no hits -> neutral, trust/anticipation ignored,
   ties broken by seeded random choice (SEED), tie rate reported.
 - Expect high neutral and partial lexicon coverage; report honestly, do not force emotions.
+- Variants (Phase 4/5): go_title_* and go_abs_* from the saved title/abstract raw28 files (no re-run; go_abs_* = NaN
+  without abstract); Phase 5 compares title vs abstract vs weighted on fit only. Configured weights stay unchanged.
+- Phase 5 test (user-approved): one-sample t-test on per-impression clicked-minus-unclicked differences + user-level
+  t-test, Holm. Not Wilcoxon: biased here (93/101 false positives with labels shuffled within impressions).
+  No popularity control in Phase 5 (limitation; handled by LightGBM M4 vs M5).
+- go_pct_*: percentile rank of each go_* emotion across all items (item-level, no clicks), because label floors differ.
+  go_dist_* is kept but unreliable at low go_emotion_mass; go_emotion_mass can exceed 1 (sum of independent sigmoids).
 
 ## Engineering rules
 - Logic in src/, thin scripts in scripts/ (import _bootstrap), all constants in src/config.py, provenance via src/provenance.py.

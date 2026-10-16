@@ -59,3 +59,28 @@ GO_VAD_OVERRIDES = {}
 
 # Official MIND-small sizes: catches partial downloads and parsing bugs.
 OFFICIAL_COUNTS = {"news_items": 65238, "train_impressions": 156965, "dev_impressions": 73152}
+
+# Diagnostics: (GoEmotions feature, lexicon feature, rows used) for cross-source correlations.
+CROSS_SOURCE_PAIRS = [
+    ("go_joy", "nrc_joy", "nrc_has_hits"),
+    ("go_excitement", "nrc_joy", "nrc_has_hits"),
+    ("go_fear", "nrc_fear", "nrc_has_hits"),
+    ("go_nervousness", "nrc_fear", "nrc_has_hits"),
+    ("go_annoyance", "nrc_anger", "nrc_has_hits"),
+    ("go_optimism", "nrc_anticipation", "nrc_has_hits"),
+    ("go_emotionality", "nrc_coverage", None),
+    ("go_vad_valence", "vad_valence", "vad_has_hits"),
+    ("go_vad_arousal", "vad_arousal", "vad_has_hits"),
+    ("go_vad_dominance", "vad_dominance", "vad_has_hits"),
+]
+LOW_MASS_THRESHOLD = 0.1  # go_emotion_mass below this: go_dist_* mostly reflects label floors
+
+# Phase 5 signal analysis (fit only, descriptive).
+SIGNAL_ALPHA = 0.05
+SIGNAL_TOP_CATEGORIES = 6  # by fit clicks
+SIGNAL_CORE_FEATURES = (
+    [f"go_{e}" for e in GO_FEATURES] + ["go_neutral", "go_emotionality", "go_emotion_mass"]
+    + [f"go_vad_{d}" for d in VAD_DIMS]
+    + [f"nrc_{e}" for e in NRC_EMOTIONS] + ["nrc_positive", "nrc_negative", "nrc_coverage"]
+    + [f"vad_{d}" for d in VAD_DIMS]
+)

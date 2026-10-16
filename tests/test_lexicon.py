@@ -101,3 +101,79 @@ def test_resolve_terms_overrides():
     assert mapping == {"joy": "joy", "nervousness": "nervous"} and used == ["nervousness"]
     with pytest.raises(KeyError, match="nervousness"):
         resolve_terms(["nervousness"], {"joy"}, {"nervousness": "nervous"})
+
+
+from src.config import GO_VAD_OVERRIDES  # noqa: E402
+from src.lexicon import (LEXICON_COLUMNS, SHARE_COLUMNS, combine_lexicon_fields, field_lexicon_features,  # noqa: E402
+                         lexicon_counts, top_matched_words)
+
+
+@pytest.fixture
+def lexicons(tmp_path):
+    emolex, _ = load_emolex(_emolex_long(tmp_path / "emo.txt", ASSOC), **QUIET)
+    vad, _ = load_vad(_vad(tmp_path / "v.txt", [("happy", 0.8, 0.4, 0.2), ("sad", -0.6, -0.2, -0.4),
+                                                ("of", 0.0, 0.0, 0.0), ("very happy", 1.0, 1.0, 1.0)]), **QUIET)
+    return emolex, vad
+
+
+def test_lexicon_counts_and_field_features(lexicons):
+    emolex, vad = lexicons
+    texts = ["Happy, happy table of abandon!", "sad", "", "very happy"]
+    counts = lexicon_counts(texts, emolex, vad)
+    assert counts.loc[0, "n_tokens"] == 5 and counts.loc[0, "emo_tokens"] == 3      # table has no association
+    assert counts.loc[0, "n_joy"] == 2 and counts.loc[0, "n_fear"] == 1 and counts.loc[0, "pos_tokens"] == 2
+    assert counts.loc[0, "vad_tokens"] == 3                                         # happy x2, of
+    f = field_lexicon_features(counts)
+    # associations: happy x2 -> joy, trust (4); abandon -> fear, sadness (2)
+    assert f.loc[0, "nrc_joy"] == pytest.approx(2 / 6) and f.loc[0, "nrc_fear"] == pytest.approx(1 / 6)
+    assert f.loc[0, SHARE_COLUMNS].sum() == pytest.approx(1.0)
+    assert f.loc[0, "nrc_coverage"] == pytest.approx(3 / 5) and f.loc[0, "nrc_negative"] == pytest.approx(1 / 5)
+    assert f.loc[0, "vad_valence"] == pytest.approx(1.6 / 3) and f.loc[0, "vad_coverage"] == pytest.approx(3 / 5)
+    assert f.loc[1, "nrc_has_hits"] == 0 and f.loc[1, SHARE_COLUMNS].isna().all()  # "sad" not in fake EmoLex
+    assert f.loc[1, "vad_valence"] == pytest.approx(-0.6)
+    assert f.loc[2, "nrc_coverage"] == 0 and f.loc[2, "vad_has_hits"] == 0          # empty text: no division by 0
+    assert f.loc[3, "vad_valence"] == pytest.approx(0.8)                            # multi-word entry not matched
+
+
+def test_combine_lexicon_fields_renormalises_and_falls_back(lexicons):
+    emolex, vad = lexicons
+    title = field_lexicon_features(lexicon_counts(["happy", "table", "table", "abandon"], emolex, vad))
+    abstract = field_lexicon_features(lexicon_counts(["abandon", "abandon", "", "happy"], emolex, vad))
+    out = combine_lexicon_fields(title, abstract, [True, True, False, False], 1 / 3)
+    assert list(out.columns) == LEXICON_COLUMNS
+    assert out.loc[0, "nrc_joy"] == pytest.approx(1 / 3 * 0.5) and out.loc[0, "nrc_fear"] == pytest.approx(2 / 3 * 0.5)
+    assert out.loc[1, "nrc_fear"] == pytest.approx(0.5)              # title has no hits -> abstract weight 1
+    assert out.loc[1, "nrc_coverage"] == pytest.approx(2 / 3)        # plain weights: 1/3 * 0 + 2/3 * 1
+    assert out.loc[2, "nrc_has_hits"] == 0 and (out.loc[2, SHARE_COLUMNS] == 0).all()
+    assert out.loc[2, "vad_valence"] == 0 and out.loc[2, "vad_has_hits"] == 0
+    assert out.loc[3, "nrc_fear"] == pytest.approx(0.5) and out.loc[3, "nrc_joy"] == 0   # abstract ignored
+    assert not out.isna().any().any()
+
+
+def test_top_matched_words():
+    top = top_matched_words(["Happy happy sad", "happy"], {"happy", "sad"}, n=1)
+    assert top.to_dict("records") == [{"word": "happy", "count": 3}]
+
+
+def test_go_vad(lexicons):
+    from src.emotion import GOEMOTIONS_LABELS
+    from src.emotion_features import GO_VAD_COLUMNS, GO_VAD_LABELS, go_vad
+    import pandas as pd
+    words = {l: (0.1 * (i % 5) - 0.2, 0.0, 0.5) for i, l in enumerate(GO_VAD_LABELS)}
+    words["joy"], words["sadness"] = (1.0, 0.6, 0.4), (-1.0, -0.2, -0.6)
+    vad = pd.DataFrame(words.values(), index=list(words), columns=VAD_DIMS)
+    raw = pd.DataFrame(np.zeros((3, 28)), columns=GOEMOTIONS_LABELS)
+    raw.insert(0, "news_id", ["A", "B", "C"])
+    raw.loc[0, "joy"] = 0.6
+    raw.loc[0, "sadness"] = 0.2
+    raw.loc[1, "neutral"] = 0.99                                      # neutral ignored -> all zero -> 0
+    out, used = go_vad(raw, vad, {})
+    assert list(out.columns) == ["news_id", *GO_VAD_COLUMNS] and used == []
+    assert out.loc[0, "go_vad_valence"] == pytest.approx((0.6 - 0.2) / 0.8)
+    assert out.loc[0, "go_vad_dominance"] == pytest.approx((0.6 * 0.4 - 0.2 * 0.6) / 0.8)
+    assert (out.loc[1, GO_VAD_COLUMNS] == 0).all()
+    renamed = vad.rename(index={"nervousness": "nervous"})
+    out2, used2 = go_vad(raw, renamed, {"nervousness": "nervous"})
+    assert used2 == ["nervousness"] and np.allclose(out2[GO_VAD_COLUMNS], out[GO_VAD_COLUMNS])
+    with pytest.raises(KeyError, match="nervousness"):
+        go_vad(raw, renamed, GO_VAD_OVERRIDES)

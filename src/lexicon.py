@@ -138,3 +138,98 @@ def resolve_terms(words, vocab, overrides):
         raise KeyError(f"terms missing from the lexicon with no usable override: {missing}; "
                        "add them to GO_VAD_OVERRIDES in src/config.py")
     return mapping, used
+
+
+STAT_COLUMNS = (["n_tokens", "emo_tokens", "pos_tokens", "neg_tokens", "vad_tokens"]
+                + [f"n_{e}" for e in NRC_EMOTIONS] + [f"sum_{d}" for d in VAD_DIMS])
+SHARE_COLUMNS = [f"nrc_{e}" for e in NRC_EMOTIONS]
+VAD_COLUMNS = [f"vad_{d}" for d in VAD_DIMS]
+RENORM_COLUMNS = SHARE_COLUMNS + VAD_COLUMNS          # undefined without hits: weights renormalised over fields with hits
+PLAIN_COLUMNS = ["nrc_positive", "nrc_negative", "nrc_coverage", "vad_coverage"]  # token rates: plain field weights
+LEXICON_COLUMNS = (SHARE_COLUMNS + ["nrc_positive", "nrc_negative", "nrc_coverage", "nrc_has_hits"]
+                   + VAD_COLUMNS + ["vad_coverage", "vad_has_hits"])
+
+
+def lexicon_counts(texts, emolex, vad):
+    """Per-text token counts: EmoLex emotion/sentiment hits and VAD sums over matched unigrams (repeats count)."""
+    emo = emolex[NRC_EMOTIONS].to_numpy()
+    keep = emolex[EMOLEX_COLUMNS].to_numpy().sum(axis=1) > 0
+    emo_map = {w: (row, int(p), int(n)) for w, row, p, n, k in
+               zip(emolex.index, emo, emolex["positive"], emolex["negative"], keep) if k}
+    uni = vad[~vad.index.str.contains(" ")]
+    vad_map = dict(zip(uni.index, uni[VAD_DIMS].to_numpy()))
+    out = np.zeros((len(texts), len(STAT_COLUMNS)))
+    k = len(NRC_EMOTIONS)
+    for i, text in enumerate(texts):
+        tokens = tokenize(text)
+        row = out[i]
+        row[0] = len(tokens)
+        for t in tokens:
+            hit = emo_map.get(t)
+            if hit is not None:
+                flags, p, n = hit
+                row[1] += flags.any()
+                row[2] += p
+                row[3] += n
+                row[5:5 + k] += flags
+            v = vad_map.get(t)
+            if v is not None:
+                row[4] += 1
+                row[5 + k:] += v
+    return pd.DataFrame(out, columns=STAT_COLUMNS)
+
+
+def field_lexicon_features(counts):
+    """Counts -> one field's features. Shares and VAD means are NaN when the field has no hits."""
+    c = counts
+    n = c["n_tokens"].to_numpy()
+    safe = lambda x: np.where(x > 0, x, 1.0)
+    emo = c[[f"n_{e}" for e in NRC_EMOTIONS]].to_numpy()
+    total = emo.sum(axis=1)
+    shares = np.where(total[:, None] > 0, emo / safe(total)[:, None], np.nan)
+    out = pd.DataFrame(shares, columns=SHARE_COLUMNS)
+    out["nrc_positive"] = c["pos_tokens"].to_numpy() / safe(n)
+    out["nrc_negative"] = c["neg_tokens"].to_numpy() / safe(n)
+    out["nrc_coverage"] = c["emo_tokens"].to_numpy() / safe(n)
+    out["nrc_has_hits"] = (total > 0).astype("int8")
+    m = c["vad_tokens"].to_numpy()
+    sums = c[[f"sum_{d}" for d in VAD_DIMS]].to_numpy()
+    out[VAD_COLUMNS] = np.where(m[:, None] > 0, sums / safe(m)[:, None], np.nan)
+    out["vad_coverage"] = m / safe(n)
+    out["vad_has_hits"] = (m > 0).astype("int8")
+    return out
+
+
+def combine_lexicon_fields(title, abstract, has_abstract, title_weight):
+    """Weighted title/abstract lexicon features (rows aligned; abstract rows ignored where has_abstract is False).
+
+    Shares and VAD means: weights renormalised over fields with hits, 0 when neither field has hits.
+    Token rates (positive, negative, coverage): plain weights; no abstract -> title only.
+    """
+    has_abstract = np.asarray(has_abstract, dtype=bool)
+    wt = np.where(has_abstract, title_weight, 1.0)
+    wa = 1.0 - wt
+    out = pd.DataFrame(index=title.index)
+    for col in PLAIN_COLUMNS:
+        a = np.where(has_abstract, abstract[col].to_numpy(), 0.0)
+        out[col] = wt * title[col].to_numpy() + wa * a
+    groups = [(SHARE_COLUMNS, "nrc_has_hits"), (VAD_COLUMNS, "vad_has_hits")]
+    for cols, flag in groups:
+        t_ok = title[flag].to_numpy() > 0
+        a_ok = has_abstract & (abstract[flag].to_numpy() > 0)
+        w_t, w_a = wt * t_ok, wa * a_ok
+        norm = w_t + w_a
+        t_vals = np.nan_to_num(title[cols].to_numpy())
+        a_vals = np.nan_to_num(abstract[cols].to_numpy())
+        vals = (w_t[:, None] * t_vals + w_a[:, None] * a_vals) / np.where(norm > 0, norm, 1.0)[:, None]
+        out[cols] = np.where(norm[:, None] > 0, vals, 0.0)
+        out[flag] = (t_ok | a_ok).astype("int8")
+    return out[LEXICON_COLUMNS]
+
+
+def top_matched_words(texts, vocab, n=30):
+    """Most frequent tokens found in `vocab` (to spot lexicon artefacts)."""
+    from collections import Counter
+    vocab = set(vocab)
+    counter = Counter(t for text in texts for t in tokenize(text) if t in vocab)
+    return pd.DataFrame(counter.most_common(n), columns=["word", "count"])

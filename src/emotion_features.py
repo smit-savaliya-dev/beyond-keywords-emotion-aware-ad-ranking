@@ -2,10 +2,13 @@
 import numpy as np
 import pandas as pd
 
-from .config import ABSTRACT_WEIGHT, GO_FEATURES, TITLE_WEIGHT
+from .config import ABSTRACT_WEIGHT, GO_FEATURES, GO_VAD_OVERRIDES, TITLE_WEIGHT, VAD_DIMS
 from .emotion import GOEMOTIONS_LABELS, SIX_CLASSES
+from .lexicon import resolve_terms
 
 GO_EMOTIONS = list(GO_FEATURES)
+GO_VAD_LABELS = [label for label in GOEMOTIONS_LABELS if label != "neutral"]
+GO_VAD_COLUMNS = [f"go_vad_{d}" for d in VAD_DIMS]
 GO_COLUMNS = ([f"go_{e}" for e in GO_EMOTIONS] + ["go_neutral", "go_emotionality", "go_emotion_mass"]
               + [f"go_dist_{e}" for e in GO_EMOTIONS])
 
@@ -88,3 +91,50 @@ def neutral_summary(table, raw):
     dom = table["dominant_emotion"].value_counts(normalize=True).reindex(SIX_CLASSES, fill_value=0)
     return {"dominant_pct": {k: round(100 * float(v), 2) for k, v in dom.items()},
             "neutral_share_6class": stats(table["neutral"]), "neutral_raw_sigmoid": stats(raw["neutral"])}
+
+
+def go_vad(raw, vad, overrides=GO_VAD_OVERRIDES):
+    """Probability-weighted mean VAD of the 27 non-neutral label words (0 if all 27 scores are 0).
+    -> (DataFrame news_id + go_vad_*, labels that used an override)."""
+    unigrams = vad.index[~vad.index.str.contains(" ")]
+    mapping, used = resolve_terms(GO_VAD_LABELS, unigrams, overrides)
+    label_vad = vad.loc[[mapping[l] for l in GO_VAD_LABELS], VAD_DIMS].to_numpy()
+    p = raw[GO_VAD_LABELS].to_numpy(dtype=np.float64)
+    total = p.sum(axis=1, keepdims=True)
+    vals = np.where(total > 0, (p @ label_vad) / np.where(total > 0, total, 1.0), 0.0)
+    out = pd.DataFrame(vals, columns=GO_VAD_COLUMNS)
+    out.insert(0, "news_id", raw["news_id"].to_numpy())
+    return out, used
+
+
+def prefixed(go, prefix):
+    """go_* columns -> go_<prefix>_* (e.g. go_joy -> go_title_joy)."""
+    return go.rename(columns={c: f"go_{prefix}_{c[3:]}" for c in go.columns if c.startswith("go_")})
+
+
+def go_percentiles(go, prefix="go"):
+    """Percentile rank (0, 1] of each <prefix>_<emotion> across items; NaN stays NaN. Item-level only."""
+    out = pd.DataFrame({"news_id": go["news_id"].to_numpy()})
+    for e in GO_EMOTIONS:
+        out[f"{prefix}_pct_{e}"] = go[f"{prefix}_{e}"].rank(pct=True, method="average").to_numpy()
+    return out
+
+
+def variant_features(raw, prefix, news_ids):
+    """go_<prefix>_* and go_<prefix>_pct_* from one field's raw scores, aligned to news_ids (NaN where unscored)."""
+    go = prefixed(go_features(raw), prefix)
+    go = go.merge(go_percentiles(go, f"go_{prefix}"), on="news_id", validate="one_to_one")
+    return go.set_index("news_id").reindex(pd.Index(news_ids, name="news_id")).reset_index()
+
+
+def merge_features(news_ids, frames):
+    """Left-join feature frames on news_id in news order; refuses duplicate ids or clashing column names."""
+    out = pd.DataFrame({"news_id": list(news_ids)})
+    for f in frames:
+        if f["news_id"].duplicated().any():
+            raise ValueError("duplicate news ids in a feature frame")
+        clash = (set(f.columns) & set(out.columns)) - {"news_id"}
+        if clash:
+            raise ValueError(f"columns already present: {sorted(clash)}")
+        out = out.merge(f, on="news_id", how="left", validate="one_to_one")
+    return out

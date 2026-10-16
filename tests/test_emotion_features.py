@@ -97,3 +97,35 @@ def test_neutral_summary():
     s = neutral_summary(build_emotion_table(raw), raw)
     assert s["dominant_pct"]["neutral"] == 50.0 and s["dominant_pct"]["anger"] == 0.0
     assert s["neutral_share_6class"]["pct_gt_0.9"] == 50.0 and s["neutral_raw_sigmoid"]["pct_lt_0.5"] == 50.0
+
+
+from src.emotion_features import go_percentiles, merge_features, prefixed, variant_features  # noqa: E402
+
+
+def test_prefixed_and_percentiles():
+    rows = [np.full(28, v) for v in (0.1, 0.3, 0.2, 0.3)]
+    go = go_features(_raw(["A", "B", "C", "D"], rows))
+    t = prefixed(go, "title")
+    assert "go_title_joy" in t and "go_title_dist_fear" in t and "news_id" in t and "go_joy" not in t
+    pct = go_percentiles(go)
+    assert list(pct.columns) == ["news_id", *[f"go_pct_{e}" for e in GO_EMOTIONS]]
+    assert pct["go_pct_fear"].tolist() == [0.25, 0.875, 0.5, 0.875]        # ties share the average rank
+
+
+def test_variant_features_nan_where_unscored():
+    raw = _raw(["N1", "N3"], [np.full(28, 0.2), np.full(28, 0.4)])
+    v = variant_features(raw, "abs", ["N1", "N2", "N3"])
+    assert v["news_id"].tolist() == ["N1", "N2", "N3"]
+    assert v.drop(columns="news_id").loc[1].isna().all()
+    assert v.loc[[0, 2], "go_abs_pct_joy"].tolist() == [0.5, 1.0]          # ranked among scored items only
+
+
+def test_merge_features():
+    a = pd.DataFrame({"news_id": ["N2", "N1"], "x": [2, 1]})
+    b = pd.DataFrame({"news_id": ["N1"], "y": [5.0]})
+    m = merge_features(["N1", "N2"], [a, b])
+    assert m["x"].tolist() == [1, 2] and m["y"].isna().tolist() == [False, True]
+    with pytest.raises(ValueError, match="already present"):
+        merge_features(["N1"], [a, a])
+    with pytest.raises(ValueError, match="duplicate"):
+        merge_features(["N1"], [pd.concat([b, b])])

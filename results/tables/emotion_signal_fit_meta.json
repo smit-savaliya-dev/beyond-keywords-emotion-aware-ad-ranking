@@ -1,0 +1,61 @@
+{
+  "part": "fit only",
+  "n_impressions": 126695,
+  "n_users": 46012,
+  "n_candidates": 4621015,
+  "n_clicks": 189519,
+  "method": "per impression: mean(feature | clicked) - mean(feature | not clicked), NaN values ignored; impressions without both classes skipped. Effect size dz = mean/sd of the differences (approx. 95% CI). Primary test: one-sample t-test of the differences against 0, Holm within each family. User-level check: each user's mean difference, one-sample t-test across users, Holm; significant_user also requires the same sign as dz. significant_both = both levels.",
+  "why_not_wilcoxon": "Wilcoxon signed-rank assumes differences symmetric around 0 under the null. With 1-2 clicks against ~35 non-clicks and right-skewed features, the null distribution is asymmetric: with labels shuffled within impressions, Wilcoxon flagged 93/101 features (t-test: 0). Wilcoxon p, its Holm p and the rank-biserial are kept as robustness columns only.",
+  "robustness_columns": {
+    "p_wilcoxon, p_wilcoxon_holm, rank_biserial": "biased here, see why_not_wilcoxon",
+    "null_*": "same analysis with labels shuffled within impressions (seed 42)"
+  },
+  "shuffled_label_false_positives": {
+    "t_test": 0,
+    "wilcoxon": 93,
+    "user_t_test": 1,
+    "both_levels": 0,
+    "of": 101,
+    "max_abs_null_dz": 0.0097
+  },
+  "significant": {
+    "impression_level": 91,
+    "user_level": 90,
+    "both": 85,
+    "of": 101
+  },
+  "families": {
+    "emotion_signal_fit.csv": "101 features",
+    "emotion_signal_variants_fit.csv": "rows 'all candidates' are taken from the main family; 'candidates with abstract' is its own family (57)",
+    "emotion_signal_by_category_fit.csv": "168 tests (6 categories x 28 core features)"
+  },
+  "top_categories_by_fit_clicks": {
+    "news": 57298,
+    "sports": 24241,
+    "lifestyle": 19542,
+    "finance": 16920,
+    "music": 12890,
+    "tv": 12226
+  },
+  "limitations": [
+    "descriptive association only, not causal",
+    "no popularity control here: emotional tone may correlate with general item popularity; this is controlled later by the LightGBM M4 vs M5 pair",
+    "features are correlated, so Holm is conservative",
+    "with ~10^5 impressions tiny effects reach significance: read dz, not p"
+  ],
+  "alpha": 0.05,
+  "run_info": {
+    "timestamp_utc": "2026-10-16T10:23:55+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "77ad596",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

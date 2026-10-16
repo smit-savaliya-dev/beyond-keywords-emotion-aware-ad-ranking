@@ -1,0 +1,11 @@
+feature_a,feature_b,rows,n,pearson,spearman
+go_title_curiosity,go_abs_curiosity,has_abstract,61823,0.2474,0.3484
+go_title_desire,go_abs_desire,has_abstract,61823,0.1055,0.338
+go_title_excitement,go_abs_excitement,has_abstract,61823,0.3011,0.5078
+go_title_joy,go_abs_joy,has_abstract,61823,0.2528,0.4477
+go_title_optimism,go_abs_optimism,has_abstract,61823,0.1393,0.4171
+go_title_nervousness,go_abs_nervousness,has_abstract,61823,0.2197,0.5088
+go_title_annoyance,go_abs_annoyance,has_abstract,61823,0.253,0.4846
+go_title_fear,go_abs_fear,has_abstract,61823,0.2226,0.5618
+go_title_neutral,go_abs_neutral,has_abstract,61823,0.2848,0.2931
+go_title_emotion_mass,go_abs_emotion_mass,has_abstract,61823,0.2331,0.2698

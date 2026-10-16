@@ -1,0 +1,31 @@
+word,count,emotions
+police,7018,"fear, trust"
+trump,5717,surprise
+county,4801,trust
+time,4509,anticipation
+school,4234,trust
+president,3921,trust
+fire,3784,fear
+team,3386,trust
+top,3301,"anticipation, trust"
+football,2938,"anticipation, joy"
+found,2602,"joy, trust"
+crash,2545,"fear, sadness, surprise"
+coach,1957,trust
+shooting,1877,"anger, fear"
+public,1842,anticipation
+series,1805,trust
+center,1700,trust
+long,1688,anticipation
+hit,1636,anger
+shot,1612,"anger, fear, sadness, surprise"
+loss,1587,"anger, fear, sadness"
+good,1526,"anticipation, joy, surprise, trust"
+watch,1508,"anticipation, fear"
+death,1455,"anger, anticipation, disgust, fear, sadness, surprise"
+start,1446,anticipation
+star,1423,"anticipation, joy, trust"
+show,1416,trust
+don,1411,trust
+injury,1364,"anger, fear, sadness"
+court,1326,"anger, anticipation, fear"

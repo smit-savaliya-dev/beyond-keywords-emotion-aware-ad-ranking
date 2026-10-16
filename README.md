@@ -36,6 +36,10 @@ python scripts/10_score_fields.py --measure      # token lengths -> results/tabl
 python scripts/10_score_fields.py --smoke        # 12 items + GPU memory check, writes nothing
 python scripts/10_score_fields.py                # title/abstract scoring (resumable), weighted raw28, go_* features
 python scripts/10_score_fields.py --report       # combined vs weighted: dominant class and neutral distribution
+python scripts/11_lexicon_features.py            # nrc_*, vad_* (weighted) and go_vad_*; coverage + top words tables
+python scripts/12_merge_emotion_features.py      # one row per news_id, all variants -> news_emotion_features.parquet
+python scripts/13_emotion_diagnostics.py         # distributions, cross-source + title-vs-abstract correlations, heatmap
+python scripts/14_emotion_signal.py              # fit only: clicked-minus-unclicked dz, t-test + user level, Holm
 ```
 
 ## Rules that protect the results

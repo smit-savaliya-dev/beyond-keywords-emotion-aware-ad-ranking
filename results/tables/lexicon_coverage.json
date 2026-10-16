@@ -1,0 +1,23 @@
+{
+  "title": {
+    "n_texts": 65238,
+    "pct_zero_emolex_emotion_hits": 28.3,
+    "pct_zero_vad_hits": 0.1,
+    "mean_nrc_coverage": 0.1211,
+    "mean_vad_coverage": 0.6364
+  },
+  "abstract": {
+    "n_texts": 61823,
+    "pct_zero_emolex_emotion_hits": 13.88,
+    "pct_zero_vad_hits": 0.11,
+    "mean_nrc_coverage": 0.0902,
+    "mean_vad_coverage": 0.6442
+  },
+  "weighted": {
+    "n_texts": 65238,
+    "pct_zero_emolex_emotion_hits": 7.86,
+    "pct_zero_vad_hits": 0.02,
+    "mean_nrc_coverage": 0.1016,
+    "mean_vad_coverage": 0.6411
+  }
+}
