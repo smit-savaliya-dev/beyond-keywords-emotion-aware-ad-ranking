@@ -7,7 +7,7 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
 |---|---|---|
 | 0 State check | done | - |
 | 1 Congruence (valence distance, personal, controls, decision log) | done | see git log |
-| 2 Labelling tool + guidelines | pending | |
+| 2 Labelling tool + guidelines | done | see git log |
 | 3 M0 popularity, M1 TF-IDF, stats, runs log | pending | |
 | 4 Label validation (code + fakes; neutral share per threshold) | pending | |
 | 5 Emotion spec v1 (provisional) | pending | |
@@ -33,3 +33,10 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
      the constants it imports (D16), with tests.
   3. `--adopt` could skip a step that was explicitly forced. Fixed, with a test.
   4. Script 03 loaded dev by default; now valid only (D15). Harness check on valid: random AUC 0.4985, oracle 1.0.
+
+## Phase 2 (2026-10-26)
+- `docs/labelling_guidelines.md`; `scripts/label_tool.py` (logic in `src/labelling.py`): one item at a time, title +
+  abstract only, keys 1-6 / s / b / q, atomic save after every answer, timestamped backup in `annotation/backups/`
+  before the first change of each session, resumes at the first unlabelled item.
+- `--make-relabel` (30 seeded items, only when the sheet is complete, never regenerated) and `--relabel` (warns if
+  < 24 h since creation). 6 tests on temp CSVs. Real sheet checked read-only (hash unchanged); nothing was labelled.

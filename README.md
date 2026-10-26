@@ -29,6 +29,8 @@ sheet is filled. GPU steps (04, 10) also resume from their chunk folders.
 python scripts/04_label_emotions.py --smoke      # 12 headlines, writes nothing: confirms the model works
 python scripts/04_label_emotions.py              # full run, resumable (use a GPU / Colab if possible)
 python scripts/05_make_annotation_sample.py      # then fill your_label in annotation/manual_sample.csv BEFORE any model output
+python scripts/label_tool.py                     # label it in the terminal (docs/labelling_guidelines.md)
+python scripts/label_tool.py --make-relabel      # then 30 items to re-label blind a day later (--relabel)
 python scripts/06_validate_emotion_labels.py     # per source (combined, weighted, NRC 6-class): kappa + CI, acc, F1
 python scripts/08_goemotions_check.py            # optional: in-domain check on GoEmotions test split
 ```

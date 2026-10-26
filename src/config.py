@@ -102,3 +102,10 @@ CONGRUENCE_MEASURES = [
     ("pct", "negkl", "exploratory, not pre-declared"),
 ]
 CONGRUENCE_CHUNK = 500_000  # candidate rows per chunk
+
+# Hand labelling (scripts/label_tool.py). Keys 1-6 follow SIX_CLASSES order: joy, sadness, anger, fear, surprise, neutral.
+LABEL_SHEET = ANNOTATION / "manual_sample.csv"
+RELABEL_SHEET = ANNOTATION / "relabel_sample.csv"
+LABEL_BACKUPS = ANNOTATION / "backups"
+RELABEL_N = 30
+RELABEL_MIN_HOURS = 24
