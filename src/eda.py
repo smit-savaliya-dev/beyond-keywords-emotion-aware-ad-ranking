@@ -65,7 +65,7 @@ def panel_clicks_bar(ax, counts):
     bars = ax.bar(["1", "2", "3", "4+"], vals, color="#2e75b6", edgecolor="white")
     for b, v in zip(bars, vals):
         ax.text(b.get_x() + b.get_width() / 2, v, f"{v:.1f}%", ha="center", va="bottom", fontsize=9)
-    ax.set_xlabel("Clicked items in the impression")
+    ax.set_xlabel("Number of clicked articles in one impression")
     ax.set_ylabel("Share of impressions (%)")
 
 
