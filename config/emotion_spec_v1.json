@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "status": "provisional (fit + valid evidence; awaiting hand-label confirmation)",
+  "frozen_date": "2026-10-26",
+  "evidence": {
+    "fit_item": "results/tables/emotion_signal_fit.csv",
+    "fit_congruence": "results/tables/congruence_signal_fit.csv",
+    "valid_replication": "results/tables/emotion_spec_selection.csv",
+    "valid_replication_sha256": "320c4fa9a642710315f839383624c9b436d72dabdaf429e5253a74567f4ba720",
+    "rule": "D27 in docs/decisions.md (pre-declared before the valid replication)",
+    "dev": "never used"
+  },
+  "text_variant": {
+    "primary": "weighted (title 1/3, abstract 2/3)",
+    "pre_declared_variant": "title-only",
+    "variant_columns": "go_title_pct_* for congruence; go_title_* item features",
+    "compare_on": "valid, in M3 only"
+  },
+  "item_features_m5": [
+    "go_pct_excitement",
+    "go_pct_joy",
+    "go_pct_optimism",
+    "go_pct_nervousness",
+    "go_pct_fear",
+    "go_vad_valence",
+    "go_vad_dominance",
+    "vad_valence",
+    "nrc_trust",
+    "go_dist_optimism",
+    "go_dist_nervousness",
+    "go_dist_fear"
+  ],
+  "congruence_features": [
+    "cong_pct_cos",
+    "cong_pct_cos_personal",
+    "cong_six_negkl_personal",
+    "cong_valence_absdist_personal"
+  ],
+  "congruence_profile": {
+    "source": "behaviors.history only",
+    "decay": 0.9,
+    "newest_weight": 1.0,
+    "max_history": 50,
+    "cold_start": "corpus mean",
+    "code": "src.congruence.congruence_features"
+  },
+  "fusion": {
+    "applies_to": [
+      "M3",
+      "M7"
+    ],
+    "formula": "final = alpha * base + (1 - alpha) * emotion",
+    "normalisation": "per-impression min-max of base and emotion scores",
+    "alpha_grid": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "choose_on": "valid",
+    "selection_metric": "auc",
+    "emotion_score": "cong_pct_cos",
+    "pre_declared_variants": [
+      "mood_repair: emotion = 1 - congruence",
+      "text: title-only congruence"
+    ]
+  },
+  "excluded": {
+    "go_pct_curiosity": "sign flips on valid (fit dz +0.016, valid dz -0.060)",
+    "go_pct_desire": "sign flips on valid (fit dz +0.020, valid dz -0.079)",
+    "go_pct_annoyance": "valid 95% CI includes 0 (fit dz +0.034, valid dz +0.000)",
+    "go_emotionality": "sign flips on valid (fit dz +0.103, valid dz -0.041)",
+    "go_vad_arousal": "sign flips on valid (fit dz -0.148, valid dz +0.072)",
+    "nrc_anticipation": "sign flips on valid (fit dz +0.022, valid dz -0.031)",
+    "vad_dominance": "sign flips on valid (fit dz -0.138, valid dz +0.015)",
+    "cong_six_negkl": "sign flips on valid (fit dz -0.040, valid dz +0.101)",
+    "cong_valence_absdist": "sign flips on valid (fit dz -0.033, valid dz +0.021)",
+    "go_neutral": "deterministic: 1 - go_emotionality (D27)",
+    "vad_arousal": "not significant at both levels on fit",
+    "cong_*_otheruser / cong_*_userspecific": "analysis controls (random other user), not model features",
+    "cong_pct_negkl*": "exploratory, not pre-declared"
+  },
+  "confirmation_rule": {
+    "run": "python scripts/06_validate_emotion_labels.py (after 180 labels; re-label sheet optional)",
+    "drop_if_source_untrusted": {
+      "goemotions_weighted": [
+        "cong_six_negkl_personal"
+      ],
+      "nrc_emolex_6class": [
+        "nrc_trust"
+      ]
+    },
+    "kappa_min_upper": 0.2,
+    "title_primary_if": "goemotions_title kappa CI lower bound > goemotions_weighted kappa CI upper bound",
+    "hold_if": "intra-rater kappa CI upper bound < 0.4 (labels too unreliable to act on)",
+    "otherwise": "confirm v1 (only 'status' changes; hashed content unchanged)",
+    "not_validated_by_labels": "continuous go_pct_*, go_vad_*, go_dist_*, vad_valence: the 6-class labels do not test them directly; they stay unless a source rule above removes them",
+    "any_change": "new file config/emotion_spec_v2.json + decision log entry + test hash entry"
+  }
+}

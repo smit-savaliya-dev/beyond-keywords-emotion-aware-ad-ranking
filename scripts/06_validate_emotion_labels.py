@@ -16,6 +16,7 @@ import pandas as pd
 import _bootstrap  # noqa: F401
 from src.annotation import read_sheet, sheet_problems, vader_correlation
 from src.config import FIGURES, LABEL_SHEET, MIN_CLASS_COUNT, NRC_SIX_MAP, PROCESSED, RELABEL_SHEET, RESULTS, SEED
+from src.emotion_spec import confirmation_actions, load_spec
 from src.provenance import run_info
 from src.validation import plot_threshold_panels, run_validation
 
@@ -58,6 +59,12 @@ def main():
           f"kappa {intra['kappa']:.3f} (95% CI {intra['kappa_ci95'][0]:.3f} to {intra['kappa_ci95'][1]:.3f}), "
           f"n = {intra['n']}")
 
+    spec = load_spec()
+    verdict, actions = confirmation_actions(spec, summary, intra)
+    print(f"\nEmotion spec v{spec['version']} ({spec['status']}): {verdict.upper()}")
+    for act in actions or ["no rule triggered: set status to confirmed (hashed content unchanged)"]:
+        print(" -", act)
+
     sheet = v["sheet"]
     texts = (sheet["title"] + ". " + sheet["abstract"]).str.strip(". ")
     vader = {}
@@ -83,6 +90,7 @@ def main():
             "intra_rater": None if intra is None else {k: val for k, val in intra.items()
                                                        if k not in ("confusion", "report")},
             "vader_correlation": vader,
+            "emotion_spec_confirmation": {"version": spec["version"], "verdict": verdict, "actions": actions},
             "caution": "180 items: wide kappa CIs and rare classes. Threshold rows are a sensitivity analysis; "
                        "t is not chosen by maximum kappa on these items.",
             "run_info": run_info()}

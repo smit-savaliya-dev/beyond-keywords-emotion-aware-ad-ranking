@@ -24,14 +24,20 @@ class MaskedValues(Mapping):
         return len(self.values)
 
 
-def load_fit_impressions(processed):
-    """Candidate rows of part == "fit" only (other parts are filtered out at read time)."""
+def load_part_impressions(processed, part):
+    """Candidate rows of one analysis part (fit or valid; dev is refused). Other parts are never read."""
+    if part not in ("fit", "valid"):
+        raise ValueError(f"analysis scripts may only load fit or valid, not {part!r}")
     imps = pd.read_parquet(processed / "impressions.parquet", columns=["imp_key", "part", "user_id", "news_id", "label"],
-                           filters=[("part", "==", "fit")])
-    imps = imps[imps["part"].astype(str) == "fit"]
-    if set(imps["part"].astype(str)) != {"fit"}:
-        raise ValueError("non-fit rows loaded")
+                           filters=[("part", "==", part)])
+    imps = imps[imps["part"].astype(str) == part]
+    if set(imps["part"].astype(str)) != {part}:
+        raise ValueError(f"rows of other parts loaded for {part}")
     return imps.reset_index(drop=True)
+
+
+def load_fit_impressions(processed):
+    return load_part_impressions(processed, "fit")
 
 
 def within_group_diffs(groups, labels, values, return_groups=False):

@@ -129,3 +129,12 @@ TFIDF_STOP_WORDS = "english"       # fixed, not tuned
 THRESHOLDS_RAW = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]       # max raw sigmoid over the 27 non-neutral labels (weighted)
 THRESHOLDS_PCT = [0.80, 0.85, 0.90, 0.95, 0.99]        # max go_pct_* over the 8 emotions (secondary view)
 MIN_CLASS_COUNT = 5                                   # per-class results with fewer hand labels are flagged unreliable
+
+# Emotion spec v1 candidates (D27). Selection: fit both-level significance + same-sign replication on valid.
+SPEC_ITEM_CANDIDATES = ([f"go_pct_{e}" for e in GO_FEATURES] + ["go_emotionality", "go_vad_valence", "go_vad_dominance",
+                        "go_vad_arousal", "vad_valence", "nrc_trust", "nrc_anticipation"]
+                        + ["vad_dominance", "go_dist_optimism", "go_dist_nervousness", "go_dist_fear"])  # D27 add-ons
+SPEC_CONGRUENCE_CANDIDATES = ["cong_pct_cos", "cong_pct_cos_personal", "cong_six_negkl", "cong_six_negkl_personal",
+                              "cong_valence_absdist", "cong_valence_absdist_personal"]
+EMOTION_SPEC_DIR = ROOT / "config"
+EMOTION_SPEC_VERSION = 1  # bump (new file emotion_spec_v2.json) for any change to the hashed content

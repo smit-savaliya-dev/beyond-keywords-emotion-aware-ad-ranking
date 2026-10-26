@@ -10,7 +10,7 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
 | 2 Labelling tool + guidelines | done | see git log |
 | 3 M0 popularity, M1 TF-IDF, stats, runs log | done (dev run once each) | see git log |
 | 4 Label validation (code + fakes; neutral share per threshold) | code done; real run waits for labels | see git log |
-| 5 Emotion spec v1 (provisional) | pending | |
+| 5 Emotion spec v1 (provisional) | done | see git log |
 | 6 Docs, EDA label fix, README, week 5 draft | pending | |
 
 ## Phase 1 (2026-10-26)
@@ -66,3 +66,14 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
 - Neutral share on the full corpus (65,238 items): raw t=0.05 23.8%, 0.1 44.8%, 0.2 66.5%, 0.3 79.4%, 0.4 86.8%,
   0.5 92.6%; percentile t=0.80 24.6%, 0.85 34.5%, 0.90 49.3%, 0.95 70.1%, 0.99 92.7%. Argmax baseline 81.1%.
 - Limitation found: the percentile view cannot produce sadness (D25), documented in the metadata.
+
+## Phase 5 (2026-10-26)
+- Selection rule pre-declared (D27) BEFORE the valid replication; script 17 (valid only) applied it mechanically.
+- 25 candidates -> 16 kept (12 item, 4 congruence). Dropped: go_pct_curiosity, go_pct_desire, go_emotionality,
+  go_vad_arousal, nrc_anticipation, vad_dominance, cong_six_negkl, cong_valence_absdist (sign flips on valid),
+  go_pct_annoyance (valid CI includes 0). Personal congruence replicated: pct 0.242 -> 0.237, six negKL 0.117 ->
+  0.092, valence 0.158 -> 0.105 (fit -> valid dz). Shuffled-label null on valid 0/25.
+- `config/emotion_spec_v1.json` (status provisional), `src/emotion_spec.py` (hash excluding status, validation,
+  confirmation rule D29 as code); script 06 prints and saves the verdict. Test locks the v1 hash.
+- Issue found and fixed: a scripted edit put a raw newline inside an f-string in script 06; caught by the end-to-end
+  test, fixed by hand.

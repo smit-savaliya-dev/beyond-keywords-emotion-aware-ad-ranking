@@ -114,6 +114,8 @@ def test_script_06_end_to_end_with_fakes(fake_project):
     assert len(sens) == 11 and sens["kappa_ci_low"].le(sens["kappa_ci_high"]).all()
     meta = json.loads((out / "emotion_validation_sources.json").read_text(encoding="utf-8"))
     assert meta["intra_rater"]["accuracy"] == 1.0 and meta["n_labelled"] == 40
+    assert meta["emotion_spec_confirmation"]["verdict"] in {"confirm", "bump", "hold"}
+    assert "Emotion spec v1" in r.stdout
     assert len(pd.read_csv(out / "emotion_validation_per_class.csv")) == 5 * 6
     assert (fake_project / "fig" / "emotion_threshold_kappa.png").stat().st_size > 0
 
