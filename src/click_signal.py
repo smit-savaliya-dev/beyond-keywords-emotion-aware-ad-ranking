@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rankdata, ttest_1samp, wilcoxon
 
+from .stats import holm  # noqa: F401  (re-exported)
+
 
 class MaskedValues(Mapping):
     """{name: array} restricted to rows[mask], built on demand (avoids copying every feature at once)."""
@@ -92,17 +94,6 @@ def permute_within_groups(groups, labels, seed):
     by_group = np.argsort(groups, kind="stable")
     out = np.empty_like(labels)
     out[by_group] = labels[shuffled]
-    return out
-
-
-def holm(pvalues):
-    """Holm step-down adjusted p-values, in the input order."""
-    p = np.asarray(pvalues, dtype=np.float64)
-    m = len(p)
-    order = np.argsort(p, kind="stable")
-    adj = np.maximum.accumulate((m - np.arange(m)) * p[order])
-    out = np.empty(m)
-    out[order] = np.minimum(adj, 1.0)
     return out
 
 

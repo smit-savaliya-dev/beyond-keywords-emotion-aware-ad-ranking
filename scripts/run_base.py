@@ -17,7 +17,8 @@ import time
 
 import _bootstrap  # noqa: F401
 from src.annotation import read_sheet, sheet_problems
-from src.config import ANNOTATION, EMOLEX_PATH, FIGURES, PROCESSED, RAW, RESULTS, ROOT, VAD_PATH
+from src.config import (ANNOTATION, EMOLEX_PATH, FIGURES, FROZEN_DIR, M0_NAME, M1_NAME, PROCESSED, RAW, RESULTS,
+                        ROOT, VAD_PATH)
 from src.pipeline import Pipeline, Step, StepFailed
 
 S = ROOT / "scripts"
@@ -87,6 +88,19 @@ def build_steps(skip_official_check):
              outputs=[T / f for f in ("congruence_signal_fit.csv", "congruence_signal_by_category_fit.csv",
                                       "congruence_signal_fit_meta.json")] + [FIGURES / "congruence_signal_fit.png"],
              note="fit only"),
+        Step("20_m0_tune", [S / "20_m0_popularity.py", "--tune"], inputs=[IMPS], script=S / "20_m0_popularity.py",
+             outputs=[FROZEN_DIR / f"{M0_NAME}.json", T / "m0_popularity_tuning_valid.csv"]
+             + [RESULTS / sub / f"{M0_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
+             note="valid only; --final-dev is never run by the pipeline"),
+        Step("21_m1_tune", [S / "21_m1_tfidf.py", "--tune"], inputs=[IMPS, BEH, NEWS, RAW / "train" / "news.tsv"],
+             script=S / "21_m1_tfidf.py",
+             outputs=[FROZEN_DIR / f"{M1_NAME}.json", T / "m1_tfidf_tuning_valid.csv"]
+             + [RESULTS / sub / f"{M1_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
+             note="valid only; --final-dev is never run by the pipeline"),
+        Step("22_compare_valid", [S / "22_compare_baselines.py", "--part", "valid"],
+             inputs=[P / "data_summary.json"]
+             + [RESULTS / "per_impression" / f"{m}__valid.parquet" for m in (M0_NAME, M1_NAME)],
+             script=S / "22_compare_baselines.py"),
         Step("06_validate_labels", [S / "06_validate_emotion_labels.py"],
              inputs=[SHEET, P / "news_emotion.parquet", P / "news_emotion_weighted.parquet",
                      P / "news_emotion_nrc_features.parquet"],

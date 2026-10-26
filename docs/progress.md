@@ -8,7 +8,7 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
 | 0 State check | done | - |
 | 1 Congruence (valence distance, personal, controls, decision log) | done | see git log |
 | 2 Labelling tool + guidelines | done | see git log |
-| 3 M0 popularity, M1 TF-IDF, stats, runs log | pending | |
+| 3 M0 popularity, M1 TF-IDF, stats, runs log | done (dev run once each) | see git log |
 | 4 Label validation (code + fakes; neutral share per threshold) | pending | |
 | 5 Emotion spec v1 (provisional) | pending | |
 | 6 Docs, EDA label fix, README, week 5 draft | pending | |
@@ -40,3 +40,20 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
   before the first change of each session, resumes at the first unlabelled item.
 - `--make-relabel` (30 seeded items, only when the sheet is complete, never regenerated) and `--relabel` (warns if
   < 24 h since creation). 6 tests on temp CSVs. Real sheet checked read-only (hash unchanged); nothing was labelled.
+
+## Phase 3 (2026-10-26)
+- `src/stats.py` (paired t-test, 95% CI, dz, Holm; Wilcoxon robustness only; Holm moved here from click_signal),
+  `src/experiments.py` (runs_log.csv, frozen settings, dev guard), `src/baselines.py`, scripts 20/21/22.
+- Valid (30,270 impressions): M0 a=10 AUC 0.5740 (a=1 0.5725, a=100 0.5734), 29.2% of candidates unseen in fit.
+  M1 best = title+abstract, no sublinear, mean: AUC 0.5900 (8 configs 0.5728-0.5900). M1 - M0: every metric better,
+  AUC +0.016 [0.012, 0.020], nDCG@5 +0.051, MRR +0.042 (Holm significant).
+- Frozen settings recorded in decisions.md (D21, D23), then dev ran ONCE per model (73,152 impressions, same count):
+  M0 AUC 0.5890 (21.3% unseen in fit+valid), M1 AUC 0.5744. M1 - M0 on dev: AUC -0.0146 [-0.0175, -0.0117]
+  (M0 better), MRR +0.001 (n.s.), nDCG@5 +0.003 (n.s.), nDCG@10 +0.005, P/R/HR@5/10 small but significant gains.
+- Checks: harness random AUC 0.4985 (valid), both models above random on valid and dev, no leakage warning,
+  rerunning --tune reproduced the same frozen hashes, Phase 5 table bit-identical after moving holm.
+- Issues found and fixed:
+  1. `load_truth` read every part before filtering (dev in memory while scoring valid); now filtered at read (D18).
+  2. M1 dev log line said "valid auc" (hard-coded label); fixed. Saved metrics were correct, so no dev rerun.
+- Not a bug: M0 beats M1 on dev AUC. Popularity statistics for dev include the valid day (one extra day, lower
+  unseen share), which gives a strong recency signal; dev labels were never used.

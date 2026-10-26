@@ -1,0 +1,25 @@
+{
+  "vectorizer_fit_on": "train-split news (data/raw/train/news.tsv ids), label-free",
+  "n_fit_texts": 51282,
+  "min_df": 2,
+  "stop_words": "english",
+  "pct_cold_start_profiles": 2.81,
+  "n_unique_profiles": 50000,
+  "config": {
+    "text": "text",
+    "sublinear_tf": false,
+    "aggregation": "mean"
+  },
+  "metrics": {
+    "auc": 0.5744,
+    "mrr": 0.2759,
+    "ndcg@5": 0.2933,
+    "p@5": 0.1048,
+    "r@5": 0.4159,
+    "hr@5": 0.4849,
+    "ndcg@10": 0.3554,
+    "p@10": 0.0776,
+    "r@10": 0.5949,
+    "hr@10": 0.671
+  }
+}

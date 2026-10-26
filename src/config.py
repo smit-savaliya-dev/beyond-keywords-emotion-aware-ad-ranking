@@ -109,3 +109,18 @@ RELABEL_SHEET = ANNOTATION / "relabel_sample.csv"
 LABEL_BACKUPS = ANNOTATION / "backups"
 RELABEL_N = 30
 RELABEL_MIN_HOURS = 24
+
+# Model runs: run log, frozen settings (written by --tune), decision log checked by --final-dev.
+RUNS_LOG = RESULTS / "tables" / "runs_log.csv"
+FROZEN_DIR = RESULTS / "frozen"
+DECISIONS = ROOT / "docs" / "decisions.md"
+METRIC_COLUMNS = ["auc", "mrr", "ndcg@5", "ndcg@10", "p@5", "p@10", "r@5", "r@10", "hr@5", "hr@10"]
+
+# Baselines (choose settings on valid by SELECTION_METRIC; dev once with frozen settings).
+SELECTION_METRIC = "auc"
+LEAKAGE_AUC_WARN = 0.75  # a no-emotion baseline above this on valid suggests leakage
+M0_NAME, M1_NAME = "M0_popularity", "M1_tfidf"
+M0_SMOOTHING_GRID = [1, 10, 100]  # a in (clicks + a*p) / (shown + a)
+M1_GRID = {"text": ["title", "text"], "sublinear_tf": [False, True], "aggregation": ["mean", "decay"]}  # 8 configs
+TFIDF_MIN_DF = 2                   # fixed, not tuned
+TFIDF_STOP_WORDS = "english"       # fixed, not tuned

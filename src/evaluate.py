@@ -15,7 +15,8 @@ KEY = ["imp_key", "news_id"]
 
 def load_truth(part, processed=PROCESSED):
     imps = pd.read_parquet(processed / "impressions.parquet",
-                           columns=["imp_key", "part", "news_id", "label", "position"])
+                           columns=["imp_key", "part", "news_id", "label", "position"],
+                           filters=[("part", "==", part)])  # other parts are never loaded
     truth = imps[imps["part"].astype(str) == part].drop(columns="part")
     if truth.empty:
         raise ValueError(f"No impressions for part '{part}'")
