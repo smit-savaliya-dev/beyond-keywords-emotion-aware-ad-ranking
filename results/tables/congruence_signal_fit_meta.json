@@ -1,0 +1,88 @@
+{
+  "part": "fit only",
+  "profile_source": "behaviors.history (clicks before the log period), never impression clicks",
+  "profile": {
+    "decay": 0.9,
+    "max_history": 50,
+    "weights": "decay**k, k = 0 for the newest history item",
+    "cold_start": "corpus mean"
+  },
+  "versions": {
+    "pct": "go_pct_* (8 emotions, percentile)",
+    "six": "weighted 6-class distribution"
+  },
+  "measures": {
+    "cos": "cosine(profile, item)",
+    "negkl": "-KL(item || profile), eps 1e-06, vectors renormalised to sum 1"
+  },
+  "controls": {
+    "_generic": "same measure against the corpus-mean profile (identical for every user)",
+    "_excess": "personal minus generic: user-specific part of congruence"
+  },
+  "method": "as Phase 5: per-impression clicked-minus-unclicked mean difference, dz, one-sample t-test with Holm (per sample family), user-level t-test with Holm, shuffled-label null; Wilcoxon robustness only.",
+  "direction_rule": "dz > 0 and significant at both levels -> congruence-seeking; dz < 0 -> mood repair",
+  "profile_stats": {
+    "pct": {
+      "corpus_mean": {
+        "curiosity": 0.5,
+        "desire": 0.5,
+        "excitement": 0.5,
+        "joy": 0.5,
+        "optimism": 0.5,
+        "nervousness": 0.5,
+        "annoyance": 0.5,
+        "fear": 0.5
+      },
+      "median_history_items_used": 19.0,
+      "pct_impressions_cold_start": 1.95
+    },
+    "six": {
+      "corpus_mean": {
+        "joy": 0.1545,
+        "sadness": 0.073,
+        "anger": 0.0356,
+        "fear": 0.014,
+        "surprise": 0.0751,
+        "neutral": 0.6478
+      },
+      "median_history_items_used": 19.0,
+      "pct_impressions_cold_start": 1.95
+    }
+  },
+  "shuffled_label_false_positives": {
+    "t_test": 0,
+    "user_t_test": 0,
+    "both_levels": 0,
+    "of": 12,
+    "max_abs_null_dz": 0.0049
+  },
+  "top_categories_by_fit_clicks": {
+    "news": 57298,
+    "sports": 24241,
+    "lifestyle": 19542,
+    "finance": 16920,
+    "music": 12890,
+    "tv": 12226
+  },
+  "limitations": [
+    "descriptive association only",
+    "no popularity control (LightGBM M4 vs M5 later)",
+    "MIND history is one fixed list per user, so profiles do not evolve within the log period",
+    "all-positive percentile vectors give high, compressed cosine values; dz is scale-free"
+  ],
+  "alpha": 0.05,
+  "run_info": {
+    "timestamp_utc": "2026-10-16T13:47:43+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "69a3323",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

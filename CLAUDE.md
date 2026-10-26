@@ -30,6 +30,8 @@ No ranking model is built yet; do not build one unless asked.
 - Phase 5 test (user-approved): one-sample t-test on per-impression clicked-minus-unclicked differences + user-level
   t-test, Holm. Not Wilcoxon: biased here (93/101 false positives with labels shuffled within impressions).
   No popularity control in Phase 5 (limitation; handled by LightGBM M4 vs M5).
+- Congruence (script 15): profile from behaviors.history only (decay 0.9, last 50, cold start = corpus mean);
+  always report the generic-profile control and the excess (personal - generic).
 - go_pct_*: percentile rank of each go_* emotion across all items (item-level, no clicks), because label floors differ.
   go_dist_* is kept but unreliable at low go_emotion_mass; go_emotion_mass can exceed 1 (sum of independent sigmoids).
 
@@ -42,6 +44,8 @@ No ranking model is built yet; do not build one unless asked.
 - Every new function gets a test with small fakes (fake classifier, tiny lexicon files in tmp_path); no internet/GPU/real lexicons.
 - NRC files live in data/external/nrc/ (git-ignored, research-only licence). Never download or commit them.
 - Windows, PowerShell, Python 3.11 venv (.venv), RTX 3050 6GB; use pick_device("auto").
+- `python scripts/run_base.py` runs the whole pipeline incrementally (src/pipeline.py). Every new script must be
+  registered there as a Step with its data inputs and outputs (code deps are found from its src imports).
 - Short code comments. Do not commit or push; suggest a commit message instead.
 - Work in phases and stop for review after each one; ask when the request conflicts with the code.
 

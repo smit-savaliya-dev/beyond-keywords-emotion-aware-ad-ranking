@@ -177,3 +177,22 @@ def test_go_vad(lexicons):
     assert used2 == ["nervousness"] and np.allclose(out2[GO_VAD_COLUMNS], out[GO_VAD_COLUMNS])
     with pytest.raises(KeyError, match="nervousness"):
         go_vad(raw, renamed, GO_VAD_OVERRIDES)
+
+
+def test_nrc_to_six_mapping_neutral_and_ties():
+    import pandas as pd
+    from src.lexicon import nrc_to_six
+    rows = [
+        {"nrc_joy": 0.6, "nrc_trust": 0.4},                       # joy
+        {"nrc_anger": 0.2, "nrc_disgust": 0.3, "nrc_fear": 0.4},  # anger + disgust = 0.5 > fear
+        {},                                                       # no hits -> neutral
+        {"nrc_trust": 0.5, "nrc_anticipation": 0.5},              # trust/anticipation only -> neutral
+        {"nrc_sadness": 0.5, "nrc_surprise": 0.5},                # tie
+    ]
+    nrc = pd.DataFrame(rows, columns=SHARE_COLUMNS).fillna(0.0)
+    labels, tied = nrc_to_six(nrc, seed=0)
+    assert labels.tolist()[:4] == ["joy", "anger", "neutral", "neutral"]
+    assert labels[4] in {"sadness", "surprise"} and tied.tolist() == [False, False, False, False, True]
+    assert labels.equals(nrc_to_six(nrc, seed=0)[0])                                     # seeded
+    picks = {nrc_to_six(nrc.iloc[[4] * 40].reset_index(drop=True), seed=1)[0].nunique()}
+    assert picks == {2}                                                                   # random, not first-class

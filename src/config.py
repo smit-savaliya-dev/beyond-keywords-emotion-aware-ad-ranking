@@ -84,3 +84,12 @@ SIGNAL_CORE_FEATURES = (
     + [f"nrc_{e}" for e in NRC_EMOTIONS] + ["nrc_positive", "nrc_negative", "nrc_coverage"]
     + [f"vad_{d}" for d in VAD_DIMS]
 )
+
+# Congruence (fit only): user profile from the HISTORY column, never from impression clicks.
+CONGRUENCE_DECAY = 0.9
+CONGRUENCE_MAX_HISTORY = 50
+CONGRUENCE_EPS = 1e-6  # smoothing for negative KL
+
+# Validation only: NRC shares -> 6 classes (trust, anticipation not mapped; no mapped hits -> neutral).
+NRC_SIX_MAP = {"joy": ["nrc_joy"], "sadness": ["nrc_sadness"], "anger": ["nrc_anger", "nrc_disgust"],
+               "fear": ["nrc_fear"], "surprise": ["nrc_surprise"]}

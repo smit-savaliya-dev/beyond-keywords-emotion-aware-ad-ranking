@@ -56,3 +56,13 @@ def test_kappa_band():
 
 def test_vader_correlation_handles_flat_input():
     assert vader_correlation(["abc"] * 5, [0.1] * 5) is None
+
+
+def test_compare_sources_summary():
+    from src.annotation import compare_sources
+    y = ["joy", "neutral", "anger", "neutral", "fear", "neutral"]
+    summary, results = compare_sources(y, {"perfect": y, "all_neutral": ["neutral"] * 6}, n_boot=50)
+    assert summary["source"].tolist() == ["perfect", "all_neutral"]
+    assert summary.loc[0, "kappa"] == 1.0 and summary.loc[0, "accuracy"] == 1.0
+    assert summary.loc[1, "kappa"] == 0.0 and summary.loc[1, "pct_pred_neutral"] == 100.0
+    assert summary.loc[1, "accuracy"] == 0.5 and "confusion" in results["perfect"]

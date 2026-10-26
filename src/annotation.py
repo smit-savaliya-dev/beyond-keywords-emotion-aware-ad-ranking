@@ -88,3 +88,17 @@ def vader_correlation(texts, valence):
     if compound.std() == 0 or valence.std() == 0:
         return None
     return float(np.corrcoef(compound, valence)[0, 1])
+
+
+def compare_sources(y_true, predictions, n_boot=1000, seed=SEED):
+    """predictions: {source: labels aligned with y_true}. -> (summary table, {source: agreement() result})."""
+    results, rows = {}, []
+    for name, y_pred in predictions.items():
+        res = agreement(y_true, y_pred, n_boot=n_boot, seed=seed)
+        results[name] = res
+        lo, hi = res["kappa_ci95"]
+        pred = pd.Series(np.asarray(y_pred))
+        rows.append({"source": name, "n": res["n"], "kappa": res["kappa"], "kappa_ci_low": lo, "kappa_ci_high": hi,
+                     "kappa_band": res["kappa_band"], "accuracy": res["accuracy"], "macro_f1": res["macro_f1"],
+                     "pct_pred_neutral": 100 * float((pred == "neutral").mean())})
+    return pd.DataFrame(rows), results

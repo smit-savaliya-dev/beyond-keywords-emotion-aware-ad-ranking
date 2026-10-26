@@ -4,6 +4,16 @@ import pandas as pd
 from scipy.stats import rankdata, ttest_1samp, wilcoxon
 
 
+def load_fit_impressions(processed):
+    """Candidate rows of part == "fit" only (other parts are filtered out at read time)."""
+    imps = pd.read_parquet(processed / "impressions.parquet", columns=["imp_key", "part", "user_id", "news_id", "label"],
+                           filters=[("part", "==", "fit")])
+    imps = imps[imps["part"].astype(str) == "fit"]
+    if set(imps["part"].astype(str)) != {"fit"}:
+        raise ValueError("non-fit rows loaded")
+    return imps.reset_index(drop=True)
+
+
 def within_group_diffs(groups, labels, values, return_groups=False):
     """Per group: mean(values | label 1) - mean(values | label 0), ignoring NaN values.
     Only groups with at least one non-NaN value in both classes are returned (optionally with their ids)."""
@@ -105,7 +115,7 @@ SERIES = [("#2a78d6", "o"), ("#eb6834", "s"), ("#1baf7a", "^")]  # validated cat
 
 
 def _dots(ax, y, t, color, marker, label):
-    sig = t["significant_holm"].to_numpy()
+    sig = t["significant_both"].to_numpy(dtype=bool)
     ax.hlines(y, t["dz_ci_low"], t["dz_ci_high"], color=color, linewidth=1.2, zorder=2)
     ax.scatter(t["dz"][sig], y[sig], s=34, marker=marker, color=color, edgecolor=SURFACE, linewidth=1.2,
                zorder=3, label=label)
@@ -127,6 +137,8 @@ def plot_signal(core, variants, path, title, subtitle, sources, variant_labels,
                 variant_title="Text variants (candidates with an abstract)"):
     """Left: dz with 95% CI per feature, coloured by source. Right: dz per emotion for each text variant.
     sources: {label: [features]}; variants: rows with columns emotion, variant, dz, CI, significant_holm."""
+    import matplotlib
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(12, 8.2), gridspec_kw={"width_ratios": [1.15, 1]})
     fig.patch.set_facecolor(SURFACE)
@@ -154,5 +166,33 @@ def plot_signal(core, variants, path, title, subtitle, sources, variant_labels,
     fig.suptitle(title, x=0.01, ha="left", fontsize=12, color=INK)
     fig.text(0.01, 0.935, subtitle, fontsize=8.5, color=INK_2, ha="left")
     fig.tight_layout(rect=(0, 0, 1, 0.92))
+    fig.savefig(path, dpi=300, bbox_inches="tight", facecolor=SURFACE)
+    plt.close(fig)
+
+
+def plot_dz_panels(panels, path, title, subtitle):
+    """panels: list of (panel title, DataFrame with row, series, dz, dz_ci_low, dz_ci_high, significant_both).
+    Rows top to bottom in first-seen order; up to 3 series per panel, in first-seen order."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    height = 1.6 + 0.42 * max(t["row"].nunique() for _, t in panels)
+    fig, axes = plt.subplots(1, len(panels), figsize=(6.2 * len(panels), height), squeeze=False)
+    fig.patch.set_facecolor(SURFACE)
+    for ax, (ptitle, t) in zip(axes[0], panels):
+        rows = list(dict.fromkeys(t["row"]))[::-1]
+        series = list(dict.fromkeys(t["series"]))
+        base = np.arange(len(rows))
+        for k, (name, (color, marker)) in enumerate(zip(series, SERIES)):
+            v = t[t["series"] == name].set_index("row").reindex(rows).dropna(subset=["dz"])
+            y = base[[rows.index(r) for r in v.index]] + ((len(series) - 1) / 2 - k) * 0.22
+            _dots(ax, y, v.reset_index(), color, marker, name)
+        ax.set_yticks(base, rows)
+        ax.set_title(ptitle, loc="left", fontsize=10, color=INK, pad=26)
+        _style(ax)
+        ax.legend(frameon=False, fontsize=8.5, loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, borderaxespad=0.2)
+    fig.text(0.01, 1 - 0.25 / height, title, fontsize=12, color=INK, ha="left", va="top")
+    fig.text(0.01, 1 - 0.55 / height, subtitle, fontsize=8.5, color=INK_2, ha="left", va="top")
+    fig.subplots_adjust(top=1 - 1.45 / height, bottom=0.75 / height, wspace=0.35)
     fig.savefig(path, dpi=300, bbox_inches="tight", facecolor=SURFACE)
     plt.close(fig)

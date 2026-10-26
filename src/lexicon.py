@@ -233,3 +233,20 @@ def top_matched_words(texts, vocab, n=30):
     vocab = set(vocab)
     counter = Counter(t for text in texts for t in tokenize(text) if t in vocab)
     return pd.DataFrame(counter.most_common(n), columns=["word", "count"])
+
+
+def nrc_to_six(nrc, seed):
+    """NRC share table -> 6-class label per row (validation only). Mapped scores per NRC_SIX_MAP; all zero (no hits,
+    or trust/anticipation only) -> neutral; ties between top classes -> seeded random choice. -> (labels, tied)."""
+    from .config import NRC_SIX_MAP
+    classes = list(NRC_SIX_MAP)
+    scores = np.column_stack([nrc[cols].to_numpy(dtype=np.float64).sum(axis=1) for cols in NRC_SIX_MAP.values()])
+    top = scores.max(axis=1)
+    is_top = np.isclose(scores, top[:, None], rtol=0, atol=1e-12) & (top[:, None] > 0)
+    tied = is_top.sum(axis=1) > 1
+    rng = np.random.default_rng(seed)
+    labels = np.full(len(scores), "neutral", dtype=object)
+    for i in np.flatnonzero(top > 0):
+        choices = np.flatnonzero(is_top[i])
+        labels[i] = classes[choices[0] if len(choices) == 1 else rng.choice(choices)]
+    return pd.Series(labels, index=nrc.index), pd.Series(tied, index=nrc.index)

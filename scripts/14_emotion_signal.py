@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.click_signal import holm, permute_within_groups, plot_signal, signal_table
+from src.click_signal import holm, load_fit_impressions, permute_within_groups, plot_signal, signal_table
 from src.config import FIGURES, PROCESSED, RESULTS, SEED, SIGNAL_ALPHA, SIGNAL_CORE_FEATURES, SIGNAL_TOP_CATEGORIES
 from src.emotion_features import GO_EMOTIONS
 from src.provenance import run_info
@@ -41,15 +41,6 @@ class RowValues(Mapping):
         return len(self.cols)
 
 
-def load_fit(processed):
-    imps = pd.read_parquet(processed / "impressions.parquet", columns=["imp_key", "part", "user_id", "news_id", "label"],
-                           filters=[("part", "==", "fit")])
-    imps = imps[imps["part"].astype(str) == "fit"]
-    if set(imps["part"].astype(str)) != {"fit"}:
-        raise ValueError("non-fit rows loaded")
-    return imps.reset_index(drop=True)
-
-
 def variant_rows(table, patterns, stems, sample):
     rows = []
     for stem in stems:
@@ -65,7 +56,7 @@ def main():
     args = ap.parse_args()
     p = args.processed
 
-    fit = load_fit(p)
+    fit = load_fit_impressions(p)
     feats = pd.read_parquet(p / "news_emotion_features.parquet")
     news = pd.read_parquet(p / "news.parquet", columns=["news_id", "category"])
     idx = pd.Index(feats["news_id"]).get_indexer(fit["news_id"].astype(str))

@@ -35,6 +35,8 @@ def correlation_block(df, rows, cols, method="spearman"):
 
 
 def plot_correlation_block(block, path, title, subtitle, highlight=()):
+    import matplotlib
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from matplotlib.colors import LinearSegmentedColormap
     from matplotlib.patches import Rectangle

@@ -10,18 +10,26 @@ pip install -r requirements.txt
 ```
 Put MIND-small in `data/raw/train/` and `data/raw/dev/` (`news.tsv`, `behaviors.tsv`), or let step 01 download it.
 
-## 1. Base (data + evaluation harness + EDA)
+## 1. Whole pipeline (one command)
 ```bash
-python scripts/run_base.py
+python scripts/run_base.py --dry-run     # what would run and why; runs nothing
+python scripts/run_base.py               # tests -> data -> harness -> EDA -> emotion layer -> signal analyses -> validation
 ```
-Runs tests, parsing with integrity and official-count checks, the harness sanity check, and the EDA figures. Stops at the first failure.
+Runs every step in order and stops at the first failure. A step reruns only if its data inputs, its code (the script and the
+`src/` modules it imports), its arguments or its outputs changed since its last successful run (content hashes; state in
+`data/processed/.pipeline/`). Download and `annotation/manual_sample.csv` are create-only; label validation waits until the
+sheet is filled. GPU steps (04, 10) also resume from their chunk folders.
+- `--force-step 14` reruns one step; `--from 11` reruns 11 and everything after; `--only 13 14` limits the run; `--force` reruns all.
+- `--adopt` (once, e.g. after restoring results) records existing outputs as current without rerunning them.
+- `--skip-tests`, `--skip-official-check` as before. Optional, not in the pipeline: `08_goemotions_check.py`, `09_check_lexicons.py`,
+  `10_score_fields.py --measure/--smoke`.
 
 ## 2. Emotion labels
 ```bash
 python scripts/04_label_emotions.py --smoke      # 12 headlines, writes nothing: confirms the model works
 python scripts/04_label_emotions.py              # full run, resumable (use a GPU / Colab if possible)
 python scripts/05_make_annotation_sample.py      # then fill your_label in annotation/manual_sample.csv BEFORE any model output
-python scripts/06_validate_emotion_labels.py     # kappa + 95% CI, accuracy, macro-F1, confusion matrix
+python scripts/06_validate_emotion_labels.py     # per source (combined, weighted, NRC 6-class): kappa + CI, acc, F1
 python scripts/08_goemotions_check.py            # optional: in-domain check on GoEmotions test split
 ```
 Colab: upload `src/`, `scripts/` and `data/processed/news.parquet`, run step 04, download `data/processed/emotion_chunks/` and `news_emotion*.parquet` back.
@@ -40,6 +48,7 @@ python scripts/11_lexicon_features.py            # nrc_*, vad_* (weighted) and g
 python scripts/12_merge_emotion_features.py      # one row per news_id, all variants -> news_emotion_features.parquet
 python scripts/13_emotion_diagnostics.py         # distributions, cross-source + title-vs-abstract correlations, heatmap
 python scripts/14_emotion_signal.py              # fit only: clicked-minus-unclicked dz, t-test + user level, Holm
+python scripts/15_congruence_signal.py          # fit only: history-profile congruence (+ generic control)
 ```
 
 ## Rules that protect the results
