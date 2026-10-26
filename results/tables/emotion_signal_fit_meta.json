@@ -45,10 +45,10 @@
   ],
   "alpha": 0.05,
   "run_info": {
-    "timestamp_utc": "2026-10-16T13:44:42+00:00",
+    "timestamp_utc": "2026-10-26T15:00:52+00:00",
     "python": "3.11.9",
     "platform": "Windows-10-10.0.26200-SP0",
-    "git_commit": "69a3323",
+    "git_commit": "a916a50",
     "git_dirty": true,
     "pandas": "3.0.6",
     "numpy": "2.4.6",

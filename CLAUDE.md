@@ -30,12 +30,15 @@ No ranking model is built yet; do not build one unless asked.
 - Phase 5 test (user-approved): one-sample t-test on per-impression clicked-minus-unclicked differences + user-level
   t-test, Holm. Not Wilcoxon: biased here (93/101 false positives with labels shuffled within impressions).
   No popularity control in Phase 5 (limitation; handled by LightGBM M4 vs M5).
-- Congruence (script 15): profile from behaviors.history only (decay 0.9, last 50, cold start = corpus mean);
-  always report the generic-profile control and the excess (personal - generic).
+- Congruence (script 15, shared code src.congruence.congruence_features): profile from behaviors.history only
+  (decay 0.9, last 50, cold start = corpus mean). Always report raw, *_generic, *_personal (raw - corpus-mean profile,
+  pre-declared) and the stricter *_otheruser / *_userspecific control (raw - random other user's profile).
 - go_pct_*: percentile rank of each go_* emotion across all items (item-level, no clicks), because label floors differ.
   go_dist_* is kept but unreliable at low go_emotion_mass; go_emotion_mass can exceed 1 (sum of independent sigmoids).
 
 ## Engineering rules
+- Decisions: docs/decisions.md (every non-trivial choice, with evidence part). Progress: docs/progress.md.
+  Open questions: docs/open_questions.md. Data rules: fit trains, valid chooses, dev once per model (--final-dev).
 - Logic in src/, thin scripts in scripts/ (import _bootstrap), all constants in src/config.py, provenance via src/provenance.py.
 - Model labelling is resumable: chunk folders with a settings.json guard and atomic .tmp -> replace writes (label_corpus).
   New runs use new chunk folders and new output files.

@@ -4,56 +4,57 @@
   "profile": {
     "decay": 0.9,
     "max_history": 50,
-    "weights": "decay**k, k = 0 for the newest history item",
-    "cold_start": "corpus mean"
+    "weights": "decay**k, k = 0 (weight 1) for the newest history item",
+    "cold_start": "corpus mean",
+    "pct_impressions_cold_start": 1.95,
+    "median_history_items_used": 19.0
   },
   "versions": {
     "pct": "go_pct_* (8 emotions, percentile)",
-    "six": "weighted 6-class distribution"
+    "six": "weighted 6-class distribution",
+    "valence": "go_vad_valence (classifier-derived valence)"
   },
   "measures": {
     "cos": "cosine(profile, item)",
-    "negkl": "-KL(item || profile), eps 1e-06, vectors renormalised to sum 1"
+    "negkl": "-KL(item || profile), eps 1e-06, vectors renormalised to sum 1",
+    "absdist": "-|profile - item| (valence)"
   },
-  "controls": {
+  "measure_status": {
+    "cong_pct_cos": "main",
+    "cong_six_cos": "variant",
+    "cong_six_negkl": "variant",
+    "cong_valence_absdist": "variant",
+    "cong_pct_negkl": "exploratory, not pre-declared"
+  },
+  "roles": {
+    "raw": "measure against the user's history profile",
     "_generic": "same measure against the corpus-mean profile (identical for every user)",
-    "_excess": "personal minus generic: user-specific part of congruence"
+    "_personal": "raw - generic = personal_congruence (pre-declared)",
+    "_otheruser": "measure against a random other impression's profile (seeded permutation, 42)",
+    "_userspecific": "raw - _otheruser. Robustness control ADDED AFTER seeing results: corpus-mean 'generic' differs from the typical clicked-history profile, so _personal can be positive without personalisation; _userspecific removes that shared shift."
   },
-  "method": "as Phase 5: per-impression clicked-minus-unclicked mean difference, dz, one-sample t-test with Holm (per sample family), user-level t-test with Holm, shuffled-label null; Wilcoxon robustness only.",
+  "interpretation_rule": "if raw is significant but _personal is not, the match is item emotion, not personalisation",
+  "personal_significant_both_levels": {
+    "cong_pct_cos_personal": true,
+    "cong_six_cos_personal": true,
+    "cong_six_negkl_personal": true,
+    "cong_valence_absdist_personal": true,
+    "cong_pct_negkl_personal": true
+  },
+  "userspecific_significant_both_levels": {
+    "cong_pct_cos_userspecific": true,
+    "cong_six_cos_userspecific": true,
+    "cong_six_negkl_userspecific": true,
+    "cong_valence_absdist_userspecific": true,
+    "cong_pct_negkl_userspecific": true
+  },
+  "method": "as Phase 5: per-impression clicked-minus-unclicked mean difference, dz, one-sample t-test with Holm (one family per sample, exploratory measure included), user-level t-test with Holm, shuffled-label null; Wilcoxon robustness only.",
   "direction_rule": "dz > 0 and significant at both levels -> congruence-seeking; dz < 0 -> mood repair",
-  "profile_stats": {
-    "pct": {
-      "corpus_mean": {
-        "curiosity": 0.5,
-        "desire": 0.5,
-        "excitement": 0.5,
-        "joy": 0.5,
-        "optimism": 0.5,
-        "nervousness": 0.5,
-        "annoyance": 0.5,
-        "fear": 0.5
-      },
-      "median_history_items_used": 19.0,
-      "pct_impressions_cold_start": 1.95
-    },
-    "six": {
-      "corpus_mean": {
-        "joy": 0.1545,
-        "sadness": 0.073,
-        "anger": 0.0356,
-        "fear": 0.014,
-        "surprise": 0.0751,
-        "neutral": 0.6478
-      },
-      "median_history_items_used": 19.0,
-      "pct_impressions_cold_start": 1.95
-    }
-  },
   "shuffled_label_false_positives": {
     "t_test": 0,
     "user_t_test": 0,
     "both_levels": 0,
-    "of": 12,
+    "of": 25,
     "max_abs_null_dz": 0.0049
   },
   "top_categories_by_fit_clicks": {
@@ -68,14 +69,15 @@
     "descriptive association only",
     "no popularity control (LightGBM M4 vs M5 later)",
     "MIND history is one fixed list per user, so profiles do not evolve within the log period",
+    "emotion tracks topic, so personal congruence may partly be topical similarity (M2 vs M3)",
     "all-positive percentile vectors give high, compressed cosine values; dz is scale-free"
   ],
   "alpha": 0.05,
   "run_info": {
-    "timestamp_utc": "2026-10-16T13:47:43+00:00",
+    "timestamp_utc": "2026-10-26T15:01:27+00:00",
     "python": "3.11.9",
     "platform": "Windows-10-10.0.26200-SP0",
-    "git_commit": "69a3323",
+    "git_commit": "a916a50",
     "git_dirty": true,
     "pandas": "3.0.6",
     "numpy": "2.4.6",

@@ -43,7 +43,8 @@ def run_part(part, processed):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--parts", nargs="+", default=["valid", "dev"], choices=["fit", "valid", "dev"])
+    ap.add_argument("--parts", nargs="+", default=["valid"], choices=["fit", "valid", "dev"],
+                    help="valid by default; dev only on explicit request (never needed for analysis)")
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()
     ok = all([run_part(p, args.processed) for p in args.parts])

@@ -134,3 +134,30 @@ def test_hash_cache_reuses_and_detects_change(tmp_path):
     assert HashCache(tmp_path / "cache.json").sha(f) == h
     f.write_bytes(b"abcd")
     assert HashCache(tmp_path / "cache.json").sha(f) != h and c.sha(tmp_path / "missing") is None
+
+
+def test_config_names_found_in_absolute_relative_and_nested_imports(proj):
+    from src.pipeline import config_names
+    (proj / "src" / "c.py").write_text("from .config import A, B\ndef f():\n    from .config import C\n")
+    (proj / "s.py").write_text("from src.config import D\n")
+    assert config_names([proj / "src" / "c.py", proj / "s.py"], proj) == {"A", "B", "C", "D"}
+    (proj / "w.py").write_text("from src.config import *\n")
+    assert config_names([proj / "w.py"], proj) is None
+
+
+def test_only_used_config_constants_trigger_rerun(proj):
+    cfg = proj / "src" / "config.py"
+    cfg.write_text("USED = 1\nOTHER = 1\n")
+    (proj / "src" / "b.py").write_text("from .config import USED\nx = USED\n")
+    pipe(proj).run()
+    cfg.write_text("USED = 1\nOTHER = 2\nNEW = 3\n")                 # unrelated constants change
+    assert pipe(proj).status(steps(proj)[0]) == ("skip", "up to date")
+    cfg.write_text("USED = 5\nOTHER = 2\nNEW = 3\n")
+    assert pipe(proj).status(steps(proj)[0]) == ("run", "changed: src/config.py:USED")
+
+
+def test_adopt_never_skips_a_forced_step(proj):
+    (proj / "mid.txt").write_text("existing")
+    (proj / "out.txt").write_text("existing")
+    pipe(proj).run(adopt=True, force={"s1"})
+    assert runs(proj)[0] == "mid.txt"

@@ -46,3 +46,56 @@ def test_plot_dz_panels(tmp_path):
     path = tmp_path / "p.png"
     plot_dz_panels([("one", t), ("two", t)], path, "title", "subtitle")
     assert path.stat().st_size > 0
+
+
+def test_neg_abs_distance():
+    from src.congruence import neg_abs_distance
+    assert np.allclose(neg_abs_distance(np.array([[0.5], [-0.2]]), np.array([[0.1], [-0.2]])), [-0.4, 0.0])
+
+
+def test_history_index_lists_maps_unknown_to_minus_one():
+    from src.congruence import history_index_lists
+    out = history_index_lists([np.array(["N2", "N9", "N1"]), np.array([], dtype=object)], pd.Index(["N1", "N2"]))
+    assert out[0].tolist() == [1, -1, 0] and out[1].tolist() == []
+    assert history_index_lists([np.array([], dtype=object)], pd.Index(["N1"]))[0].tolist() == []
+
+
+def test_congruence_features_raw_generic_personal_and_chunking():
+    from src.congruence import congruence_features
+    vec = {"v": np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]), "val": np.array([0.5, -0.5, 0.0])}
+    histories = [np.array([0]), np.array([], dtype=np.int64)]       # profile 0 = item 0; profile 1 cold start
+    groups = np.array([0, 0, 1, 1])
+    item_idx = np.array([0, 1, 0, 2])
+    measures = [("v", "cos", "main"), ("val", "absdist", "variant")]
+    out, used = congruence_features(groups, item_idx, histories, vec, measures, chunk_size=3)
+    assert used.tolist() == [1, 0]
+    assert np.allclose(out["cong_v_cos"], [1.0, 0.0, cosine_rows([[1, 0]], [[2 / 3, 2 / 3]])[0], 1.0])
+    mean_cos = cosine_rows(vec["v"][item_idx], np.tile(vec["v"].mean(0), (4, 1)))
+    assert np.allclose(out["cong_v_cos_generic"], mean_cos)
+    assert np.allclose(out["cong_v_cos_personal"], out["cong_v_cos"] - out["cong_v_cos_generic"])
+    assert np.allclose(out["cong_val_absdist"], [0.0, -1.0, -0.5, 0.0], atol=1e-6)   # cold start -> mean 0.0
+    assert np.allclose(out["cong_val_absdist_personal"][2:], 0.0)                      # cold start: personal = 0
+    assert all(a.dtype == np.float32 for a in out.values())
+    whole, _ = congruence_features(groups, item_idx, histories, vec, measures, chunk_size=100)
+    assert all(np.array_equal(whole[k], out[k]) for k in out)
+
+
+def test_congruence_features_other_user_control():
+    from src.congruence import congruence_features
+    vec = {"v": np.array([[1.0, 0.0], [0.0, 1.0]])}
+    histories = [np.array([0]), np.array([1])]                      # user 0 likes item 0, user 1 likes item 1
+    groups, item_idx = np.array([0, 0, 1, 1]), np.array([0, 1, 0, 1])
+    out, _ = congruence_features(groups, item_idx, histories, vec, [("v", "cos", "main")], shuffle_seed=0)
+    perm = np.random.default_rng(0).permutation(2)
+    other = vec["v"][histories[0]][0], vec["v"][histories[1]][0]
+    expected = [cosine_rows([vec["v"][i]], [other[perm[g]]])[0] for g, i in zip(groups, item_idx)]
+    assert np.allclose(out["cong_v_cos_otheruser"], expected)
+    assert np.allclose(out["cong_v_cos_userspecific"], out["cong_v_cos"] - out["cong_v_cos_otheruser"])
+    plain, _ = congruence_features(groups, item_idx, histories, vec, [("v", "cos", "main")])
+    assert "cong_v_cos_otheruser" not in plain
+
+
+def test_masked_values_is_lazy_view():
+    from src.click_signal import MaskedValues
+    m = MaskedValues({"a": np.arange(4), "b": np.arange(4) * 2}, np.array([True, False, True, False]))
+    assert list(m) == ["a", "b"] and len(m) == 2 and m["b"].tolist() == [0, 4]

@@ -1,7 +1,25 @@
 """Descriptive click-signal tests: within-impression clicked-minus-unclicked feature differences."""
+from collections.abc import Mapping
+
 import numpy as np
 import pandas as pd
 from scipy.stats import rankdata, ttest_1samp, wilcoxon
+
+
+class MaskedValues(Mapping):
+    """{name: array} restricted to rows[mask], built on demand (avoids copying every feature at once)."""
+
+    def __init__(self, values, mask):
+        self.values, self.mask = values, mask
+
+    def __getitem__(self, name):
+        return self.values[name][self.mask]
+
+    def __iter__(self):
+        return iter(self.values)
+
+    def __len__(self):
+        return len(self.values)
 
 
 def load_fit_impressions(processed):

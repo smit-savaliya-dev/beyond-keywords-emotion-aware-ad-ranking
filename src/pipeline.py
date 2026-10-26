@@ -6,6 +6,7 @@ files are never re-hashed and a step that succeeded on the same inputs is skippe
 import ast
 import hashlib
 import json
+import runpy
 import subprocess
 import sys
 import time
@@ -64,6 +65,26 @@ def code_deps(script, root):
     return sorted(seen)
 
 
+def config_names(files, root):
+    """Names imported from src/config.py by these files, or None if any file imports it wholesale."""
+    src = Path(root) / "src"
+    names = set()
+    for path in files:
+        in_src = Path(path).parent == src
+        for node in ast.walk(ast.parse(Path(path).read_text(encoding="utf-8"))):
+            if isinstance(node, ast.ImportFrom):
+                hit = node.module == "src.config" or (node.level and in_src and node.module == "config")
+                if hit:
+                    if any(a.name == "*" for a in node.names):
+                        return None
+                    names |= {a.name for a in node.names}
+                elif node.module in ("src", None) and any(a.name == "config" for a in node.names):
+                    return None
+            elif isinstance(node, ast.Import) and any(a.name == "src.config" for a in node.names):
+                return None
+    return names
+
+
 class HashCache:
     def __init__(self, path):
         self.path = Path(path)
@@ -108,13 +129,35 @@ class Pipeline:
         except ValueError:
             return str(p)
 
+    def _code(self, step):
+        """(code files, config names used) for a step; config names None = depend on the whole config file."""
+        if not step.script:
+            return [], set()
+        files = code_deps(step.script, self.root)
+        cfg = self.root / "src" / "config.py"
+        names = config_names(files, self.root) if cfg in files else set()
+        if names is not None:
+            files = [f for f in files if f != cfg]
+        return files, names
+
+    def _config_values(self):
+        if not hasattr(self, "_cfg"):
+            path = self.root / "src" / "config.py"
+            self._cfg = runpy.run_path(str(path)) if path.exists() else {}
+        return self._cfg
+
     def _deps(self, step):
-        code = code_deps(step.script, self.root) if step.script else []
-        return [Path(p) for p in [*step.inputs, *code, *step.extra_code]]
+        files, _ = self._code(step)
+        return [Path(p) for p in [*step.inputs, *files, *step.extra_code]]
 
     def _signature(self, step):
-        return {"cmd": [str(c) for c in step.cmd],
-                "inputs": {self._rel(p): self.cache.sha(p) for p in self._deps(step)}}
+        inputs = {self._rel(p): self.cache.sha(p) for p in self._deps(step)}
+        _, names = self._code(step)
+        cfg = self._config_values()
+        for name in sorted(names or ()):
+            value = repr(cfg.get(name, "<missing>")).encode("utf-8")
+            inputs[f"src/config.py:{name}"] = hashlib.sha256(value).hexdigest()
+        return {"cmd": [str(c) for c in step.cmd], "inputs": inputs}
 
     def _stamp_path(self, step):
         return self.state / f"{step.name}.json"
@@ -176,7 +219,7 @@ class Pipeline:
         try:
             for i, step in enumerate(self.steps, 1):
                 action, reason = self.status(step, step.name in force, frozenset(planned))
-                if adopt and step.adoptable and not step.create_only and action == "run":
+                if adopt and step.adoptable and not step.create_only and action == "run" and step.name not in force:
                     if all(Path(p).exists() for p in [*step.inputs, *step.outputs]):
                         self._write_stamp(step, self._signature(step), 0.0, "adopted existing outputs")
                         action, reason = "skip", "adopted existing outputs"

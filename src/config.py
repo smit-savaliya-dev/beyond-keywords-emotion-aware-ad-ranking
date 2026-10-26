@@ -93,3 +93,12 @@ CONGRUENCE_EPS = 1e-6  # smoothing for negative KL
 # Validation only: NRC shares -> 6 classes (trust, anticipation not mapped; no mapped hits -> neutral).
 NRC_SIX_MAP = {"joy": ["nrc_joy"], "sadness": ["nrc_sadness"], "anger": ["nrc_anger", "nrc_disgust"],
                "fear": ["nrc_fear"], "surprise": ["nrc_surprise"]}
+# (vector version, measure, status). Personal = measure(user profile) - measure(corpus-mean profile).
+CONGRUENCE_MEASURES = [
+    ("pct", "cos", "main"),                       # 8 go_pct_* percentiles, cosine
+    ("six", "cos", "variant"),                    # weighted 6-class distribution, cosine
+    ("six", "negkl", "variant"),                  # -KL(item || profile) on the 6-class distribution
+    ("valence", "absdist", "variant"),            # -|profile go_vad_valence - item go_vad_valence|
+    ("pct", "negkl", "exploratory, not pre-declared"),
+]
+CONGRUENCE_CHUNK = 500_000  # candidate rows per chunk
