@@ -9,7 +9,7 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
 | 1 Congruence (valence distance, personal, controls, decision log) | done | see git log |
 | 2 Labelling tool + guidelines | done | see git log |
 | 3 M0 popularity, M1 TF-IDF, stats, runs log | done (dev run once each) | see git log |
-| 4 Label validation (code + fakes; neutral share per threshold) | pending | |
+| 4 Label validation (code + fakes; neutral share per threshold) | code done; real run waits for labels | see git log |
 | 5 Emotion spec v1 (provisional) | pending | |
 | 6 Docs, EDA label fix, README, week 5 draft | pending | |
 
@@ -57,3 +57,12 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
   2. M1 dev log line said "valid auc" (hard-coded label); fixed. Saved metrics were correct, so no dev rerun.
 - Not a bug: M0 beats M1 on dev AUC. Popularity statistics for dev include the valid day (one extra day, lower
   unseen share), which gives a strong recency signal; dev labels were never used.
+
+## Phase 4 (2026-10-26)
+- Thresholds declared in config BEFORE the first run (D24). `src/validation.py`, script 16 (item-level, runs now),
+  script 06 rewritten (5 sources, per-class recall with < 5 flag, threshold kappa curve with bootstrap CI,
+  intra-rater kappa from the re-label sheet, figure). End-to-end test runs script 06 on a fake project in tmp_path;
+  NO fake labels were written to any real output. The pipeline step 06 waits until the 180 labels exist.
+- Neutral share on the full corpus (65,238 items): raw t=0.05 23.8%, 0.1 44.8%, 0.2 66.5%, 0.3 79.4%, 0.4 86.8%,
+  0.5 92.6%; percentile t=0.80 24.6%, 0.85 34.5%, 0.90 49.3%, 0.95 70.1%, 0.99 92.7%. Argmax baseline 81.1%.
+- Limitation found: the percentile view cannot produce sadness (D25), documented in the metadata.

@@ -1,0 +1,47 @@
+{
+  "n_items": 65238,
+  "thresholds_raw": [
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5
+  ],
+  "thresholds_pct": [
+    0.8,
+    0.85,
+    0.9,
+    0.95,
+    0.99
+  ],
+  "rule": "non-neutral class (6-class group of the top label/emotion) if its score > t, else neutral",
+  "primary": "raw_max_sigmoid: max raw GoEmotions sigmoid over the 27 non-neutral labels (weighted)",
+  "secondary": "pct_max_percentile: max go_pct_* over the 8 emotions. Percentiles are ranks, so the neutral share is largely fixed by construction (about P(max of 8 correlated ranks <= t)); this view also cannot produce sadness (none of the 8 emotions maps to it)",
+  "pct_group": {
+    "curiosity": "surprise",
+    "desire": "joy",
+    "excitement": "joy",
+    "joy": "joy",
+    "optimism": "joy",
+    "nervousness": "fear",
+    "annoyance": "anger",
+    "fear": "fear"
+  },
+  "baseline_argmax_neutral_pct": 81.09,
+  "declared": "2026-10-26, before the first run",
+  "run_info": {
+    "timestamp_utc": "2026-10-26T15:19:23+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "d1b342c",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

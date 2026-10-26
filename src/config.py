@@ -124,3 +124,8 @@ M0_SMOOTHING_GRID = [1, 10, 100]  # a in (clicks + a*p) / (shown + a)
 M1_GRID = {"text": ["title", "text"], "sublinear_tf": [False, True], "aggregation": ["mean", "decay"]}  # 8 configs
 TFIDF_MIN_DF = 2                   # fixed, not tuned
 TFIDF_STOP_WORDS = "english"       # fixed, not tuned
+
+# Threshold sensitivity (pre-declared before the first run, 2026-10-26). Non-neutral class if score > t, else neutral.
+THRESHOLDS_RAW = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]       # max raw sigmoid over the 27 non-neutral labels (weighted)
+THRESHOLDS_PCT = [0.80, 0.85, 0.90, 0.95, 0.99]        # max go_pct_* over the 8 emotions (secondary view)
+MIN_CLASS_COUNT = 5                                   # per-class results with fewer hand labels are flagged unreliable

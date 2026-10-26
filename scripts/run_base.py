@@ -24,6 +24,7 @@ from src.pipeline import Pipeline, Step, StepFailed
 S = ROOT / "scripts"
 P, T = PROCESSED, RESULTS / "tables"
 SHEET = ANNOTATION / "manual_sample.csv"
+RELABEL = ANNOTATION / "relabel_sample.csv"
 RAW_FILES = [RAW / s / f for s in ("train", "dev") for f in ("news.tsv", "behaviors.tsv")]
 NEWS, BEH, IMPS = P / "news.parquet", P / "behaviors.parquet", P / "impressions.parquet"
 EDA_FIGS = ["01_part_sizes", "02_candidates_per_impression", "03_clicks_per_impression", "04_categories",
@@ -101,12 +102,21 @@ def build_steps(skip_official_check):
              inputs=[P / "data_summary.json"]
              + [RESULTS / "per_impression" / f"{m}__valid.parquet" for m in (M0_NAME, M1_NAME)],
              script=S / "22_compare_baselines.py"),
+        Step("16_threshold_shares", [S / "16_emotion_thresholds.py"],
+             inputs=[P / "news_emotion_raw28_weighted.parquet", P / "news_emotion_features.parquet",
+                     P / "news_emotion_weighted.parquet"], script=S / "16_emotion_thresholds.py",
+             outputs=[T / "emotion_threshold_neutral_share.csv", T / "emotion_threshold_neutral_share_meta.json",
+                      FIGURES / "emotion_threshold_neutral_share.png"], note="item-level, no labels"),
         Step("06_validate_labels", [S / "06_validate_emotion_labels.py"],
              inputs=[SHEET, P / "news_emotion.parquet", P / "news_emotion_weighted.parquet",
-                     P / "news_emotion_nrc_features.parquet"],
+                     P / "news_emotion_raw28_title.parquet", P / "news_emotion_raw28_weighted.parquet",
+                     P / "news_emotion_nrc_features.parquet", P / "news_emotion_features.parquet"]
+             + ([RELABEL] if RELABEL.exists() else []),
              script=S / "06_validate_emotion_labels.py",
-             outputs=[T / "emotion_validation.json", T / "emotion_validation_sources.csv",
-                      T / "emotion_validation_sources.json"], condition=labels_ready),
+             outputs=[T / f for f in ("emotion_validation.json", "emotion_validation_sources.csv",
+                                      "emotion_validation_sources.json", "emotion_validation_per_class.csv",
+                                      "emotion_threshold_sensitivity.csv")] + [FIGURES / "emotion_threshold_kappa.png"],
+             condition=labels_ready),
     ]
 
 
