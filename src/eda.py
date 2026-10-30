@@ -22,8 +22,10 @@ plt.rcParams.update({
 
 def load(processed):
     news = pd.read_parquet(processed / "news.parquet")
-    beh = pd.read_parquet(processed / "behaviors.parquet", columns=["part", "history_len"])
-    imps = pd.read_parquet(processed / "impressions.parquet", columns=["part", "imp_key", "label"])
+    # fit only: dev is never read; part sizes come from the saved summary
+    beh = pd.read_parquet(processed / "behaviors.parquet", columns=["part", "history_len"], filters=[("part", "==", "fit")])
+    imps = pd.read_parquet(processed / "impressions.parquet", columns=["part", "imp_key", "label"],
+                           filters=[("part", "==", "fit")])
     summary = json.loads((processed / "data_summary.json").read_text(encoding="utf-8"))
     return news, beh, imps, summary
 

@@ -3,8 +3,8 @@ import pandas as pd
 import pytest
 
 from src.emotion import GOEMOTIONS_LABELS
-from src.emotion_v2 import (class_shares, combine_share, example_rows, intensity_table, load_part_context,
-                            select_setting, threshold_labels)
+from src.click_signal import load_part_context
+from src.emotion_v2 import class_shares, combine_share, example_rows, intensity_table, select_setting, threshold_labels
 
 IDX = {l: i for i, l in enumerate(GOEMOTIONS_LABELS)}
 

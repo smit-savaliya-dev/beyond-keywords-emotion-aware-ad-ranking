@@ -5,7 +5,7 @@ on users with >= 10 history items, because small windows are noisier.
 Limitation: MIND history is one list per user from before the log period, so "last 1" is not the click just before the
 impression; it is the emotional context inferred from the user's most recent reading in that list.
 
-  python scripts/33_context_windows.py
+  python scripts/34_analysis_context_windows.py
 """
 import argparse
 import json
@@ -15,17 +15,14 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.click_signal import MaskedValues, permute_within_groups, signal_table, within_group_diffs
-from src.config import (CONTEXT_CONTROL, CONTEXT_CONTROL_MIN_HISTORY, CONTEXT_WINDOWS, PROCESSED, RESULTS, SEED,
-                        SIGNAL_ALPHA, V2_MAIN_MEASURE)
-from src.congruence import congruence_features, window_histories
+from src.click_signal import MaskedValues, load_part_context, permute_within_groups, signal_table, within_group_diffs
+from src.config import (CONGRUENCE_ROLES as ROLES, CONTEXT_CONTROL, CONTEXT_CONTROL_MIN_HISTORY, CONTEXT_WINDOWS, PROCESSED,
+                        TABLES, SEED, SIGNAL_ALPHA)
+from src.congruence import window_congruence
 from src.emotion_features import GO_EMOTIONS
-from src.emotion_v2 import load_part_context
 from src.provenance import run_info
 from src.stats import dz_difference, holm
 
-TABLES = RESULTS / "tables"
-ROLES = {"": "raw", "_personal": "personal", "_userspecific": "user-specific"}
 USER = "_userspecific"
 
 
@@ -33,10 +30,7 @@ def window_values(ctx, vectors, windows):
     """{window + role suffix: candidate values} for each window; profiles use only the history column."""
     values = {}
     for name, w in windows.items():
-        hist = window_histories(ctx.histories, w["skip"], w["size"])
-        out, _ = congruence_features(ctx.groups, ctx.item_idx, hist, {"pct": vectors}, V2_MAIN_MEASURE,
-                                     shuffle_seed=SEED, decay=w["decay"], max_items=w["size"])
-        values.update({f"{name}{suffix}": out[f"cong_pct_cos{suffix}"] for suffix in ROLES})
+        values.update(window_congruence(ctx.groups, ctx.item_idx, ctx.histories, vectors, name, w, SEED))
     return values
 
 

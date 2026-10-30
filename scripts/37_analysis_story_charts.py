@@ -1,7 +1,7 @@
 """Step 3 of base-v2: the eight story charts in results/figures/story/ (and the data behind them in results/tables/).
 Reads saved tables only: item-level emotion files and fit/valid results. No clicks are loaded and dev is never read.
 
-  python scripts/34_story_charts.py
+  python scripts/37_analysis_story_charts.py
 """
 import argparse
 import json
@@ -12,11 +12,10 @@ import pandas as pd
 
 import _bootstrap  # noqa: F401
 from src import story_charts as sc
-from src.config import PROCESSED, RESULTS, STORY_DIR, STORY_TOP_CATEGORIES
+from src.config import PROCESSED, TABLES, STORY_DIR, STORY_TOP_CATEGORIES
 from src.emotion import SIX_CLASSES
 from src.emotion_v2 import intensity_table
 
-TABLES = RESULTS / "tables"
 NAMES = {"go_pct_curiosity": "curiosity (pct)", "go_pct_desire": "desire (pct)", "go_pct_excitement": "excitement (pct)",
          "go_pct_joy": "joy (pct)", "go_pct_optimism": "optimism (pct)", "go_pct_nervousness": "nervousness (pct)",
          "go_pct_annoyance": "annoyance (pct)", "go_pct_fear": "fear (pct)", "go_emotionality": "emotionality",

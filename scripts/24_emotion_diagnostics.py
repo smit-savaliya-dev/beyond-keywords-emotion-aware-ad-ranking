@@ -1,7 +1,7 @@
 """Item-level diagnostics of news_emotion_features.parquet: distributions, cross-source and title-vs-abstract
 correlations, one heatmap. No click data.
 
-  python scripts/13_emotion_diagnostics.py
+  python scripts/24_emotion_diagnostics.py
 """
 import argparse
 import json
@@ -10,11 +10,9 @@ from pathlib import Path
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.config import CROSS_SOURCE_PAIRS, FIGURES, LOW_MASS_THRESHOLD, NRC_EMOTIONS, PROCESSED, RESULTS, VAD_DIMS
+from src.config import CROSS_SOURCE_PAIRS, DIAGNOSTICS, LOW_MASS_THRESHOLD, NRC_EMOTIONS, PROCESSED, TABLES, VAD_DIMS
 from src.diagnostics import correlation_block, feature_distributions, pair_correlations, plot_correlation_block
 from src.emotion_features import GO_EMOTIONS
-
-TABLES = RESULTS / "tables"
 
 
 def main():
@@ -23,7 +21,7 @@ def main():
     args = ap.parse_args()
     df = pd.read_parquet(args.processed / "news_emotion_features.parquet")
     TABLES.mkdir(parents=True, exist_ok=True)
-    FIGURES.mkdir(parents=True, exist_ok=True)
+    DIAGNOSTICS.mkdir(parents=True, exist_ok=True)
 
     feature_cols = [c for c in df.columns if c not in ("news_id", "has_abstract")]
     dist = feature_distributions(df, feature_cols)
@@ -49,7 +47,7 @@ def main():
     block = correlation_block(hits, rows, cols)
     block.round(4).to_csv(TABLES / "emotion_cross_source_spearman.csv")
     plot_correlation_block(
-        block, FIGURES / "emotion_cross_source_spearman.png",
+        block, DIAGNOSTICS / "emotion_cross_source_spearman.png",
         "GoEmotions and NRC lexicons agree moderately on fear and valence, weakly elsewhere",
         f"Spearman correlation, {len(hits):,} MIND news items with at least one EmoLex emotion word "
         f"(title + abstract weighted 1/3 : 2/3). Outlined: expected matches.",
@@ -61,7 +59,7 @@ def main():
     print("\nCross-source pairs:\n" + cross.round(3).to_string(index=False))
     print("\nTitle vs abstract (items with abstract):\n" + ta.round(3).to_string(index=False))
     print(f"\n% items with go_emotion_mass < {LOW_MASS_THRESHOLD}: {low}")
-    print(f"\nSaved tables to {TABLES} and figure to {FIGURES / 'emotion_cross_source_spearman.png'}")
+    print(f"\nSaved tables to {TABLES} and figure to {DIAGNOSTICS / 'emotion_cross_source_spearman.png'}")
 
 
 if __name__ == "__main__":

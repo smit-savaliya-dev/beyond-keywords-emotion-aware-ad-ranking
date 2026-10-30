@@ -1,7 +1,7 @@
 """D32: re-apply the D27 replication rule on the v2 features (fit, then valid; dev is never read).
 Writes the clicked-vs-not signal table used by the story charts and the candidate selection behind spec v2.
 
-  python scripts/32_emotion_spec_v2.py
+  python scripts/33_analysis_spec_v2_replication.py
 """
 import argparse
 import json
@@ -11,17 +11,15 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.click_signal import permute_within_groups, signal_table
-from src.config import (PROCESSED, RESULTS, SEED, SIGNAL_ALPHA, SPEC_CONGRUENCE_CANDIDATES, SPEC_ITEM_CANDIDATES,
+from src.click_signal import load_part_context, permute_within_groups, signal_table
+from src.config import (PROCESSED, TABLES, SEED, SIGNAL_ALPHA, SPEC_CONGRUENCE_CANDIDATES, SPEC_ITEM_CANDIDATES,
                         V2_ITEM_EXTRA)
 from src.congruence import congruence_features
 from src.emotion import GOEMOTIONS_LABELS, collapse
 from src.emotion_features import GO_EMOTIONS
 from src.emotion_spec import replication_selection
-from src.emotion_v2 import load_part_context
 from src.provenance import run_info
 
-TABLES = RESULTS / "tables"
 MEASURES = [("pct", "cos", "main"), ("six", "negkl", "variant"), ("valence", "absdist", "variant")]
 CONTROLS = ["cong_pct_cos_otheruser", "cong_pct_cos_userspecific"]
 

@@ -27,6 +27,8 @@ class Step:
     create_only: bool = False                     # never rerun once all outputs exist
     condition: Optional[Callable[[], Optional[str]]] = None  # returns a reason to wait, or None
     adoptable: bool = True
+    gpu: bool = False                             # model scoring: never part of --rebuild
+    always: bool = False                          # runs every time (e.g. a summary)
     note: str = ""
 
 
@@ -83,6 +85,16 @@ def config_names(files, root):
             elif isinstance(node, ast.Import) and any(a.name == "src.config" for a in node.names):
                 return None
     return names
+
+
+def rebuild_steps(steps):
+    """Names forced by --rebuild: every step except GPU scoring. Create-only steps still keep their files."""
+    return {s.name for s in steps if not s.gpu}
+
+
+def held_gpu_steps(steps, explicit=()):
+    """GPU steps never start on their own: held when their outputs exist, unless named explicitly."""
+    return {s.name for s in steps if s.gpu and s.name not in set(explicit) and all(Path(p).exists() for p in s.outputs)}
 
 
 class HashCache:
@@ -184,6 +196,8 @@ class Pipeline:
             why = step.condition()
             if why:
                 return "wait", why
+        if step.always:
+            return "run", "runs every time"
         missing_out = [self._rel(p) for p in step.outputs if not Path(p).exists()]
         if step.create_only:
             return ("run", f"missing {missing_out[0]}") if missing_out else ("skip", "exists (never regenerated)")
@@ -213,12 +227,16 @@ class Pipeline:
             return "run", f"output modified: {modified[0]}"
         return "skip", "up to date"
 
-    def run(self, force=(), dry_run=False, adopt=False):
-        """Run stale steps in order; stop at the first failure. -> list of (name, action, reason, seconds)."""
+    def run(self, force=(), dry_run=False, adopt=False, hold=()):
+        """Run stale steps in order; stop at the first failure. Steps in `hold` are skipped whatever changed.
+        -> list of (name, action, reason, seconds)."""
         report, planned, n = [], set(), len(self.steps)
         try:
             for i, step in enumerate(self.steps, 1):
-                action, reason = self.status(step, step.name in force, frozenset(planned))
+                if step.name in hold:
+                    action, reason = "skip", "held: GPU scoring is not rerun"
+                else:
+                    action, reason = self.status(step, step.name in force, frozenset(planned))
                 if adopt and step.adoptable and not step.create_only and action == "run" and step.name not in force:
                     if all(Path(p).exists() for p in [*step.inputs, *step.outputs]):
                         self._write_stamp(step, self._signature(step), 0.0, "adopted existing outputs")

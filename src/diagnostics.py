@@ -2,7 +2,8 @@
 import numpy as np
 import pandas as pd
 
-INK, INK_2, SURFACE = "#0b0b0b", "#52514e", "#fcfcfb"
+from .story_charts import INK, INK_2, SURFACE
+
 DIVERGING = ["#184f95", "#2a78d6", "#86b6ef", "#f0efec", "#f0a3a2", "#e34948", "#a8302f"]
 
 

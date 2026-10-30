@@ -1,7 +1,7 @@
 """User emotion profiles from click HISTORY only, and item-profile congruence (cosine, negative KL)."""
 import numpy as np
 
-from .config import CONGRUENCE_DECAY, CONGRUENCE_EPS, CONGRUENCE_MAX_HISTORY
+from .config import CONGRUENCE_DECAY, CONGRUENCE_EPS, CONGRUENCE_MAX_HISTORY, CONGRUENCE_ROLES, V2_MAIN_MEASURE
 
 
 def user_profiles(histories, vectors, fallback, decay=CONGRUENCE_DECAY, max_items=CONGRUENCE_MAX_HISTORY):
@@ -116,3 +116,11 @@ def congruence_features(groups, item_idx, histories, vectors, measures, chunk_si
                 oth[s:e] = fn(mat[item_idx[s:e]], prof[other[groups[s:e]]])
             out[f"{name}_otheruser"], out[f"{name}_userspecific"] = oth, raw - oth
     return out, used
+
+
+def window_congruence(groups, item_idx, histories, vectors, name, window, seed):
+    """Main measure (cosine on go_pct) for one history window {skip, size, decay}: raw, personal, user-specific."""
+    hist = window_histories(histories, window["skip"], window["size"])
+    out, _ = congruence_features(groups, item_idx, hist, {"pct": vectors}, V2_MAIN_MEASURE, shuffle_seed=seed,
+                                 decay=window["decay"], max_items=window["size"])
+    return {f"{name}{suffix}": out[f"cong_pct_cos{suffix}"] for suffix in CONGRUENCE_ROLES}

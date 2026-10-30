@@ -1,7 +1,7 @@
 """Merge all item-level emotion features into data/processed/news_emotion_features.parquet (+ metadata JSON).
-Uses only saved outputs of steps 10 and 11; no model re-run.
+Uses only saved outputs of the scoring and lexicon steps; no model re-run.
 
-  python scripts/12_merge_emotion_features.py
+  python scripts/23_emotion_merge_features.py
 """
 import argparse
 import json

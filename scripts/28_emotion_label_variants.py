@@ -2,7 +2,7 @@
 presence decision and the dominant class. Same weight as v2, same t grid. Reporting labels only: soft model features do not
 change, and the final choice between variants is made later by hand-label kappa. No GPU: uses the saved v2 raw scores.
 
-  python scripts/35_label_variants.py
+  python scripts/28_emotion_label_variants.py
 """
 import argparse
 import json
@@ -11,11 +11,9 @@ from pathlib import Path
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.config import LABEL_VARIANTS, PROCESSED, RESULTS, V2_T_GRID
+from src.config import LABEL_VARIANTS, PROCESSED, TABLES, V2_T_GRID
 from src.emotion_v2 import class_shares, intensity_table, threshold_labels
 from src.provenance import run_info
-
-TABLES = RESULTS / "tables"
 
 
 def main():

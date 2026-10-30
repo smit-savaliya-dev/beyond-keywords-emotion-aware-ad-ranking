@@ -1,7 +1,7 @@
 """Build the v2 emotion tables for the setting chosen by D30 (emotion_v2_choice.json). New files only; v1 is untouched.
 No GPU: uses the saved title/abstract raw scores. Labels are for reporting and validation, never model features.
 
-  python scripts/31_emotion_v2_features.py
+  python scripts/27_emotion_v2_features.py
 """
 import argparse
 import json
@@ -10,13 +10,11 @@ from pathlib import Path
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.config import LABEL_SHEET, PROCESSED, RESULTS, SEED, V2_EXAMPLES_PER_CLASS
+from src.config import LABEL_SHEET, PROCESSED, TABLES, SEED, V2_EXAMPLES_PER_CLASS
 from src.emotion_features import go_features, go_percentiles, go_vad, merge_features
 from src.emotion_v2 import class_shares, combine_share, example_rows, intensity_table, threshold_labels
 from src.lexicon import combine_lexicon_fields, field_lexicon_features, lexicon_counts, load_emolex, load_vad
 from src.provenance import run_info
-
-TABLES = RESULTS / "tables"
 
 
 def main():

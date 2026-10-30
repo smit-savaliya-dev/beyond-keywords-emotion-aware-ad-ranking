@@ -104,7 +104,7 @@ def fake_project(tmp_path):
 
 
 def run_06(p, sheet="sheet.csv"):
-    cmd = [sys.executable, str(ROOT / "scripts" / "06_validate_emotion_labels.py"), "--sheet", str(p / sheet),
+    cmd = [sys.executable, str(ROOT / "scripts" / "38_analysis_label_validation.py"), "--sheet", str(p / sheet),
            "--relabel-sheet", str(p / "relabel.csv"), "--processed", str(p / "processed"),
            "--out-dir", str(p / "out"), "--fig-dir", str(p / "fig"), "--n-boot", "30"]
     return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)

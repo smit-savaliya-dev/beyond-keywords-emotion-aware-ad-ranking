@@ -100,7 +100,7 @@ def load_sources(processed, news_ids):
 
 
 def run_validation(sheet_path, processed, relabel_path=None, n_boot=1000):
-    """Everything script 06 reports. Raises if the main sheet is not completely labelled."""
+    """Everything the label-validation script reports. Raises if the main sheet is not completely labelled."""
     sheet = read_sheet(sheet_path)
     problems = sheet_problems(sheet)
     if problems:
@@ -148,7 +148,8 @@ def plot_threshold_panels(table, value, ylabel, path, title, subtitle, ci=None):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    ink, ink2, grid, surface, color = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb", "#2a78d6"
+    from .story_charts import GRID as grid, INK as ink, INK_2 as ink2, SURFACE as surface
+    color = "#2a78d6"
     kinds = list(dict.fromkeys(table["score"]))
     fig, axes = plt.subplots(1, len(kinds), figsize=(5.2 * len(kinds), 3.8), squeeze=False)
     fig.patch.set_facecolor(surface)

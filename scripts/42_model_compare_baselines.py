@@ -1,9 +1,6 @@
 """Paired comparison M1 vs M0 on per-impression metrics (paired t-test, 95% CI, dz, Holm across metrics; Wilcoxon
 robustness only), plus sanity checks: same impression count for every model, each model above random (AUC 0.5).
 Reads saved per-impression results only; it never scores a model.
-
-  python scripts/22_compare_baselines.py --part valid
-  python scripts/22_compare_baselines.py --part dev     # only after both --final-dev runs
 """
 import argparse
 import json
@@ -12,10 +9,8 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.config import M0_NAME, M1_NAME, METRIC_COLUMNS, PROCESSED, RESULTS
+from src.config import M0_NAME, M1_NAME, METRIC_COLUMNS, PROCESSED, RESULTS, TABLES
 from src.stats import compare_models, paired_test
-
-TABLES = RESULTS / "tables"
 
 
 def main():

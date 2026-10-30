@@ -1,7 +1,7 @@
 """Label every news item with emotion vectors. Resumable: re-run to continue after an interruption.
 
-  python scripts/04_label_emotions.py --smoke    # 12 headlines, writes nothing: check the model works
-  python scripts/04_label_emotions.py            # full run (GPU used automatically if available)
+  python scripts/20_emotion_label_combined.py --smoke    # 12 headlines, writes nothing: check the model works
+  python scripts/20_emotion_label_combined.py            # full run (GPU used automatically if available)
 """
 import argparse
 import json

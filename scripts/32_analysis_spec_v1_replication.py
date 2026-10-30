@@ -3,7 +3,7 @@ clicked-minus-unclicked dz, t-test, Holm, user level, shuffled-label null), on p
 Rule (pre-declared): keep a candidate if it is significant at both levels on fit AND on valid has the same sign with an
 impression-level 95% CI that excludes 0.
 
-  python scripts/17_emotion_spec_valid.py
+  python scripts/32_analysis_spec_v1_replication.py
 """
 import argparse
 import json
@@ -13,16 +13,14 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.click_signal import load_part_impressions, permute_within_groups, signal_table
-from src.config import (CONGRUENCE_MEASURES, PROCESSED, RESULTS, SEED, SIGNAL_ALPHA, SPEC_CONGRUENCE_CANDIDATES,
+from src.click_signal import load_part_context, permute_within_groups, signal_table
+from src.config import (CONGRUENCE_MEASURES, PROCESSED, TABLES, SEED, SIGNAL_ALPHA, SPEC_CONGRUENCE_CANDIDATES,
                         SPEC_ITEM_CANDIDATES)
-from src.congruence import congruence_features, history_index_lists
+from src.congruence import congruence_features
 from src.emotion import SIX_CLASSES
 from src.emotion_spec import replication_selection
 from src.emotion_features import GO_EMOTIONS
 from src.provenance import run_info
-
-TABLES = RESULTS / "tables"
 
 
 def main():
@@ -31,32 +29,21 @@ def main():
     args = ap.parse_args()
     p = args.processed
 
-    valid = load_part_impressions(p, "valid")
-    groups, imp_keys = pd.factorize(valid["imp_key"].astype(str))
-    group_users = pd.Series(pd.factorize(valid["user_id"].astype(str))[0]).groupby(groups).first().to_numpy()
-    labels = valid["label"].to_numpy()
     pct_cols = [f"go_pct_{e}" for e in GO_EMOTIONS]
     feats = pd.read_parquet(p / "news_emotion_features.parquet",
                             columns=["news_id", *dict.fromkeys(SPEC_ITEM_CANDIDATES + pct_cols + ["go_vad_valence"])])
-    pos = pd.Index(feats["news_id"])
-    idx = pos.get_indexer(valid["news_id"].astype(str))
-    if (idx < 0).any():
-        raise ValueError("valid candidates without emotion features")
+    ctx = load_part_context(p, "valid", pd.Index(feats["news_id"]))
+    groups, group_users, labels, idx, imp_keys = ctx.groups, ctx.group_users, ctx.labels, ctx.item_idx, ctx.imp_keys
     values = {c: feats[c].to_numpy(np.float64)[idx] for c in SPEC_ITEM_CANDIDATES}
 
-    beh = pd.read_parquet(p / "behaviors.parquet", columns=["imp_key", "part", "history"],
-                          filters=[("part", "==", "valid")]).set_index("imp_key").reindex(imp_keys)
-    if beh["history"].isna().any():
-        raise ValueError("valid impressions without a behaviors row")
     six = pd.read_parquet(p / "news_emotion_weighted.parquet").set_index("news_id").reindex(feats["news_id"])
     vectors = {"pct": feats[pct_cols].to_numpy(np.float64), "six": six[SIX_CLASSES].to_numpy(np.float64),
                "valence": feats["go_vad_valence"].to_numpy(np.float64)}
     measures = [m for m in CONGRUENCE_MEASURES if f"cong_{m[0]}_{m[1]}" in
                 {c.replace("_personal", "") for c in SPEC_CONGRUENCE_CANDIDATES}]
-    cong, used = congruence_features(groups, idx, history_index_lists(beh["history"].to_numpy(), pos), vectors,
-                                     measures)
+    cong, used = congruence_features(groups, idx, ctx.histories, vectors, measures)
     values.update({c: cong[c] for c in SPEC_CONGRUENCE_CANDIDATES})
-    print(f"valid: {len(imp_keys):,} impressions, {len(set(group_users)):,} users, {len(valid):,} candidates; "
+    print(f"valid: {len(imp_keys):,} impressions, {len(set(group_users)):,} users, {len(groups):,} candidates; "
           f"cold start {100 * float((used == 0).mean()):.2f}%")
 
     valid_t = signal_table(groups, labels, values, SIGNAL_ALPHA, group_users).set_index("feature")

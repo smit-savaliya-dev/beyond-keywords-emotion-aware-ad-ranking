@@ -1,7 +1,7 @@
 """M0 popularity: Beta-smoothed item CTR (clicks + a*p) / (shown + a) toward the global CTR p; unseen items get p.
 
-  python scripts/20_m0_popularity.py --tune        # valid only, scored with fit statistics; picks a by valid AUC
-  python scripts/20_m0_popularity.py --final-dev   # once, frozen a, scored with fit+valid statistics
+  python scripts/40_model_m0_popularity.py --tune        # valid only, scored with fit statistics; picks a by valid AUC
+  python scripts/40_model_m0_popularity.py --final-dev   # once, frozen a, scored with fit+valid statistics
 """
 import argparse
 import json
@@ -11,11 +11,10 @@ import pandas as pd
 
 import _bootstrap  # noqa: F401
 from src.baselines import item_ctr, popularity_scores, unseen_share
-from src.config import M0_NAME, M0_SMOOTHING_GRID, PROCESSED, RESULTS, SELECTION_METRIC
+from src.config import M0_NAME, M0_SMOOTHING_GRID, PROCESSED, TABLES, SELECTION_METRIC
 from src.evaluate import evaluate, load_truth, save_results
 from src.experiments import append_run, check_final_dev, frozen_marker, load_rows, pick_best, save_frozen
 
-TABLES = RESULTS / "tables"
 STATS_PARTS = {"valid": ["fit"], "dev": ["fit", "valid"]}  # click statistics only from earlier parts
 
 

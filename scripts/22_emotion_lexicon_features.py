@@ -1,6 +1,6 @@
 """NRC EmoLex + VAD features (title/abstract weighted) and classifier-derived go_vad_* features. CPU, about a minute.
 
-  python scripts/11_lexicon_features.py
+  python scripts/22_emotion_lexicon_features.py
 """
 import argparse
 import json
@@ -10,13 +10,11 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.config import ABSTRACT_WEIGHT, NRC_EMOTIONS, PROCESSED, RESULTS, TITLE_WEIGHT, TOKEN_PATTERN
+from src.config import ABSTRACT_WEIGHT, NRC_EMOTIONS, PROCESSED, TABLES, TITLE_WEIGHT, TOKEN_PATTERN
 from src.emotion_features import go_vad, title_share
 from src.lexicon import (LEXICON_COLUMNS, combine_lexicon_fields, field_lexicon_features, lexicon_counts,
                          load_emolex, load_vad, top_matched_words)
 from src.provenance import run_info
-
-TABLES = RESULTS / "tables"
 
 
 def field_coverage(feats, mask):

@@ -3,42 +3,24 @@ Per impression: mean(feature | clicked) - mean(feature | not clicked). Primary t
 across impressions, dz = mean / sd, Holm within each family; user-level check on per-user mean differences.
 Wilcoxon is kept only as a robustness column (biased here). No model training.
 
-  python scripts/14_emotion_signal.py
+  python scripts/30_analysis_click_signal.py
 """
 import argparse
 import json
-from collections.abc import Mapping
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.click_signal import holm, load_fit_impressions, permute_within_groups, plot_signal, signal_table
-from src.config import FIGURES, PROCESSED, RESULTS, SEED, SIGNAL_ALPHA, SIGNAL_CORE_FEATURES, SIGNAL_TOP_CATEGORIES
+from src.click_signal import ColumnValues, holm_family, load_part_impressions, permute_within_groups, signal_table
+from src.config import PROCESSED, TABLES, SEED, SIGNAL_ALPHA, SIGNAL_CORE_FEATURES, SIGNAL_TOP_CATEGORIES
 from src.emotion_features import GO_EMOTIONS
 from src.provenance import run_info
 
-TABLES = RESULTS / "tables"
 VARIANT_STEMS = [*GO_EMOTIONS, "neutral", "emotionality", "emotion_mass"]
 VARIANTS = {"weighted": "go_{}", "title": "go_title_{}", "abstract": "go_abs_{}"}
 PCT_VARIANTS = {"weighted": "go_pct_{}", "title": "go_title_pct_{}", "abstract": "go_abs_pct_{}"}
-
-
-class RowValues(Mapping):
-    """Per-candidate feature arrays built on demand (all 101 at once would need ~4 GB)."""
-
-    def __init__(self, feats, cols, rows):
-        self.feats, self.cols, self.rows = feats, list(cols), rows
-
-    def __getitem__(self, col):
-        return self.feats[col].to_numpy(dtype=np.float64)[self.rows]
-
-    def __iter__(self):
-        return iter(self.cols)
-
-    def __len__(self):
-        return len(self.cols)
 
 
 def variant_rows(table, patterns, stems, sample):
@@ -56,7 +38,7 @@ def main():
     args = ap.parse_args()
     p = args.processed
 
-    fit = load_fit_impressions(p)
+    fit = load_part_impressions(p, "fit")
     feats = pd.read_parquet(p / "news_emotion_features.parquet")
     news = pd.read_parquet(p / "news.parquet", columns=["news_id", "category"])
     idx = pd.Index(feats["news_id"]).get_indexer(fit["news_id"].astype(str))
@@ -72,7 +54,7 @@ def main():
           f"{int(labels.sum())} clicks")
 
     cols = [c for c in feats.columns if c not in ("news_id", "has_abstract")]
-    values = RowValues(feats, cols, idx)
+    values = ColumnValues(feats, cols, idx)
 
     # 1. every feature, all fit impressions (one Holm family per test)
     main_t = signal_table(groups, labels, values, SIGNAL_ALPHA, group_users)
@@ -90,7 +72,7 @@ def main():
     var_cols = [pat.format(s) for pats in (VARIANTS, PCT_VARIANTS) for s in
                 (VARIANT_STEMS if pats is VARIANTS else GO_EMOTIONS) for pat in pats.values()]
     m = has_abstract
-    common = signal_table(groups[m], labels[m], RowValues(feats, var_cols, idx[m]), SIGNAL_ALPHA, group_users)
+    common = signal_table(groups[m], labels[m], ColumnValues(feats, var_cols, idx[m]), SIGNAL_ALPHA, group_users)
     variants = pd.concat([
         variant_rows(main_t, VARIANTS, VARIANT_STEMS, "all candidates"),
         variant_rows(main_t, PCT_VARIANTS, GO_EMOTIONS, "all candidates"),
@@ -105,17 +87,11 @@ def main():
     parts = []
     for c in top:
         mc = category == c
-        t = signal_table(groups[mc], labels[mc], RowValues(feats, SIGNAL_CORE_FEATURES, idx[mc]), SIGNAL_ALPHA,
+        t = signal_table(groups[mc], labels[mc], ColumnValues(feats, SIGNAL_CORE_FEATURES, idx[mc]), SIGNAL_ALPHA,
                          group_users)
         t.insert(0, "category", c)
         parts.append(t)
-    by_cat = pd.concat(parts, ignore_index=True)
-    for p_col in ("p", "p_wilcoxon", "user_p"):
-        by_cat[f"{p_col}_holm"] = holm(by_cat[p_col].to_numpy())
-    by_cat["significant_holm"] = by_cat["p_holm"] < SIGNAL_ALPHA
-    by_cat["significant_user"] = ((by_cat["user_p_holm"] < SIGNAL_ALPHA)
-                                  & (np.sign(by_cat["user_dz"]) == np.sign(by_cat["dz"])))
-    by_cat["significant_both"] = by_cat["significant_holm"] & by_cat["significant_user"]
+    by_cat = holm_family(pd.concat(parts, ignore_index=True), SIGNAL_ALPHA)
 
     TABLES.mkdir(parents=True, exist_ok=True)
     main_t.to_csv(TABLES / "emotion_signal_fit.csv", index=False)
@@ -155,19 +131,6 @@ def main():
         "alpha": SIGNAL_ALPHA, "run_info": run_info(),
     }
     (TABLES / "emotion_signal_fit_meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
-
-    go_feats = [f for f in SIGNAL_CORE_FEATURES if f.startswith("go_")]
-    plot_variants = variants[(variants["sample"] == "candidates with abstract") & (variants["kind"] == "percentile")]
-    FIGURES.mkdir(parents=True, exist_ok=True)
-    plot_signal(
-        main_t[main_t["feature"].isin(SIGNAL_CORE_FEATURES)], plot_variants,
-        FIGURES / "emotion_signal_fit.png",
-        "Clicked vs unclicked news within the same impression (fit only)",
-        f"{meta['n_impressions']:,} fit impressions, {n_users:,} users. Dot = dz, line = 95% CI; filled = significant "
-        f"at impression and user level (t-test, Holm {SIGNAL_ALPHA}). dz > 0: clicked items score higher.",
-        {"GoEmotions": go_feats, "NRC lexicons": [f for f in SIGNAL_CORE_FEATURES if f not in go_feats]},
-        {"weighted": "weighted (1/3 : 2/3)", "title": "title only", "abstract": "abstract only"},
-        "Text variants, percentile features go_*pct_* (candidates with an abstract)")
 
     pd.set_option("display.width", 170)
     show = ["feature", "dz", "dz_ci_low", "dz_ci_high", "p_holm", "user_dz", "user_p_holm", "significant_both",

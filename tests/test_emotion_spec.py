@@ -1,9 +1,7 @@
 import json
 import re
 
-import numpy as np
 import pandas as pd
-import pytest
 
 from src.config import EMOTION_SPEC_DIR, EMOTION_SPEC_VERSION
 from src.emotion_spec import (confirmation_actions, load_spec, replication_selection, spec_hash, spec_path,

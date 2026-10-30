@@ -4,7 +4,7 @@ Sample: impressions with >= 1 earlier log click; candidates the user already cli
 Does recent context add anything beyond long-term? Residual test: short-term congruence minus what long-term explains inside the
 impression (slope estimated on fit, applied to valid). Control: last k vs previous k log clicks, same size.
 
-  python scripts/36_true_recency.py
+  python scripts/35_analysis_true_recency.py
 """
 import argparse
 import json
@@ -14,18 +14,15 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.click_signal import MaskedValues, holm_family, permute_within_groups, signal_table, within_group_diffs
-from src.config import (CONTEXT_WINDOWS, PROCESSED, RECENCY_WINDOWS, RESULTS, SEED, SIGNAL_ALPHA, SIGNAL_TOP_CATEGORIES,
-                        V2_MAIN_MEASURE)
-from src.congruence import congruence_features, window_histories
+from src.click_signal import (MaskedValues, holm_family, load_part_context, permute_within_groups, signal_table,
+                              within_group_diffs)
+from src.config import CONTEXT_WINDOWS, PROCESSED, RECENCY_WINDOWS, TABLES, SEED, SIGNAL_ALPHA, SIGNAL_TOP_CATEGORIES
+from src.congruence import window_congruence
 from src.emotion_features import GO_EMOTIONS
-from src.emotion_v2 import load_part_context
 from src.provenance import run_info
 from src.recency import earlier_click_lists, load_log, repeated_candidates, time_matched_partner, within_slope
 from src.stats import dz_difference, holm
 
-TABLES = RESULTS / "tables"
-ROLES = {"": "raw", "_personal": "personal", "_userspecific": "user-specific"}
 USER = "_userspecific"
 LONG = CONTEXT_WINDOWS["long_50"]
 
@@ -37,13 +34,6 @@ def sample(ctx, keep_group, drop_row):
     sel = np.flatnonzero(keep_group)
     remap[sel] = np.arange(len(sel))
     return sel, remap[ctx.groups[rows]], ctx.item_idx[rows], ctx.labels[rows], ctx.group_users[sel], rows
-
-
-def window_features(groups, items, history_lists, vectors, name, skip, size, decay):
-    hist = window_histories(history_lists, skip, size)
-    out, _ = congruence_features(groups, items, hist, {"pct": vectors}, V2_MAIN_MEASURE, shuffle_seed=SEED, decay=decay,
-                                 max_items=size)
-    return {f"{name}{suffix}": out[f"cong_pct_cos{suffix}"] for suffix in ROLES}
 
 
 def tidy(table, part, sample_name):
@@ -91,9 +81,9 @@ def main():
             "clicks_removed_as_repeats": int(ctx.labels[repeat & has[ctx.groups]].sum())}
         print(f"{part}: {coverage[part]}")
 
-        values = window_features(groups, items, hist_long, vectors, "long_50", 0, LONG["size"], LONG["decay"])
+        values = window_congruence(groups, items, hist_long, vectors, "long_50", LONG, SEED)
         for k in RECENCY_WINDOWS:
-            values.update(window_features(groups, items, hist_short, vectors, f"log_{k}", 0, k, 1.0))
+            values.update(window_congruence(groups, items, hist_short, vectors, f"log_{k}", {"skip": 0, "size": k, "decay": 1.0}, SEED))
         x = values["long_50"]
         for k in RECENCY_WINDOWS:
             y = values[f"log_{k}"]
@@ -112,7 +102,7 @@ def main():
         keep = ~repeated_candidates(groups, items, hist_partner)
         placebo = {}
         for k in RECENCY_WINDOWS:
-            y = window_features(groups, items, hist_partner, vectors, f"partner_{k}", 0, k, 1.0)[f"partner_{k}"]
+            y = window_congruence(groups, items, hist_partner, vectors, f"partner_{k}", {"skip": 0, "size": k, "decay": 1.0}, SEED)[f"partner_{k}"]
             if part == "fit":
                 slopes[k]["partner_on_long"] = within_slope(groups, x, y)
             placebo[f"resid_partner_{k}"] = (y - slopes[k]["partner_on_long"] * x).astype(np.float32)
@@ -149,8 +139,8 @@ def main():
             keep = n_earlier >= 2 * k
             sel2, g2, it2, lab2, us2, _ = sample(ctx, keep, repeat)
             h2 = [lists[i] for i in sel2]
-            ctrl = window_features(g2, it2, h2, vectors, f"log_{k}", 0, k, 1.0)
-            ctrl.update(window_features(g2, it2, h2, vectors, f"prev_{k}", k, k, 1.0))
+            ctrl = window_congruence(g2, it2, h2, vectors, f"log_{k}", {"skip": 0, "size": k, "decay": 1.0}, SEED)
+            ctrl.update(window_congruence(g2, it2, h2, vectors, f"prev_{k}", {"skip": k, "size": k, "decay": 1.0}, SEED))
             tables.append(tidy(signal_table(g2, lab2, ctrl, SIGNAL_ALPHA, us2), part, f"control k={k}"))
             comparisons.append({"part": part, "sample": f"control k={k}", "window_a": f"log_{k}", "window_b": f"prev_{k}",
                                 **dz_difference(within_group_diffs(g2, lab2, ctrl[f"log_{k}{USER}"]),

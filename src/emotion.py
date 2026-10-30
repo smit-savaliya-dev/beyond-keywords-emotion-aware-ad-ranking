@@ -46,10 +46,6 @@ def collapse(raw):
     return np.where(total > 0, sums / np.where(total > 0, total, 1.0), flat)
 
 
-def corpus_mean(vectors):
-    return np.asarray(vectors).mean(axis=0)
-
-
 def pick_device(arg="auto"):
     if str(arg) != "auto":
         return int(arg)

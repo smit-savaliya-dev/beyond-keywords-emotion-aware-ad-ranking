@@ -28,4 +28,4 @@ The tool shows the title and abstract only. Never look at model output before or
 After finishing all 180, run `python scripts/label_tool.py --make-relabel`. It creates `annotation/relabel_sample.csv`
 with 30 random items (seeded). Label it with `python scripts/label_tool.py --relabel` **at least one day later**,
 without looking at your first labels. The agreement between your two passes (intra-rater kappa) is reported by
-`scripts/06_validate_emotion_labels.py`.
+`scripts/38_analysis_label_validation.py`.

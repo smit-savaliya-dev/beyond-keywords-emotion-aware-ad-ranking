@@ -14,7 +14,7 @@ PARTS = ("fit", "valid", "dev")
 def find_split_dir(split, raw=RAW):
     hits = sorted((raw / split).rglob("behaviors.tsv"))
     if not hits:
-        raise FileNotFoundError(f"No behaviors.tsv under {raw / split}. Run scripts/01_download_mind.py first.")
+        raise FileNotFoundError(f"No behaviors.tsv under {raw / split}. Run scripts/10_data_download.py first.")
     return hits[0].parent
 
 
@@ -157,7 +157,3 @@ def save_all(news, beh, imps, summary, out=PROCESSED):
     beh.drop(columns="impressions").to_parquet(out / "behaviors.parquet", index=False)
     imps.to_parquet(out / "impressions.parquet", index=False)
     (out / "data_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-
-def load_processed(name, out=PROCESSED):
-    return pd.read_parquet(out / f"{name}.parquet")

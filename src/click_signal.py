@@ -1,11 +1,13 @@
 """Descriptive click-signal tests: within-impression clicked-minus-unclicked feature differences."""
 from collections.abc import Mapping
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 from scipy.stats import rankdata, ttest_1samp, wilcoxon
 
-from .stats import holm  # noqa: F401  (re-exported)
+from .congruence import history_index_lists
+from .stats import holm
 
 
 class MaskedValues(Mapping):
@@ -24,6 +26,22 @@ class MaskedValues(Mapping):
         return len(self.values)
 
 
+class ColumnValues(Mapping):
+    """Per-candidate feature arrays from a feature table, built on demand (101 features at once would need ~4 GB)."""
+
+    def __init__(self, feats, cols, rows):
+        self.feats, self.cols, self.rows = feats, list(cols), rows
+
+    def __getitem__(self, col):
+        return self.feats[col].to_numpy(dtype=np.float64)[self.rows]
+
+    def __iter__(self):
+        return iter(self.cols)
+
+    def __len__(self):
+        return len(self.cols)
+
+
 def load_part_impressions(processed, part):
     """Candidate rows of one analysis part (fit or valid; dev is refused). Other parts are never read."""
     if part not in ("fit", "valid"):
@@ -36,8 +54,32 @@ def load_part_impressions(processed, part):
     return imps.reset_index(drop=True)
 
 
-def load_fit_impressions(processed):
-    return load_part_impressions(processed, "fit")
+@dataclass
+class PartContext:
+    """Candidates of one analysis part mapped to item rows and impression (profile) rows."""
+    groups: np.ndarray        # impression row per candidate
+    group_users: np.ndarray   # user code per impression row
+    labels: np.ndarray        # click label per candidate
+    item_idx: np.ndarray      # item row per candidate
+    histories: list           # item rows per impression row, oldest -> newest
+    n_impressions: int
+    imp_keys: pd.Index = None # impression key per impression row
+
+
+def load_part_context(processed, part, item_index):
+    """fit or valid only (dev is refused by the loader). History comes from the behaviors table, never from clicks."""
+    imps = load_part_impressions(processed, part)
+    groups, imp_keys = pd.factorize(imps["imp_key"].astype(str))
+    users = pd.Series(pd.factorize(imps["user_id"].astype(str))[0]).groupby(groups).first().to_numpy()
+    idx = item_index.get_indexer(imps["news_id"].astype(str))
+    if (idx < 0).any():
+        raise ValueError(f"{part} candidates without emotion vectors")
+    beh = pd.read_parquet(processed / "behaviors.parquet", columns=["imp_key", "part", "history"],
+                          filters=[("part", "==", part)]).set_index("imp_key").reindex(imp_keys)
+    if beh["history"].isna().any():
+        raise ValueError(f"{part} impressions without a behaviors row")
+    return PartContext(groups, users, imps["label"].to_numpy(), idx,
+                       history_index_lists(beh["history"].to_numpy(), item_index), len(imp_keys), imp_keys)
 
 
 def within_group_diffs(groups, labels, values, return_groups=False):
@@ -134,90 +176,3 @@ def signal_table(groups, labels, feature_values, alpha=0.05, group_users=None):
         out["significant_user"] = (out["user_p_holm"] < alpha) & (np.sign(out["user_dz"]) == np.sign(out["dz"]))
         out["significant_both"] = out["significant_holm"] & out["significant_user"]
     return out
-
-INK, INK_2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
-SERIES = [("#2a78d6", "o"), ("#eb6834", "s"), ("#1baf7a", "^")]  # validated categorical slots 1-3 + shapes
-
-
-def _dots(ax, y, t, color, marker, label):
-    sig = t["significant_both"].to_numpy(dtype=bool)
-    ax.hlines(y, t["dz_ci_low"], t["dz_ci_high"], color=color, linewidth=1.2, zorder=2)
-    ax.scatter(t["dz"][sig], y[sig], s=34, marker=marker, color=color, edgecolor=SURFACE, linewidth=1.2,
-               zorder=3, label=label)
-    ax.scatter(t["dz"][~sig], y[~sig], s=34, marker=marker, facecolor=SURFACE, edgecolor=color,
-               linewidth=1.4, zorder=3)
-
-
-def _style(ax):
-    ax.axvline(0, color=INK_2, linewidth=0.9, zorder=1)
-    ax.grid(axis="x", color=GRID, linewidth=0.6)
-    ax.grid(axis="y", visible=False)
-    ax.tick_params(length=0, colors=INK_2, labelsize=8.5)
-    for s in ax.spines.values():
-        s.set_visible(False)
-    ax.set_xlabel("effect size dz (mean / sd of clicked − unclicked, per impression)", fontsize=8.5, color=INK_2)
-
-
-def plot_signal(core, variants, path, title, subtitle, sources, variant_labels,
-                variant_title="Text variants (candidates with an abstract)"):
-    """Left: dz with 95% CI per feature, coloured by source. Right: dz per emotion for each text variant.
-    sources: {label: [features]}; variants: rows with columns emotion, variant, dz, CI, significant_holm."""
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(12, 8.2), gridspec_kw={"width_ratios": [1.15, 1]})
-    fig.patch.set_facecolor(SURFACE)
-    order = [f for feats in sources.values() for f in feats][::-1]
-    t = core.set_index("feature").loc[order].reset_index()
-    y = np.arange(len(t))
-    for (label, feats), (color, marker) in zip(sources.items(), SERIES):
-        m = t["feature"].isin(feats).to_numpy()
-        _dots(a1, y[m], t[m], color, marker, label)
-    a1.set_yticks(y, t["feature"])
-    a1.set_title("Weighted features (all fit impressions)", loc="left", fontsize=10, color=INK, pad=26)
-    _style(a1)
-    a1.legend(frameon=False, fontsize=8.5, loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, borderaxespad=0.2)
-
-    emotions = list(dict.fromkeys(variants["emotion"]))[::-1]
-    base = np.arange(len(emotions))
-    for k, (vname, (color, marker)) in enumerate(zip(variant_labels, SERIES)):
-        v = variants[variants["variant"] == vname].set_index("emotion").loc[emotions].reset_index()
-        _dots(a2, base + (1 - k) * 0.22, v, color, marker, variant_labels[vname])
-    a2.set_yticks(base, emotions)
-    a2.set_title(variant_title, loc="left", fontsize=10, color=INK, pad=26)
-    _style(a2)
-    a2.legend(frameon=False, fontsize=8.5, loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, borderaxespad=0.2)
-
-    fig.suptitle(title, x=0.01, ha="left", fontsize=12, color=INK)
-    fig.text(0.01, 0.935, subtitle, fontsize=8.5, color=INK_2, ha="left")
-    fig.tight_layout(rect=(0, 0, 1, 0.92))
-    fig.savefig(path, dpi=300, bbox_inches="tight", facecolor=SURFACE)
-    plt.close(fig)
-
-
-def plot_dz_panels(panels, path, title, subtitle):
-    """panels: list of (panel title, DataFrame with row, series, dz, dz_ci_low, dz_ci_high, significant_both).
-    Rows top to bottom in first-seen order; up to 3 series per panel, in first-seen order."""
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    height = 1.6 + 0.42 * max(t["row"].nunique() for _, t in panels)
-    fig, axes = plt.subplots(1, len(panels), figsize=(6.2 * len(panels), height), squeeze=False)
-    fig.patch.set_facecolor(SURFACE)
-    for ax, (ptitle, t) in zip(axes[0], panels):
-        rows = list(dict.fromkeys(t["row"]))[::-1]
-        series = list(dict.fromkeys(t["series"]))
-        base = np.arange(len(rows))
-        for k, (name, (color, marker)) in enumerate(zip(series, SERIES)):
-            v = t[t["series"] == name].set_index("row").reindex(rows).dropna(subset=["dz"])
-            y = base[[rows.index(r) for r in v.index]] + ((len(series) - 1) / 2 - k) * 0.22
-            _dots(ax, y, v.reset_index(), color, marker, name)
-        ax.set_yticks(base, rows)
-        ax.set_title(ptitle, loc="left", fontsize=10, color=INK, pad=26)
-        _style(ax)
-        ax.legend(frameon=False, fontsize=8.5, loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, borderaxespad=0.2)
-    fig.text(0.01, 1 - 0.25 / height, title, fontsize=12, color=INK, ha="left", va="top")
-    fig.text(0.01, 1 - 0.55 / height, subtitle, fontsize=8.5, color=INK_2, ha="left", va="top")
-    fig.subplots_adjust(top=1 - 1.45 / height, bottom=0.75 / height, wspace=0.35)
-    fig.savefig(path, dpi=300, bbox_inches="tight", facecolor=SURFACE)
-    plt.close(fig)

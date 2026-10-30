@@ -38,16 +38,6 @@ def test_neg_kl_rows():
     assert neg_kl_rows(np.array([[2.0, 2.0]]), np.array([[1.0, 1.0]]), eps=0.0)[0] == pytest.approx(0.0)  # renormalised
 
 
-def test_plot_dz_panels(tmp_path):
-    from src.click_signal import plot_dz_panels
-    t = pd.DataFrame({"row": ["a", "a", "b"], "series": ["x", "y", "x"], "dz": [0.1, -0.1, 0.05],
-                      "dz_ci_low": [0.0, -0.2, 0.0], "dz_ci_high": [0.2, 0.0, 0.1],
-                      "significant_both": [True, False, True]})
-    path = tmp_path / "p.png"
-    plot_dz_panels([("one", t), ("two", t)], path, "title", "subtitle")
-    assert path.stat().st_size > 0
-
-
 def test_neg_abs_distance():
     from src.congruence import neg_abs_distance
     assert np.allclose(neg_abs_distance(np.array([[0.5], [-0.2]]), np.array([[0.1], [-0.2]])), [-0.4, 0.0])
@@ -117,3 +107,10 @@ def test_congruence_features_window_no_decay_is_plain_mean():
     assert plain["cong_v_cos"][0] == pytest.approx(1.0)                  # mean of items 0 and 1 points along item 2
     decayed, _ = congruence_features(np.array([0]), np.array([2]), hist, vec, [("v", "cos", "main")], decay=0.1, max_items=2)
     assert decayed["cong_v_cos"][0] < 0.9                                # newest item dominates
+
+
+def test_window_congruence_returns_three_roles():
+    from src.congruence import window_congruence
+    vec = np.array([[1.0, 0.0], [0.0, 1.0]])
+    out = window_congruence(np.array([0, 0]), np.array([0, 1]), [np.array([0, 1])], vec, "w", {"skip": 1, "size": 1, "decay": 1.0}, 0)
+    assert sorted(out) == ["w", "w_personal", "w_userspecific"] and out["w"].tolist() == pytest.approx([1.0, 0.0])

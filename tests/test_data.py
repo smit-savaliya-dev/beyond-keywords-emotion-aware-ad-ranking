@@ -36,5 +36,5 @@ def test_integrity_problems_detected():
 
 
 def test_missing_split_folder_message(tmp_path):
-    with pytest.raises(FileNotFoundError, match="01_download_mind"):
+    with pytest.raises(FileNotFoundError, match="10_data_download"):
         build_all(tmp_path)

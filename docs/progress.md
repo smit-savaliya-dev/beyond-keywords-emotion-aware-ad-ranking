@@ -125,7 +125,7 @@ emotion spec), review/merge of branch `week5-autonomous`, then M2/M3.
 base-v2 is complete. Waiting for the student: hand labels (then script 06 confirms, bumps or holds spec v2), review of the
 open questions, review and merge of `base-v2`, then M2/M3.
 
-## base-v3 (2026-11-01)
+## base-v3 (2026-10-30)
 Branch `base-v3`, built from the base-v2 tip (759d563) because main does not contain it (Q08). Pre-declarations D37-D40 were
 committed before computing. `annotation/` is excluded from every commit while the student labels.
 
@@ -134,7 +134,7 @@ committed before computing. `annotation/` is excluded from every commit while th
 | 1 Stance-excluded labels v2b, v2c | done |
 | 2 True recency | done |
 | 3 Percentile robustness | done (max dz change 0.00022, D43) |
-| 4 Cleanup and restructure | pending |
+| 4 Cleanup and restructure | done |
 | 5 Terminal summary, --rebuild | pending |
 | Final report | pending |
 
@@ -149,3 +149,22 @@ committed before computing. `annotation/` is excluded from every commit while th
   1.12% / 0.846% of candidates removed as repeats. Shuffled labels 0 of 18 on both parts.
 - Residual dz fit / valid: last 1 0.054 / 0.017, last 3 0.067 / 0.023, last 5 0.068 / 0.033; rule D39 says 'adds'. Long-term stays stronger.
   Same-size controls n.s. Placebo (D41, post-hoc) tested a shared-trend explanation and rejected it. Outcome D42; Q09 left undecided.
+
+### Step 3
+- Train-only ECDFs: max |dz change| 0.00022 (limit 0.02), no change in significance. Current features kept (D43).
+
+### Step 4
+- `docs/cleanup_plan.md` lists every file. Scripts grouped: 1x data, 2x emotion, 3x analysis, 4x models. Figures split into story/ and
+  diagnostics/; 3 superseded figures archived; reports moved to docs/reports/; `docs/START_HERE.md` added.
+- Removed: corpus_mean, load_processed, scripts/09_check_lexicons.py, the plotting code of the 3 archived figures, notebooks/.
+- Merged: TABLES (19 copies), lazy value views, Holm family, part loader, window congruence, chart colours.
+- Issues found and fixed:
+  1. src/eda.py and the v1 congruence script read dev rows into memory. Both now read fit only; no result changed.
+  2. A pre-cleanup bug of mine: the recency category table used per-category Holm for one robustness column. Fixed before the snapshot.
+  3. The snapshot tool missed changes inside array columns; found by its own test, rewritten.
+  4. Nothing tested the pipeline definition, so a NameError got through. Added tests/test_run_base.py.
+  5. A dry run showed the GPU steps would start after the renames. Added a hold.
+  6. MY ERROR: the first rebuild stopped at step 30 (two archived figures still listed as outputs). The rerun used --from 30, which did not
+     carry the hold, so steps 20 and 21 ran for about 36 s. They loaded the model on the GPU, reloaded 97 saved chunks and scored 0 texts; the 7
+     output files are byte-identical. GPU steps with existing outputs now never start unless named with --force-step, on any run.
+  7. MY ERROR: entries D37-D43 were first dated 2026-11-01; the real date is 2026-10-30. Corrected.

@@ -1,7 +1,7 @@
 """Step 1 of base-v2: title-weight / threshold grid on the SAVED raw 28 scores (no GPU), selection rule D30.
 Neutral and class shares per (weight, t); personal congruence per weight on fit and valid (dev is never read).
 
-  python scripts/30_emotion_v2_grid.py
+  python scripts/26_emotion_v2_grid.py
 """
 import argparse
 import json
@@ -11,15 +11,14 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.click_signal import permute_within_groups, signal_table
-from src.config import (PROCESSED, RESULTS, SEED, SIGNAL_ALPHA, V2_CURRENT_VALID_DZ, V2_T_GRID, V2_TITLE_SHARES,
+from src.click_signal import load_part_context, permute_within_groups, signal_table
+from src.config import (PROCESSED, TABLES, SEED, SIGNAL_ALPHA, V2_CURRENT_VALID_DZ, V2_T_GRID, V2_TITLE_SHARES,
                         V2_MAIN_MEASURE)
 from src.congruence import congruence_features
 from src.emotion_features import GO_EMOTIONS, go_features, go_percentiles
-from src.emotion_v2 import class_shares, combine_share, intensity_table, load_part_context, select_setting, threshold_labels
+from src.emotion_v2 import class_shares, combine_share, intensity_table, select_setting, threshold_labels
 from src.provenance import run_info
 
-TABLES = RESULTS / "tables"
 NAME = "cong_pct_cos"
 
 

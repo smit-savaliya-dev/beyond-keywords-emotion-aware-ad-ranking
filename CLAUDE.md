@@ -35,7 +35,7 @@ from the user's recent reading", never "the user's emotional state".
 - Phase 5 test (user-approved): one-sample t-test on per-impression clicked-minus-unclicked differences + user-level
   t-test, Holm. Not Wilcoxon: biased here (93/101 false positives with labels shuffled within impressions).
   No popularity control in Phase 5 (limitation; handled by LightGBM M4 vs M5).
-- Congruence (script 15, shared code src.congruence.congruence_features): profile from behaviors.history only
+- Congruence (script 31, shared code src.congruence.congruence_features): profile from behaviors.history only
   (decay 0.9, last 50, cold start = corpus mean). Always report raw, *_generic, *_personal (raw - corpus-mean profile,
   pre-declared) and the stricter *_otheruser / *_userspecific control (raw - random other user's profile).
 - go_pct_*: percentile rank of each go_* emotion across all items (item-level, no clicks), because label floors differ.
@@ -45,10 +45,15 @@ from the user's recent reading", never "the user's emotional state".
   t = 0.05 are for reporting only. M3/M5/M7 must use exactly its features/fusion (news_emotion_features_v2.parquet).
   Any change to its hashed content = new file v2 + decision entry + test hash (tests/test_emotion_spec.py).
 
+- Reporting labels: v2 (t = 0.05), v2b (no approval/disapproval), v2c (also no realization); chosen later by hand-label kappa (D38).
+- True recency (script 35) uses earlier log clicks for analysis only; models keep the history column until Q09 is decided.
+- M5-all is a pre-declared robustness variant with all 19 item candidates (D37).
+
 ## Engineering rules
 - Decisions: docs/decisions.md (every non-trivial choice, with evidence part). Progress: docs/progress.md.
   Open questions: docs/open_questions.md. Data rules: fit trains, valid chooses, dev once per model (--final-dev).
 - Logic in src/, thin scripts in scripts/ (import _bootstrap), all constants in src/config.py, provenance via src/provenance.py.
+  Scripts are numbered by stage: 1x data, 2x emotion, 3x analysis, 4x models. Start at docs/START_HERE.md.
 - Model labelling is resumable: chunk folders with a settings.json guard and atomic .tmp -> replace writes (label_corpus).
   New runs use new chunk folders and new output files.
 - Do not change src/data.py, src/metrics.py, src/evaluate.py unless needed (explain why).
@@ -62,5 +67,5 @@ from the user's recent reading", never "the user's emotional state".
 - Work in phases and stop for review after each one; ask when the request conflicts with the code.
 
 ## Phases
-0 plan, 1 config + lexicon loaders, 2 weighted GoEmotions, 3 NRC + go_vad features, 4 merged feature table + diagnostics,
-5 signal analysis on fit (Wilcoxon, Holm), 6 hand-label validation per source. Stop after 6.
+Done: base pipeline, emotion layer v1 and v2, click signal, congruence, context windows, true recency, M0, M1, cleanup.
+Waiting: hand labels (script 38 then compares v1, v2, v2b, v2c and confirms the spec). Next: M2, M3.

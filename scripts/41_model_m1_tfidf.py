@@ -1,8 +1,8 @@
 """M1 TF-IDF: vectorizer fitted on TRAIN-split news only (label-free); user vector = mean or decay-weighted mean of the
 last 50 HISTORY items; score = cosine(user, candidate); cold start -> 0 (ties broken by the harness).
 
-  python scripts/21_m1_tfidf.py --tune         # valid only: 8 configs (M1_GRID), pick by valid AUC
-  python scripts/21_m1_tfidf.py --final-dev    # once, frozen settings
+  python scripts/41_model_m1_tfidf.py --tune         # valid only: 8 configs (M1_GRID), pick by valid AUC
+  python scripts/41_model_m1_tfidf.py --final-dev    # once, frozen settings
 """
 import argparse
 import itertools
@@ -15,13 +15,11 @@ import pandas as pd
 
 import _bootstrap  # noqa: F401
 from src.baselines import cosine_scores, fit_tfidf, profile_weights, train_news_ids, unique_profiles
-from src.config import (LEAKAGE_AUC_WARN, M1_GRID, M1_NAME, PROCESSED, RESULTS, SELECTION_METRIC, TFIDF_MIN_DF,
+from src.config import (LEAKAGE_AUC_WARN, M1_GRID, M1_NAME, PROCESSED, TABLES, SELECTION_METRIC, TFIDF_MIN_DF,
                         TFIDF_STOP_WORDS)
 from src.congruence import history_index_lists
 from src.evaluate import evaluate, load_truth, save_results
 from src.experiments import append_run, check_final_dev, frozen_marker, pick_best, save_frozen
-
-TABLES = RESULTS / "tables"
 
 
 def load_part(part, processed):

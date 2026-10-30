@@ -1,7 +1,7 @@
 """Item-level threshold sensitivity (no labels, no clicks): class shares on the full corpus for every pre-declared
 threshold (THRESHOLDS_RAW / THRESHOLDS_PCT in config). Kappa against the hand labels is added by script 06 later.
 
-  python scripts/16_emotion_thresholds.py
+  python scripts/25_emotion_thresholds.py
 """
 import argparse
 import json
@@ -10,11 +10,9 @@ from pathlib import Path
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.config import FIGURES, PROCESSED, RESULTS, THRESHOLDS_PCT, THRESHOLDS_RAW
+from src.config import PROCESSED, TABLES, THRESHOLDS_PCT, THRESHOLDS_RAW
 from src.provenance import run_info
-from src.validation import PCT_GROUP, plot_threshold_panels, threshold_corpus_shares
-
-TABLES = RESULTS / "tables"
+from src.validation import PCT_GROUP, threshold_corpus_shares
 
 
 def main():
@@ -40,12 +38,6 @@ def main():
             "baseline_argmax_neutral_pct": round(100 * float((base == "neutral").mean()), 2),
             "declared": "2026-10-26, before the first run", "run_info": run_info()}
     (TABLES / "emotion_threshold_neutral_share_meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    FIGURES.mkdir(parents=True, exist_ok=True)
-    plot_threshold_panels(shares, "share_neutral", "% of all items labelled neutral",
-                          FIGURES / "emotion_threshold_neutral_share.png",
-                          "Neutral share on the full corpus depends strongly on the threshold",
-                          f"{len(raw):,} MIND items (title/abstract weighted). Argmax 6-class baseline: "
-                          f"{meta['baseline_argmax_neutral_pct']:.1f}% neutral. Item-level only, no labels or clicks.")
     print(shares.to_string(index=False))
     print(f"\nargmax 6-class baseline (weighted): {meta['baseline_argmax_neutral_pct']}% neutral")
 

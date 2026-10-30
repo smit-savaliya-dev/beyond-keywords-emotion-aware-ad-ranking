@@ -2,7 +2,7 @@
 Reruns the 8 go_pct_* click signals and cong_pct_cos on fit and valid (dev is never read) and compares dz with the current
 features. Current features stay in use; this is a robustness check.
 
-  python scripts/37_percentile_robustness.py
+  python scripts/36_analysis_percentile_robustness.py
 """
 import argparse
 import json
@@ -13,14 +13,13 @@ import pandas as pd
 
 import _bootstrap  # noqa: F401
 from src.baselines import train_news_ids
-from src.click_signal import signal_table
-from src.config import PERCENTILE_MAX_DZ_CHANGE, PROCESSED, RESULTS, SEED, SIGNAL_ALPHA, V2_MAIN_MEASURE
+from src.click_signal import load_part_context, signal_table
+from src.config import PERCENTILE_MAX_DZ_CHANGE, PROCESSED, TABLES, SEED, SIGNAL_ALPHA, V2_MAIN_MEASURE
 from src.congruence import congruence_features
 from src.emotion_features import GO_EMOTIONS
-from src.emotion_v2 import ecdf_percentiles, load_part_context
+from src.emotion_v2 import ecdf_percentiles
 from src.provenance import run_info
 
-TABLES = RESULTS / "tables"
 ROLES = ("", "_personal", "_otheruser", "_userspecific")
 
 

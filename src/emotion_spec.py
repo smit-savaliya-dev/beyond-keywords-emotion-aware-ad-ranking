@@ -45,7 +45,7 @@ def validate_spec(spec, feature_columns):
 
 
 def confirmation_actions(spec, summary, intra=None):
-    """Apply the pre-declared post-label rule. summary: per-source table from scripts/06 (source, kappa_ci_low,
+    """Apply the pre-declared post-label rule. summary: per-source table from the label validation (source, kappa_ci_low,
     kappa_ci_high). -> (verdict 'confirm' | 'bump' | 'hold', list of actions)."""
     ci = summary.set_index("source")[["kappa_ci_low", "kappa_ci_high"]]
     if intra is not None and intra["kappa_ci95"][1] < INTRA_MIN_UPPER:

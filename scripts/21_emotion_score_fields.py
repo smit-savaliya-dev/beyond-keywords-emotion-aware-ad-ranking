@@ -1,10 +1,10 @@
 """Score titles and abstracts separately with GoEmotions, combine with the field weights, build go_* features.
 Resumable: re-run to continue after an interruption. The combined-text baseline files are never touched.
 
-  python scripts/10_score_fields.py --measure    # token lengths of titles/abstracts (CPU, writes a small table)
-  python scripts/10_score_fields.py --smoke      # 12 items + a GPU memory check, writes nothing
-  python scripts/10_score_fields.py              # full run
-  python scripts/10_score_fields.py --report     # combined vs weighted summary from saved files
+  python scripts/21_emotion_score_fields.py --measure    # token lengths of titles/abstracts (CPU, writes a small table)
+  python scripts/21_emotion_score_fields.py --smoke      # 12 items + a GPU memory check, writes nothing
+  python scripts/21_emotion_score_fields.py              # full run
+  python scripts/21_emotion_score_fields.py --report     # combined vs weighted summary from saved files
 """
 import argparse
 import json
@@ -15,14 +15,12 @@ import pandas as pd
 
 import _bootstrap  # noqa: F401
 from src.config import (ABSTRACT_BATCH_SIZE, ABSTRACT_MAX_LENGTH, ABSTRACT_WEIGHT, EMOTION_MODEL, GO_FEATURES,
-                        PROCESSED, RESULTS, TITLE_BATCH_SIZE, TITLE_MAX_LENGTH, TITLE_WEIGHT)
+                        PROCESSED, TABLES, TITLE_BATCH_SIZE, TITLE_MAX_LENGTH, TITLE_WEIGHT)
 from src.emotion import (GOEMOTIONS_LABELS, SIX_CLASSES, build_emotion_table, label_corpus, load_classifier,
                          pick_device, score_texts)
 from src.emotion_features import (combine_fields, field_texts, go_features, neutral_summary, title_share,
                                   truncation_report)
 from src.provenance import run_info
-
-TABLES = RESULTS / "tables"
 
 
 def measure(news, model):

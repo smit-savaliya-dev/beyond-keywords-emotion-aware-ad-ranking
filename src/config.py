@@ -5,6 +5,8 @@ RAW = ROOT / "data" / "raw"
 PROCESSED = ROOT / "data" / "processed"
 RESULTS = ROOT / "results"
 FIGURES = RESULTS / "figures"
+TABLES = RESULTS / "tables"
+DIAGNOSTICS = FIGURES / "diagnostics"
 ANNOTATION = ROOT / "annotation"
 
 MIND_URLS = {
@@ -102,6 +104,7 @@ CONGRUENCE_MEASURES = [
     ("pct", "negkl", "exploratory, not pre-declared"),
 ]
 CONGRUENCE_CHUNK = 500_000  # candidate rows per chunk
+CONGRUENCE_ROLES = {"": "raw", "_personal": "personal", "_userspecific": "user-specific"}
 
 # Hand labelling (scripts/label_tool.py). Keys 1-6 follow SIX_CLASSES order: joy, sadness, anger, fear, surprise, neutral.
 LABEL_SHEET = ANNOTATION / "manual_sample.csv"
@@ -175,6 +178,5 @@ RECENCY_WINDOWS = [1, 3, 5]  # true recency (D39): last k earlier log clicks, no
 PERCENTILE_MAX_DZ_CHANGE = 0.02  # D40: larger max |dz change| goes to open_questions.md
 
 # Results snapshot (tool: scripts/snapshot_results.py). Copies are git-ignored; the manifest is tracked.
-TABLES = RESULTS / "tables"
 SNAPSHOT_COPY = ROOT / "data" / "snapshots" / "pre_cleanup"
 SNAPSHOT_MANIFEST = RESULTS / "archive" / "pre_cleanup_snapshot.json"

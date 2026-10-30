@@ -1,5 +1,4 @@
 import json
-import sys
 
 import pytest
 
@@ -161,3 +160,37 @@ def test_adopt_never_skips_a_forced_step(proj):
     (proj / "out.txt").write_text("existing")
     pipe(proj).run(adopt=True, force={"s1"})
     assert runs(proj)[0] == "mid.txt"
+
+
+def test_rebuild_excludes_gpu_and_keeps_create_only_files(proj):
+    from src.pipeline import rebuild_steps
+    (proj / "sheet.csv").write_text("my labels")
+    st = [Step("gpu", [proj / "fail.py"], gpu=True), Step("sheet", [proj / "fail.py"], outputs=[proj / "sheet.csv"], create_only=True),
+          *steps(proj)]
+    force = rebuild_steps(st)
+    assert force == {"sheet", "s1", "s2"}
+    pipe(proj, [s for s in st if s.name != "gpu"]).run(force=force)
+    assert (proj / "sheet.csv").read_text() == "my labels" and len(runs(proj)) == 2
+
+
+def test_always_step_runs_even_when_up_to_date(proj):
+    st = [Step("show", [proj / "copy.py", proj / "in.txt", proj / "o.txt", proj / "runs.log"], always=True)]
+    pipe(proj, st).run()
+    pipe(proj, st).run()
+    assert runs(proj) == ["o.txt", "o.txt"]
+
+
+def test_held_step_is_skipped_even_with_no_record_and_changed_inputs(proj):
+    st = steps(proj)[:1]
+    report = pipe(proj, st).run(hold={"s1"})
+    assert report[0][:2] == ("s1", "skip") and "held" in report[0][2]
+    assert "mid.txt" not in runs(proj)
+
+
+def test_gpu_steps_are_held_unless_named_or_outputs_are_missing(proj):
+    from src.pipeline import held_gpu_steps
+    (proj / "scores.txt").write_text("saved")
+    st = [Step("gpu", [proj / "fail.py"], outputs=[proj / "scores.txt"], gpu=True),
+          Step("gpu2", [proj / "fail.py"], outputs=[proj / "absent.txt"], gpu=True), Step("cpu", [proj / "fail.py"])]
+    assert held_gpu_steps(st) == {"gpu"}                 # gpu2 has no outputs yet, so a fresh clone can still build it
+    assert held_gpu_steps(st, {"gpu"}) == set()          # --force-step names it

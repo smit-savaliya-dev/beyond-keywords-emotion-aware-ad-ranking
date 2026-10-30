@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.click_signal import holm, plot_signal, signal_table, signal_test, within_group_diffs
+from src.click_signal import ColumnValues, holm, signal_table, signal_test, within_group_diffs
 
 
 def test_within_group_diffs_skips_one_class_groups_and_nan():
@@ -51,7 +51,7 @@ def test_holm_matches_hand_computation():
     assert np.allclose(holm([0.9, 0.8]), [1.0, 1.0])
 
 
-def test_signal_table_and_plot(tmp_path):
+def test_signal_table():
     rng = np.random.default_rng(1)
     n_imp = 300
     groups = np.repeat(np.arange(n_imp), 4)
@@ -65,13 +65,6 @@ def test_signal_table_and_plot(tmp_path):
     assert t["feature"].tolist() == ["signal", "noise"]
     assert t.loc[0, "significant_holm"] and t.loc[0, "dz"] > 0.5
     assert t.loc[0, "p_holm"] == pytest.approx(min(1, 2 * t.loc[0, "p"]))      # smallest of 2 p-values x 2
-    variants = pd.DataFrame([{**t.loc[i % 2].to_dict(), "emotion": e, "variant": v}
-                             for i, (e, v) in enumerate([(e, v) for e in ("joy", "fear")
-                                                         for v in ("weighted", "title", "abstract")])])
-    path = tmp_path / "s.png"
-    plot_signal(t, variants, path, "t", "s", {"A": ["signal"], "B": ["noise"]},
-                {"weighted": "w", "title": "t", "abstract": "a"})
-    assert path.stat().st_size > 0
 
 
 def test_holm_family_recomputes_all_flags_across_rows():
@@ -98,3 +91,9 @@ def test_permute_within_groups_keeps_counts_per_group():
     assert np.array_equal(perm, permute_within_groups(groups, labels, seed=0))
     many = [permute_within_groups(groups, labels, seed=s) for s in range(20)]
     assert any(not np.array_equal(m, labels) for m in many)
+
+
+def test_column_values_builds_arrays_on_demand():
+    feats = pd.DataFrame({"a": [1.0, 2.0, 3.0], "b": [4.0, 5.0, 6.0]})
+    v = ColumnValues(feats, ["b"], np.array([2, 0]))
+    assert list(v) == ["b"] and len(v) == 1 and v["b"].tolist() == [6.0, 4.0]

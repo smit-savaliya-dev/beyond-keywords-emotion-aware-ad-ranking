@@ -2,14 +2,11 @@
 
 Labels are for reporting and validation only; model features stay soft (intensity is a continuous feature).
 """
-from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 
-from .click_signal import load_part_impressions
 from .config import V2_NEUTRAL_MAX, V2_NEUTRAL_PREFER, V2_VALID_TOLERANCE
-from .congruence import history_index_lists
 from .emotion import GOEMOTIONS_LABELS, LABEL_TO_GROUP, SIX_CLASSES
 from .emotion_features import combine_fields
 
@@ -85,31 +82,3 @@ def example_rows(labels, news, exclude_ids, n, seed):
         parts.append(sub.sample(n=min(n, len(sub)), random_state=seed))
     cols = ["label", "news_id", "title", "abstract", "intensity", "top_label", "neutral_score"]
     return pd.concat(parts, ignore_index=True)[cols]
-
-
-@dataclass
-class PartContext:
-    """Candidates of one analysis part mapped to item rows and impression (profile) rows."""
-    groups: np.ndarray        # impression row per candidate
-    group_users: np.ndarray   # user code per impression row
-    labels: np.ndarray        # click label per candidate
-    item_idx: np.ndarray      # item row per candidate
-    histories: list           # item rows per impression row, oldest -> newest
-    n_impressions: int
-    imp_keys: pd.Index = None # impression key per impression row
-
-
-def load_part_context(processed, part, item_index):
-    """fit or valid only (dev is refused by the loader). History comes from the behaviors table, never from clicks."""
-    imps = load_part_impressions(processed, part)
-    groups, imp_keys = pd.factorize(imps["imp_key"].astype(str))
-    users = pd.Series(pd.factorize(imps["user_id"].astype(str))[0]).groupby(groups).first().to_numpy()
-    idx = item_index.get_indexer(imps["news_id"].astype(str))
-    if (idx < 0).any():
-        raise ValueError(f"{part} candidates without emotion vectors")
-    beh = pd.read_parquet(processed / "behaviors.parquet", columns=["imp_key", "part", "history"],
-                          filters=[("part", "==", part)]).set_index("imp_key").reindex(imp_keys)
-    if beh["history"].isna().any():
-        raise ValueError(f"{part} impressions without a behaviors row")
-    return PartContext(groups, users, imps["label"].to_numpy(), idx,
-                       history_index_lists(beh["history"].to_numpy(), item_index), len(imp_keys), imp_keys)

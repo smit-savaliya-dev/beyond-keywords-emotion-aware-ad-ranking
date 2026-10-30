@@ -4,7 +4,7 @@ reference. Per source: kappa (95% bootstrap CI), accuracy, macro-F1, per-class r
 Threshold sensitivity: kappa per pre-declared threshold (a sensitivity analysis on 180 items, NOT a way to pick t).
 Intra-rater kappa when annotation/relabel_sample.csv is filled. Runs only once every row of the sheet is labelled.
 
-  python scripts/06_validate_emotion_labels.py
+  python scripts/38_analysis_label_validation.py
 """
 import argparse
 import json
@@ -15,7 +15,7 @@ import pandas as pd
 
 import _bootstrap  # noqa: F401
 from src.annotation import read_sheet, sheet_problems, vader_correlation
-from src.config import FIGURES, LABEL_SHEET, MIN_CLASS_COUNT, NRC_SIX_MAP, PROCESSED, RELABEL_SHEET, RESULTS, SEED
+from src.config import DIAGNOSTICS, LABEL_SHEET, MIN_CLASS_COUNT, NRC_SIX_MAP, PROCESSED, RELABEL_SHEET, RESULTS, SEED
 from src.emotion_spec import confirmation_actions, load_spec
 from src.provenance import run_info
 from src.validation import plot_threshold_panels, run_validation
@@ -27,12 +27,12 @@ def main():
     ap.add_argument("--relabel-sheet", type=Path, default=RELABEL_SHEET)
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     ap.add_argument("--out-dir", type=Path, default=RESULTS / "tables")
-    ap.add_argument("--fig-dir", type=Path, default=FIGURES)
+    ap.add_argument("--fig-dir", type=Path, default=DIAGNOSTICS)
     ap.add_argument("--n-boot", type=int, default=1000, help="bootstrap resamples for the kappa CIs")
     args = ap.parse_args()
 
     if not args.sheet.exists():
-        raise SystemExit(f"{args.sheet} not found. Run scripts/05_make_annotation_sample.py first.")
+        raise SystemExit(f"{args.sheet} not found. Run scripts/14_data_annotation_sheet.py first.")
     problems = sheet_problems(read_sheet(args.sheet))
     if problems:
         print("Fix the sheet first (python scripts/label_tool.py):")
