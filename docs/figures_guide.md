@@ -21,7 +21,7 @@ result was not significant at both the impression level and the user level. Dev 
 ## 3. Title vs abstract intensity (`3_title_vs_abstract_intensity.png`)
 - **Shows:** for the same items, how many titles and abstracts reach each level of emotion score.
 - **Why it matters:** abstracts reach higher scores (median 0.116 vs 0.068), probably because longer text gives the
-  classifier more to pick up. That does not make abstracts more useful for clicks: see `docs/base_v2_report.md`.
+  classifier more to pick up. That does not make abstracts more useful for clicks: see `docs/reports/base_v2_report.md`.
 
 ## 4. Emotion by category (`4_emotion_by_category.png`)
 - **Shows:** the emotion mix inside the 10 largest categories. Each row adds up to 100%.

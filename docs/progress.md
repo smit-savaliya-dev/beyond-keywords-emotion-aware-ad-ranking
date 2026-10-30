@@ -135,8 +135,8 @@ committed before computing. `annotation/` is excluded from every commit while th
 | 2 True recency | done |
 | 3 Percentile robustness | done (max dz change 0.00022, D43) |
 | 4 Cleanup and restructure | done |
-| 5 Terminal summary, --rebuild | pending |
-| Final report | pending |
+| 5 Terminal summary, --rebuild | done |
+| Final report | done (`docs/reports/base_v3_report.md`) |
 
 ### Step 1
 - At t = 0.05: v2 neutral 25.6 (joy 34.5, sadness 18.9, anger 5.6, fear 1.9, surprise 13.5); v2b 39.0 (20.7, 19.8, 2.8, 1.9, 15.8);
@@ -168,3 +168,10 @@ committed before computing. `annotation/` is excluded from every commit while th
      carry the hold, so steps 20 and 21 ran for about 36 s. They loaded the model on the GPU, reloaded 97 saved chunks and scored 0 texts; the 7
      output files are byte-identical. GPU steps with existing outputs now never start unless named with --force-step, on any run.
   7. MY ERROR: entries D37-D43 were first dated 2026-11-01; the real date is 2026-10-30. Corrected.
+
+### Step 5 and final check
+- `scripts/show_results.py` (logic in `src/summary.py`, saved tables only) is the last pipeline step. `--rebuild` skips GPU scoring.
+- One uninterrupted `--rebuild`: exit 0, 23 steps ran, 76 of 76 snapshot files identical, 163 tests pass, no dev run.
+
+## Resume here
+base-v3 is complete. Waiting for the student: fix the merge state (Q08), hand labels, Q09, then M2/M3.

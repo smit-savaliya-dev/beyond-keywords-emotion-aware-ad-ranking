@@ -166,6 +166,7 @@ def build_steps(skip_official_check):
              inputs=[P / "data_summary.json"]
              + [RESULTS / "per_impression" / f"{m}__valid.parquet" for m in (M0_NAME, M1_NAME)],
              script=S / "42_model_compare_baselines.py"),
+        Step("90_show_results", [S / "show_results.py"], always=True, adoptable=False),
     ]
 
 
