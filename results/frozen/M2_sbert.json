@@ -1,0 +1,90 @@
+{
+  "model": "M2_sbert",
+  "config": {
+    "text": "title",
+    "aggregation": "mean"
+  },
+  "config_hash": "b104934253",
+  "chosen_on": "valid",
+  "evidence": {
+    "selection": "max valid auc",
+    "grid": [
+      {
+        "text": "title",
+        "aggregation": "mean",
+        "auc": 0.6468,
+        "mrr": 0.2998,
+        "ndcg@5": 0.3228,
+        "p@5": 0.1137,
+        "r@5": 0.4482,
+        "hr@5": 0.5223,
+        "ndcg@10": 0.3807,
+        "p@10": 0.0813,
+        "r@10": 0.6135,
+        "hr@10": 0.6942
+      },
+      {
+        "text": "title",
+        "aggregation": "decay",
+        "auc": 0.6396,
+        "mrr": 0.294,
+        "ndcg@5": 0.3163,
+        "p@5": 0.112,
+        "r@5": 0.4422,
+        "hr@5": 0.5158,
+        "ndcg@10": 0.3749,
+        "p@10": 0.0806,
+        "r@10": 0.6097,
+        "hr@10": 0.6902
+      },
+      {
+        "text": "text",
+        "aggregation": "mean",
+        "auc": 0.6449,
+        "mrr": 0.2999,
+        "ndcg@5": 0.323,
+        "p@5": 0.1144,
+        "r@5": 0.4476,
+        "hr@5": 0.5235,
+        "ndcg@10": 0.3819,
+        "p@10": 0.082,
+        "r@10": 0.6158,
+        "hr@10": 0.6984
+      },
+      {
+        "text": "text",
+        "aggregation": "decay",
+        "auc": 0.6392,
+        "mrr": 0.2949,
+        "ndcg@5": 0.3176,
+        "p@5": 0.1129,
+        "r@5": 0.4425,
+        "hr@5": 0.5171,
+        "ndcg@10": 0.3759,
+        "p@10": 0.081,
+        "r@10": 0.6091,
+        "hr@10": 0.6913
+      }
+    ],
+    "encoder": "sentence-transformers/all-mpnet-base-v2",
+    "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130",
+    "pct_cold_start_profiles": 2.36,
+    "n_unique_profiles": 20179,
+    "leakage_warning": false
+  },
+  "frozen_utc": "2026-10-30T16:15:23+00:00",
+  "run_info": {
+    "timestamp_utc": "2026-10-30T16:15:23+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "2a3d195",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

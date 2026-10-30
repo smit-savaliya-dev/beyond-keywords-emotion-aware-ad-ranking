@@ -114,3 +114,24 @@ def test_window_congruence_returns_three_roles():
     vec = np.array([[1.0, 0.0], [0.0, 1.0]])
     out = window_congruence(np.array([0, 0]), np.array([0, 1]), [np.array([0, 1])], vec, "w", {"skip": 1, "size": 1, "decay": 1.0}, 0)
     assert sorted(out) == ["w", "w_personal", "w_userspecific"] and out["w"].tolist() == pytest.approx([1.0, 0.0])
+
+
+def test_other_user_cosine_matches_brute_force_and_skips_own_user():
+    from src.congruence import cosine_rows, other_user_cosine
+    rng = np.random.default_rng(0)
+    pool = rng.uniform(0.1, 1, (6, 3))
+    pool_users = np.array(["u0", "u0", "u1", "u1", "u2", "u2"], dtype=object)
+    vectors = rng.uniform(0.1, 1, (4, 3))
+    out = other_user_cosine([0, 1], [2, 3], vectors, pool, pool_users, np.array(["u0", "u1"], dtype=object), k=5, seed=1, chunk_size=1)
+    # replay the seeded draw
+    r = np.random.default_rng(1)
+    draw = r.integers(0, 6, size=(2, 5))
+    clash = pool_users[draw] == np.array([["u0"], ["u1"]], dtype=object)
+    while clash.any():
+        draw[clash] = r.integers(0, 6, int(clash.sum()))
+        clash = pool_users[draw] == np.array([["u0"], ["u1"]], dtype=object)
+    assert not (pool_users[draw[0]] == "u0").any() and not (pool_users[draw[1]] == "u1").any()
+    for row, item in ((0, 2), (1, 3)):
+        brute = np.mean([cosine_rows(vectors[[item]], pool[[j]])[0] for j in draw[row]])
+        assert out[row] == pytest.approx(brute)
+

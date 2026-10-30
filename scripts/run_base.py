@@ -17,7 +17,7 @@ import sys
 import time
 
 import _bootstrap  # noqa: F401
-from src.config import (ARCHIVED_SHEET, DIAGNOSTICS, EMOLEX_PATH, FROZEN_DIR, M0_NAME, M1_NAME, PROCESSED, RAW, RESULTS, ROOT,
+from src.config import (ARCHIVED_SHEET, DIAGNOSTICS, EMOLEX_PATH, FROZEN_DIR, M0_NAME, M1_NAME, M2_GRID, M2_NAME, M3_NAME, PROCESSED, RAW, RESULTS, ROOT,
                         SEMEVAL_DIR, SEMEVAL_SPLITS, STORY_CHARTS, STORY_DIR, TABLES, VAD_PATH)
 from src.semeval import split_files
 from src.pipeline import Pipeline, Step, StepFailed, held_gpu_steps, rebuild_steps
@@ -157,6 +157,25 @@ def build_steps(skip_official_check):
              inputs=[P / "data_summary.json"]
              + [RESULTS / "per_impression" / f"{m}__valid.parquet" for m in (M0_NAME, M1_NAME)],
              script=S / "42_model_compare_baselines.py"),
+        Step("43_model_m2_encode", [S / "43_model_m2_encode.py"], inputs=[NEWS], script=S / "43_model_m2_encode.py",
+             outputs=[P / "sbert_meta.json"] + [P / f"sbert_{t}{e}" for t in M2_GRID["text"] for e in (".npy", "_ids.parquet")],
+             gpu=True, note="GPU; resumes from sbert_chunks_title/ and sbert_chunks_text/"),
+        Step("44_model_m2_sbert", [S / "44_model_m2_sbert.py", "--tune"], script=S / "44_model_m2_sbert.py",
+             inputs=[IMPS, BEH, NEWS] + [P / f"sbert_{t}.npy" for t in M2_GRID["text"]],
+             outputs=[FROZEN_DIR / f"{M2_NAME}.json", T / "m2_sbert_tuning_valid.csv"]
+             + [RESULTS / sub / f"{M2_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
+             note="valid only; --final-dev is never run by the pipeline"),
+        Step("45_model_m3_fusion", [S / "45_model_m3_fusion.py", "--tune"], script=S / "45_model_m3_fusion.py",
+             extra_code=[ROOT / "config" / "emotion_spec_v3.json"],
+             inputs=[IMPS, BEH, P / "news_emotion_features_v2.parquet", P / "news_emotion_features.parquet", FROZEN_DIR / f"{M2_NAME}.json"]
+             + [RESULTS / sub / f"{M2_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
+             outputs=[FROZEN_DIR / f"{M3_NAME}.json", DIAGNOSTICS / "m3_alpha_curve.png"]
+             + [T / f for f in ("m3_fusion_grid_valid.csv", "m3_shuffled_control_valid.csv", "m3_fusion_meta.json")]
+             + [RESULTS / sub / f"{M3_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
+             note="valid only; stops if a D54 check fails; --final-dev is never run by the pipeline"),
+        Step("46_model_compare_m2m3", [S / "46_model_compare_m2m3.py", "--part", "valid"], script=S / "46_model_compare_m2m3.py",
+             inputs=[BEH, P / "data_summary.json"] + [RESULTS / "per_impression" / f"{m}__valid.parquet" for m in (M1_NAME, M2_NAME, M3_NAME)],
+             outputs=[T / "m2m3_comparison.csv", T / "m2m3_user_level.csv"]),
         Step("90_show_results", [S / "show_results.py"], always=True, adoptable=False),
     ]
 

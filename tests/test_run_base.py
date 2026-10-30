@@ -29,7 +29,7 @@ def test_pipeline_never_runs_a_dev_final():
 
 def test_only_the_scoring_steps_need_the_gpu():
     assert {s.name for s in load_steps() if s.gpu} == {"20_emotion_label_combined", "21_emotion_score_fields",
-                                                       "29_emotion_semeval_score"}
+                                                       "29_emotion_semeval_score", "43_model_m2_encode"}
 
 
 def test_no_step_depends_on_the_annotation_folder():

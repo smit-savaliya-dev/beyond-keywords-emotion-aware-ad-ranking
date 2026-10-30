@@ -262,3 +262,20 @@ def semeval_correlations(corr, path, title, caption):
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.11), ncol=3, frameon=False, fontsize=8, labelcolor=INK)
     _finish(fig, path, title, caption, 5.8)
 
+
+def alpha_curve(grid, m2_auc, path, title, caption):
+    """grid: variant, alpha, auc. One line per emotion variant; the dashed line is M2 alone."""
+    names = {"cosine": "Cosine (primary)", "personal": "Personal", "user_specific": "User-specific", "mood_repair": "Mood repair",
+             "title_only": "Title-only cosine (not eligible)"}
+    fig, ax = _new(8, 5.2, left=0.09, top=0.62, bottom=1.0)
+    _frame(ax)
+    for j, (variant, label) in enumerate(names.items()):
+        t = grid[grid["variant"] == variant].sort_values("alpha")
+        ax.plot(t["alpha"], t["auc"], color=LINE_COLORS[j], marker=LINE_MARKERS[j], markersize=5, linewidth=1.8, label=label,
+                linestyle=":" if variant == "title_only" else "-")
+    ax.axhline(m2_auc, color=INK_2, linewidth=0.9, linestyle="--")
+    ax.set_xlabel("alpha (0 = emotion only, 1 = M2 only)")
+    ax.set_ylabel("Valid AUC")
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=3, frameon=False, fontsize=8, labelcolor=INK)
+    _finish(fig, path, title, caption, 5.2)
+

@@ -118,6 +118,21 @@ LEAKAGE_AUC_WARN = 0.75  # a no-emotion baseline above this on valid suggests le
 M0_NAME, M1_NAME = "M0_popularity", "M1_tfidf"
 M0_SMOOTHING_GRID = [1, 10, 100]  # a in (clicks + a*p) / (shown + a)
 M1_GRID = {"text": ["title", "text"], "sublinear_tf": [False, True], "aggregation": ["mean", "decay"]}  # 8 configs
+M2_NAME = "M2_sbert"
+M2_GRID = {"text": ["title", "text"], "aggregation": ["mean", "decay"]}  # 4 configs (D51)
+SBERT_MODEL = "sentence-transformers/all-mpnet-base-v2"
+SBERT_REVISION = "e8c3b32edf5434bc2275fc9bab85f82640a19130"
+SBERT_MAX_LENGTH = 384                                   # sentence_bert_config.json of the model
+SBERT_BATCH_SIZE = 64
+M3_NAME = "M3_sbert_emotion"
+M3_VARIANTS = ["cosine", "personal", "user_specific", "mood_repair"]  # grid order; first = primary (D52, D53)
+M3_REPORT_ONLY = "title_only"                            # spec v3 variant, reported, never selected
+M3_K_OTHER = 10
+GO_PCT_COLUMNS = [f"go_pct_{e}" for e in GO_FEATURES]    # spec v3 emotion vector
+RQ5_TOP_CATEGORIES = 6
+RQ5_MIN_CANDIDATES = 10
+RQ5_N_EXAMPLES = 5
+RQ5_HISTORY_SHOWN = 5
 TFIDF_MIN_DF = 2                   # fixed, not tuned
 TFIDF_STOP_WORDS = "english"       # fixed, not tuned
 

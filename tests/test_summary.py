@@ -64,3 +64,16 @@ def test_semeval_section(tmp_path):
     text = "\n".join(semeval_lines(tmp_path))
     assert "chosen on trial" in text and "GoEmotions CONFIRM, NRC HOLD" in text and "60.0%" in text
     assert semeval_lines(tmp_path / "missing") == ["  not available"]
+
+
+def test_m3_section(tmp_path):
+    from src.summary import m3_lines
+    assert m3_lines(tmp_path) == ["  not available"]
+    meta = {"chosen": {"variant": "cosine", "alpha": 0.8}, "n_configs": 44, "valid_auc": 0.61, "m2_valid_auc": 0.6,
+            "checks": {"alpha_1_reproduces_m2": {"cosine": {"identical": True}}, "shuffled_control_passes": True}}
+    (tmp_path / "m3_fusion_meta.json").write_text(json.dumps(meta), encoding="utf-8")
+    pd.DataFrame([{"model_a": "M2_sbert", "model_b": "M3_sbert_emotion", "metric": "auc", "part": "valid", "mean_diff": 0.01, "ci_low": 0.0,
+                   "ci_high": 0.02, "dz": 0.1, "significant_holm": True}]).to_csv(tmp_path / "m2m3_comparison.csv", index=False)
+    text = "\n".join(m3_lines(tmp_path))
+    assert "cosine, alpha 0.8 of 44" in text and "M3 - M2" in text and "+0.0100" in text and "FAIL" not in text
+

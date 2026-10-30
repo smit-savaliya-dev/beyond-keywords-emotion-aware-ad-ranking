@@ -118,6 +118,29 @@ def congruence_features(groups, item_idx, histories, vectors, measures, chunk_si
     return out, used
 
 
+def other_user_cosine(groups, item_idx, vectors, pool, pool_users, group_users, k, seed, chunk_size=None):
+    """Mean cosine(item, k random other users' profiles) per candidate. Each profile row draws its own k from pool, never its own user.
+    The mean of cosines to unit vectors is the dot product with their mean, so each candidate costs one product."""
+    from .config import CONGRUENCE_CHUNK
+    chunk_size = chunk_size or CONGRUENCE_CHUNK
+    groups, item_idx = np.asarray(groups), np.asarray(item_idx)
+    pool_users, group_users = np.asarray(pool_users, dtype=object), np.asarray(group_users, dtype=object)
+    rng = np.random.default_rng(seed)
+    draw = rng.integers(0, len(pool), size=(len(group_users), k))
+    clash = pool_users[draw] == group_users[:, None]
+    while clash.any():
+        draw[clash] = rng.integers(0, len(pool), int(clash.sum()))
+        clash = pool_users[draw] == group_users[:, None]
+    unit = lambda m: m / np.where(np.linalg.norm(m, axis=-1, keepdims=True) > 0, np.linalg.norm(m, axis=-1, keepdims=True), 1.0)
+    means = unit(np.asarray(pool, dtype=np.float64))[draw].mean(axis=1)
+    items = unit(np.asarray(vectors, dtype=np.float64))
+    out = np.empty(len(groups), dtype=np.float64)
+    for s in range(0, len(groups), chunk_size):
+        e = min(s + chunk_size, len(groups))
+        out[s:e] = (items[item_idx[s:e]] * means[groups[s:e]]).sum(axis=1)
+    return out
+
+
 def window_congruence(groups, item_idx, histories, vectors, name, window, seed):
     """Main measure (cosine on go_pct) for one history window {skip, size, decay}: raw, personal, user-specific."""
     hist = window_histories(histories, window["skip"], window["size"])

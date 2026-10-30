@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 from scipy import sparse
 
-from .config import CONGRUENCE_DECAY, CONGRUENCE_MAX_HISTORY, NEWS_COLS, RAW
+from .config import CONGRUENCE_DECAY, CONGRUENCE_MAX_HISTORY, NEWS_COLS, PROCESSED, RAW
+from .evaluate import load_truth
 
 
 # ---------- M0 popularity ----------
@@ -84,3 +85,18 @@ def unique_profiles(behaviors):
     codes, uniques = pd.factorize(key)
     first = pd.Series(np.arange(len(codes))).groupby(codes).first().to_numpy()
     return codes, behaviors["history"].to_numpy()[first]
+
+
+def load_part(part, processed=PROCESSED):
+    """Candidates (harness truth), the row of each candidate's unique (user, history) profile, histories, user per profile."""
+    beh = pd.read_parquet(processed / "behaviors.parquet", columns=["imp_key", "part", "user_id", "history"],
+                          filters=[("part", "==", part)])
+    if set(beh["part"].astype(str)) != {part}:
+        raise ValueError("behaviors of other parts loaded")
+    codes, histories = unique_profiles(beh)
+    users = beh["user_id"].astype(str).groupby(codes).first().to_numpy()
+    truth = load_truth(part, processed)
+    row = pd.Index(beh["imp_key"].astype(str)).get_indexer(truth["imp_key"])
+    if (row < 0).any():
+        raise ValueError("candidates without a behaviors row")
+    return truth, codes[row], histories, users

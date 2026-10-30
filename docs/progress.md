@@ -193,3 +193,7 @@ base-v4 is complete. Next, when asked: M2, M3. Spec v3 is the current spec; open
 
 ## 2026-10-30 models-m2m3 step 0: pre-declaration
 - D50-D56 committed before any encoding or scoring. Decided: encoder via `transformers` (same stack as the model's config files, no new dependency). Spec conflict recorded in D52: user-specific is a control in spec v3 but a variant in this task; the task is followed and the spec file is unchanged. The spec's title-only variant is reported but not eligible.
+
+## 2026-10-30 models-m2m3 step 1: M2 encoded and tuned on valid
+- 65,238 items encoded twice (title, title+abstract), norms 1.0000. M2 frozen: title, mean (D57). Valid AUC 0.6468; M1 0.5900.
+- `load_part` moved to `src/baselines.py` so M1, M2 and M3 share it. M1 must stay identical (snapshot check at the end).

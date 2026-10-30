@@ -14,33 +14,19 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.baselines import cosine_scores, fit_tfidf, profile_weights, train_news_ids, unique_profiles
+from src.baselines import cosine_scores, fit_tfidf, load_part, profile_weights, train_news_ids
 from src.config import (LEAKAGE_AUC_WARN, M1_GRID, M1_NAME, PROCESSED, TABLES, SELECTION_METRIC, TFIDF_MIN_DF,
                         TFIDF_STOP_WORDS)
 from src.congruence import history_index_lists
-from src.evaluate import evaluate, load_truth, save_results
+from src.evaluate import evaluate, save_results
 from src.experiments import append_run, check_final_dev, frozen_marker, pick_best, save_frozen
-
-
-def load_part(part, processed):
-    """Candidates (harness truth) and, per candidate, the row of its unique (user, history) profile."""
-    beh = pd.read_parquet(processed / "behaviors.parquet", columns=["imp_key", "part", "user_id", "history"],
-                          filters=[("part", "==", part)])
-    if set(beh["part"].astype(str)) != {part}:
-        raise ValueError("behaviors of other parts loaded")
-    codes, histories = unique_profiles(beh)
-    truth = load_truth(part, processed)
-    row = pd.Index(beh["imp_key"].astype(str)).get_indexer(truth["imp_key"])
-    if (row < 0).any():
-        raise ValueError("candidates without a behaviors row")
-    return truth, codes[row], histories
 
 
 def run_configs(part, processed, configs):
     news = pd.read_parquet(processed / "news.parquet", columns=["news_id", "title", "text"])
     train_ids = train_news_ids()
     is_train = news["news_id"].isin(train_ids).to_numpy()
-    truth, groups, histories = load_part(part, processed)
+    truth, groups, histories, _ = load_part(part, processed)
     item_idx = pd.Index(news["news_id"]).get_indexer(truth["news_id"])
     if (item_idx < 0).any():
         raise ValueError("candidates missing from news.parquet")

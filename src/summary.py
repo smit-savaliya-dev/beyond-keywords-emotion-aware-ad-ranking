@@ -124,13 +124,32 @@ def semeval_lines(tables):
     return lines
 
 
+def m3_lines(tables):
+    m = _read(tables / "m3_fusion_meta.json")
+    c = _read(tables / "m2m3_comparison.csv")
+    if m is None or c is None:
+        return ["  not available"]
+    lines = [f"  chosen on valid: {m['chosen']['variant']}, alpha {m['chosen']['alpha']} of {m['n_configs']} configs "
+             f"(valid AUC {m['valid_auc']:.4f}, M2 {m['m2_valid_auc']:.4f})",
+             f"  checks: alpha 1 = M2 {'pass' if all(r['identical'] for r in m['checks']['alpha_1_reproduces_m2'].values()) else 'FAIL'}, "
+             f"shuffled emotion {'pass' if m['checks']['shuffled_control_passes'] else 'FAIL'}", "",
+             f"  {'AUC, B minus A':30s}{'part':>6s}{'diff':>10s}{'95% CI':>22s}{'dz':>8s}{'Holm':>7s}"]
+    t = c[c["metric"] == "auc"].sort_values(["part", "model_b", "model_a"], ascending=[False, False, True])
+    for _, r in t.iterrows():
+        ci = f"{r['ci_low']:+.4f} to {r['ci_high']:+.4f}"
+        name = f"{r['model_b'][:2]} - {r['model_a'][:2]}"
+        lines.append(f"  {name:30s}{r['part']:>6s}{r['mean_diff']:+10.4f}{ci:>22s}{r['dz']:+8.3f}{'yes' if r['significant_holm'] else 'no':>7s}")
+    return lines
+
+
 def build_summary(tables, processed):
     lines = ["=" * WIDTH, "BEYOND KEYWORDS: RESULTS SUMMARY", "=" * WIDTH]
     for title, body in (("Data", data_lines(processed)), ("Neutral share and emotion mix (% of items)", neutral_lines(tables)),
                         ("Most stable click signals (clicked vs not, same list)", stable_signal_lines(tables)),
                         ("Emotional congruence with the user's recent reading", congruence_lines(tables)),
                         ("Which context window matters", window_lines(tables)), ("External validation: SemEval-2007 headlines", semeval_lines(tables)),
-                        ("Baselines (no emotion)", baseline_lines(tables))):
+                        ("Models", baseline_lines(tables)),
+                        ("M3 = M2 + emotion", m3_lines(tables))):
         lines += _section(title) + body
     lines += ["", "dz: effect size in SD units; 0.1-0.2 is small but real. Associations only, not ranking gains.", "=" * WIDTH]
     return "\n".join(lines)
