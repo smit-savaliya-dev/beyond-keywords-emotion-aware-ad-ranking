@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.click_signal import MaskedValues, permute_within_groups, signal_table, within_group_diffs
+from src.click_signal import MaskedValues, holm_family, permute_within_groups, signal_table, within_group_diffs
 from src.config import (CONTEXT_WINDOWS, PROCESSED, RECENCY_WINDOWS, RESULTS, SEED, SIGNAL_ALPHA, SIGNAL_TOP_CATEGORIES,
                         V2_MAIN_MEASURE)
 from src.congruence import congruence_features, window_histories
@@ -142,13 +142,7 @@ def main():
             mc = cat_rows == c
             t = signal_table(groups[mc], labels[mc], MaskedValues(resid, mc), SIGNAL_ALPHA, users)
             parts.append(t.assign(category=c))
-        cat_t = pd.concat(parts, ignore_index=True).assign(part=part)
-        for col in ("p", "user_p"):
-            cat_t[f"{col}_holm"] = holm(cat_t[col].to_numpy())
-        cat_t["significant_holm"] = cat_t["p_holm"] < SIGNAL_ALPHA
-        cat_t["significant_user"] = (cat_t["user_p_holm"] < SIGNAL_ALPHA) & (np.sign(cat_t["user_dz"]) == np.sign(cat_t["dz"]))
-        cat_t["significant_both"] = cat_t["significant_holm"] & cat_t["significant_user"]
-        resid_cat.append(cat_t)
+        resid_cat.append(holm_family(pd.concat(parts, ignore_index=True).assign(part=part), SIGNAL_ALPHA))
         del values, resid
 
         for k in RECENCY_WINDOWS:  # same-size control: last k vs the k clicks before them

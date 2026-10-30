@@ -61,10 +61,10 @@
   },
   "limitation": "history is one list per user from before the log period; a short window is the newest part of that list, not the reading just before the impression",
   "run_info": {
-    "timestamp_utc": "2026-10-30T14:28:37+00:00",
+    "timestamp_utc": "2026-10-30T14:35:12+00:00",
     "python": "3.11.9",
     "platform": "Windows-10-10.0.26200-SP0",
-    "git_commit": "b2dae5d",
+    "git_commit": "5a748ec",
     "git_dirty": true,
     "pandas": "3.0.6",
     "numpy": "2.4.6",

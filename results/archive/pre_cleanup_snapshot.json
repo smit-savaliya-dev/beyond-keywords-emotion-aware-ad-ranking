@@ -1,0 +1,1113 @@
+{
+ "tables/baselines_comparison.csv": {
+  "sha256": "02e8c7a95a2400360537529e2383c0dca4a9533be924503351460a1ccf7c0ad9",
+  "rows": 20,
+  "columns": 18,
+  "numeric_sums": {
+   "n": 1034220.0,
+   "mean_a": 7.23488,
+   "mean_b": 7.634573,
+   "mean_diff": 0.399693,
+   "ci_low": 0.328629,
+   "ci_high": 0.470757,
+   "dz": 1.075263,
+   "t_stat": 196.918551,
+   "p": 0.462841,
+   "p_wilcoxon": 0.982269,
+   "pct_b_better": 558.363786,
+   "p_holm": 0.498502,
+   "p_wilcoxon_holm": 1.043936
+  }
+ },
+ "tables/baselines_sanity.csv": {
+  "sha256": "fda9291c0609ea2fc7cb9960922fc495d5722cc9638a0af4c899ce1f0665087b",
+  "rows": 4,
+  "columns": 8,
+  "numeric_sums": {
+   "auc": 2.327401,
+   "auc_minus_0.5": 0.327401,
+   "ci_low": 0.316951,
+   "ci_high": 0.337851,
+   "p": 0.0
+  }
+ },
+ "tables/congruence_signal_by_category_fit.csv": {
+  "sha256": "43e0455f7c687e819fd5ddb2542dce9d345230438644efb37ee3a7a53ebfd18f",
+  "rows": 150,
+  "columns": 27,
+  "numeric_sums": {
+   "n_groups": 2574700.0,
+   "mean_diff": -0.458937,
+   "median_diff": 1.187294,
+   "sd_diff": 29.30532,
+   "dz": 2.400667,
+   "dz_ci_low": -0.264639,
+   "dz_ci_high": 5.065973,
+   "t_stat": 331.799572,
+   "p": 4.791487,
+   "pct_positive": 8078.632804,
+   "rank_biserial": 9.31753,
+   "p_wilcoxon": 5.590115,
+   "n_users": 1702575.0,
+   "user_dz": 2.303767,
+   "user_p": 5.664272,
+   "p_holm": 17.60455,
+   "p_wilcoxon_holm": 15.807696,
+   "user_p_holm": 19.675818
+  }
+ },
+ "tables/congruence_signal_fit.csv": {
+  "sha256": "c81d756194f19f911c5b2a1f48590621ec111d4f8c95fb0e18f9f5807b80a76d",
+  "rows": 50,
+  "columns": 31,
+  "numeric_sums": {
+   "n_groups": 6273100.0,
+   "mean_diff": 0.030104,
+   "median_diff": 0.92507,
+   "sd_diff": 8.86204,
+   "dz": 2.263902,
+   "dz_ci_low": 1.986113,
+   "dz_ci_high": 2.541691,
+   "t_stat": 801.832043,
+   "p": 0.0,
+   "pct_positive": 2852.972288,
+   "rank_biserial": 6.185287,
+   "p_wilcoxon": 1e-06,
+   "n_users": 2280650.0,
+   "user_dz": 2.731178,
+   "user_p": 0.0,
+   "p_holm": 0.0,
+   "p_wilcoxon_holm": 1e-06,
+   "user_p_holm": 0.0,
+   "null_dz": 0.053692,
+   "null_p_holm": 25.0,
+   "null_user_p_holm": 25.0
+  }
+ },
+ "tables/congruence_signal_fit_meta.json": {
+  "sha256": "1f7dbd61fd57139f0937a2d04da4094ebe67d9e19341bcfbeda586d4e3c9d72b",
+  "keys": 17
+ },
+ "tables/context_windows_comparison.csv": {
+  "sha256": "b1a033dd6191c98758fcc608de79af627f57927d83d6de6f60b78af84266d104",
+  "rows": 8,
+  "columns": 10,
+  "numeric_sums": {
+   "n": 581076.0,
+   "dz_diff": -0.315421,
+   "ci_low": -0.375935,
+   "ci_high": -0.254907,
+   "p": 0.545009,
+   "p_holm": 0.545009
+  }
+ },
+ "tables/context_windows_meta.json": {
+  "sha256": "e204675524d1f619677d26396ae66bdceae4c5f3ad4ec1e4dc1fb6bf051bcbda",
+  "keys": 10
+ },
+ "tables/context_windows_signal.csv": {
+  "sha256": "84bbf4588a5268fc1104fe733768c4beccd8652bcfd0becf6ed7bfa8daeb6fb4",
+  "rows": 42,
+  "columns": 26,
+  "numeric_sums": {
+   "n_groups": 2875209.0,
+   "mean_diff": 0.510225,
+   "median_diff": 0.596756,
+   "sd_diff": 3.51397,
+   "dz": 6.623895,
+   "dz_ci_low": 6.240309,
+   "dz_ci_high": 7.007482,
+   "t_stat": 1628.633808,
+   "p": 0.0,
+   "pct_positive": 2468.709128,
+   "rank_biserial": 8.924813,
+   "p_wilcoxon": 0.0,
+   "n_users": 1141521.0,
+   "user_dz": 8.435134,
+   "user_p": 0.0,
+   "p_holm": 0.0,
+   "p_wilcoxon_holm": 0.0,
+   "user_p_holm": 0.0
+  }
+ },
+ "tables/emotion_cross_source_correlations.csv": {
+  "sha256": "24e8301bc3b3cb814ce471441867d615f558d4ca28ec6d388bdb788bc7106ce5",
+  "rows": 10,
+  "columns": 6,
+  "numeric_sums": {
+   "n": 621570.0,
+   "pearson": 1.7273,
+   "spearman": 2.5917
+  }
+ },
+ "tables/emotion_cross_source_spearman.csv": {
+  "sha256": "1a54a27a07a8e7f29b1669302de0b77742a7931bae53cfcdef64e93b1907bacd",
+  "rows": 13,
+  "columns": 15,
+  "numeric_sums": {
+   "nrc_anger": -0.4217,
+   "nrc_anticipation": 0.7338,
+   "nrc_disgust": -0.2753,
+   "nrc_fear": -0.3556,
+   "nrc_joy": 0.8654,
+   "nrc_sadness": -0.3724,
+   "nrc_surprise": 0.2832,
+   "nrc_trust": -0.415,
+   "nrc_positive": 0.2273,
+   "nrc_negative": -0.5829,
+   "nrc_coverage": -0.2461,
+   "vad_valence": 1.1379,
+   "vad_arousal": -0.2702,
+   "vad_dominance": -0.1589
+  }
+ },
+ "tables/emotion_examples_v2.csv": {
+  "sha256": "72b39211ae9cead34bb172f38a76f4e3bb6163f08c2f3ceaacba874f9505e53c",
+  "rows": 60,
+  "columns": 7,
+  "numeric_sums": {
+   "intensity": 12.926,
+   "neutral_score": 36.055
+  }
+ },
+ "tables/emotion_feature_distributions.csv": {
+  "sha256": "f4d51676db9056f2ae9ffc7b75ae7bb6e8a2a9073ea1ad325670a92fe11495f7",
+  "rows": 101,
+  "columns": 12,
+  "numeric_sums": {
+   "count": 6496833.0,
+   "mean": 23.0167,
+   "std": 16.8056,
+   "min": -3.2725,
+   "25%": 11.183,
+   "50%": 20.9714,
+   "75%": 32.1656,
+   "max": 93.4703,
+   "pct_nan": 141.3369,
+   "pct_zero": 484.6746,
+   "pct_gt_0.5": 1977.4162
+  }
+ },
+ "tables/emotion_label_variants_grid.csv": {
+  "sha256": "55614568d5460bdc23717e7f8de230c3d7898b3431a0534a37cd1d472e9f9d4a",
+  "rows": 21,
+  "columns": 8,
+  "numeric_sums": {
+   "t": 2.715,
+   "pct_joy": 373.1169,
+   "pct_sadness": 320.2491,
+   "pct_anger": 49.5508,
+   "pct_fear": 29.9042,
+   "pct_surprise": 225.8897,
+   "pct_neutral": 1101.2891
+  }
+ },
+ "tables/emotion_label_variants_meta.json": {
+  "sha256": "072ab024b1283102fef17ef972c61b73ca39748ae8b9f25fef4149c355345224",
+  "keys": 7
+ },
+ "tables/emotion_low_mass.json": {
+  "sha256": "3bfce2350665528853c227b4b5c80fe39bac2e5bd45cd5122bce2347c7fde6f4",
+  "keys": 2
+ },
+ "tables/emotion_signal_by_category_fit.csv": {
+  "sha256": "347d754db300c385f5b6c9b281f62bd2e295801f427c226490375ff39b24024c",
+  "rows": 168,
+  "columns": 23,
+  "numeric_sums": {
+   "n_groups": 2883664.0,
+   "mean_diff": -1.716552,
+   "median_diff": -2.697058,
+   "sd_diff": 24.6264,
+   "dz": -5.147528,
+   "dz_ci_low": -8.136807,
+   "dz_ci_high": -2.158249,
+   "t_stat": -716.974604,
+   "p": 7.463303,
+   "pct_positive": 7096.757872,
+   "rank_biserial": -22.036921,
+   "p_wilcoxon": 6.996045,
+   "n_users": 1906884.0,
+   "user_dz": -5.950698,
+   "user_p": 9.306059,
+   "p_holm": 26.147164,
+   "p_wilcoxon_holm": 12.508178,
+   "user_p_holm": 27.329126
+  }
+ },
+ "tables/emotion_signal_fit.csv": {
+  "sha256": "29041b12a6691716dcc6120955187acddf242c602ab527fc195b4bf42cc64d5e",
+  "rows": 101,
+  "columns": 26,
+  "numeric_sums": {
+   "n_groups": 12661222.0,
+   "mean_diff": 0.045691,
+   "median_diff": -1.066933,
+   "sd_diff": 16.347931,
+   "dz": 0.024374,
+   "dz_ci_low": -0.535724,
+   "dz_ci_high": 0.584471,
+   "t_stat": 7.39447,
+   "p": 3.487045,
+   "pct_positive": 4122.03305,
+   "rank_biserial": -16.253589,
+   "p_wilcoxon": 1.663462,
+   "n_users": 4626665.0,
+   "user_dz": 0.250701,
+   "user_p": 4.229468,
+   "p_holm": 9.12632,
+   "p_wilcoxon_holm": 3.673887,
+   "user_p_holm": 8.075559,
+   "null_dz": -0.002486,
+   "null_p_holm": 99.472068,
+   "null_p_wilcoxon_holm": 8.089142,
+   "null_user_p_holm": 99.279967
+  }
+ },
+ "tables/emotion_signal_fit_meta.json": {
+  "sha256": "a4d083d407df820d98523ed02249c6b6d553f4ad1e889121c764ea230debfca4",
+  "keys": 15
+ },
+ "tables/emotion_signal_v2.csv": {
+  "sha256": "7381687ed3c8a9a23e69aa7ee2609022e24fe5d606fffe293ce9588eab002000",
+  "rows": 56,
+  "columns": 23,
+  "numeric_sums": {
+   "n_groups": 4395020.0,
+   "mean_diff": 0.045007,
+   "median_diff": -0.211472,
+   "sd_diff": 11.64021,
+   "dz": 1.400178,
+   "dz_ci_low": 0.929237,
+   "dz_ci_high": 1.871119,
+   "t_stat": 369.998489,
+   "p": 0.135095,
+   "pct_positive": 2760.87173,
+   "rank_biserial": 0.1393,
+   "p_wilcoxon": 0.458238,
+   "n_users": 1853348.0,
+   "user_dz": 1.778869,
+   "user_p": 0.982165,
+   "p_holm": 0.158455,
+   "p_wilcoxon_holm": 0.705845,
+   "user_p_holm": 1.516893
+  }
+ },
+ "tables/emotion_signal_valid.csv": {
+  "sha256": "261ae06388efc9f608ae8c9c8d8523c30289c339a3f0d3455a1393ad2faaf9be",
+  "rows": 25,
+  "columns": 22,
+  "numeric_sums": {
+   "n_groups": 756750.0,
+   "mean_diff": 0.016431,
+   "median_diff": -0.05198,
+   "sd_diff": 5.402875,
+   "dz": 0.519613,
+   "dz_ci_low": 0.237397,
+   "dz_ci_high": 0.801829,
+   "t_stat": 90.403762,
+   "p": 1.005944,
+   "pct_positive": 1226.487314,
+   "rank_biserial": -0.224632,
+   "p_wilcoxon": 0.869479,
+   "n_users": 504475.0,
+   "user_dz": 0.592545,
+   "user_p": 0.312429,
+   "p_holm": 1.021358,
+   "p_wilcoxon_holm": 1.491308,
+   "user_p_holm": 0.720805
+  }
+ },
+ "tables/emotion_signal_variants_fit.csv": {
+  "sha256": "39693de748fda5b5451e3f748494ddc123545060e7d0ffca91ec528b8e87fef6",
+  "rows": 114,
+  "columns": 30,
+  "numeric_sums": {
+   "n_groups": 14063306.0,
+   "mean_diff": 0.533615,
+   "median_diff": 0.357065,
+   "sd_diff": 19.430363,
+   "dz": 1.374258,
+   "dz_ci_low": 0.736961,
+   "dz_ci_high": 2.011556,
+   "t_stat": 482.802595,
+   "p": 1.900436,
+   "pct_positive": 4626.527064,
+   "rank_biserial": -20.363069,
+   "p_wilcoxon": 0.517499,
+   "n_users": 5187532.0,
+   "user_dz": 2.280127,
+   "user_p": 5.838477,
+   "p_holm": 3.561046,
+   "p_wilcoxon_holm": 0.972116,
+   "user_p_holm": 9.528913,
+   "null_dz": -0.035676,
+   "null_p_holm": 57.0,
+   "null_p_wilcoxon_holm": 7.052668,
+   "null_user_p_holm": 57.0
+  }
+ },
+ "tables/emotion_spec_selection.csv": {
+  "sha256": "320c4fa9a642710315f839383624c9b436d72dabdaf429e5253a74567f4ba720",
+  "rows": 25,
+  "columns": 12,
+  "numeric_sums": {
+   "fit_dz": 0.263899,
+   "fit_user_dz": 0.379021,
+   "valid_dz": 0.519613,
+   "valid_ci_low": 0.237397,
+   "valid_ci_high": 0.801829,
+   "valid_user_dz": 0.592545
+  }
+ },
+ "tables/emotion_spec_selection_meta.json": {
+  "sha256": "df27c95d52aadaf99c6fe6aec69d4d54a8a273ce088ad1d8d91ed1202d7dde4e",
+  "keys": 7
+ },
+ "tables/emotion_spec_v2_selection.csv": {
+  "sha256": "72ba323bdafd7d881ae8556586753954afe52345666680b8bb467e13a782210b",
+  "rows": 26,
+  "columns": 12,
+  "numeric_sums": {
+   "fit_dz": 0.475986,
+   "fit_user_dz": 0.683398,
+   "valid_dz": 0.52538,
+   "valid_ci_low": 0.231865,
+   "valid_ci_high": 0.818895,
+   "valid_user_dz": 0.604656
+  }
+ },
+ "tables/emotion_spec_v2_selection_meta.json": {
+  "sha256": "c422a4b65298f454579dad958c6f254a3942339dcefb528b0ae0b20a1b3fe26d",
+  "keys": 6
+ },
+ "tables/emotion_threshold_neutral_share.csv": {
+  "sha256": "67255e694a9bb0f0c9e6e8385cbb0671076022993653172b28080735d5f0d982",
+  "rows": 11,
+  "columns": 8,
+  "numeric_sums": {
+   "threshold": 6.04,
+   "share_joy": 190.28,
+   "share_sadness": 59.61,
+   "share_anger": 51.52,
+   "share_fear": 58.5,
+   "share_surprise": 75.04,
+   "share_neutral": 665.02
+  }
+ },
+ "tables/emotion_threshold_neutral_share_meta.json": {
+  "sha256": "443a486156a4d1997b381f654cf6b19b09ccf4737e6d1d274a292b73e526efa7",
+  "keys": 10
+ },
+ "tables/emotion_title_vs_abstract.csv": {
+  "sha256": "7b4a4be9b9efb516d80c6d99a1d36c49a7c339c56d5e2de257b2f8f611872476",
+  "rows": 10,
+  "columns": 6,
+  "numeric_sums": {
+   "n": 618230.0,
+   "pearson": 2.2593,
+   "spearman": 4.1771
+  }
+ },
+ "tables/emotion_v2_choice.json": {
+  "sha256": "99a8a1e6d3a7d5d62e2c2d35f04d779038a4e872886bd8dd6544e71a547f95fc",
+  "keys": 12
+ },
+ "tables/emotion_v2_grid.csv": {
+  "sha256": "32a0cc4aa5d188d524a5850b4000c37173053ae04d50862c04fe3dafb971c2d1",
+  "rows": 35,
+  "columns": 11,
+  "numeric_sums": {
+   "share": 21.9331,
+   "t": 4.525,
+   "pct_joy": 748.9929,
+   "pct_sadness": 504.4957,
+   "pct_anger": 127.0196,
+   "pct_fear": 47.6497,
+   "pct_surprise": 348.2281,
+   "pct_neutral": 1723.6134,
+   "fit_dz": 8.449,
+   "valid_dz": 8.1725
+  }
+ },
+ "tables/emotion_v2_meta.json": {
+  "sha256": "68f5fc4f01d4439054ba4f866fb1b51be0300e7ae8c4feda351c208ecaecfbce",
+  "keys": 10
+ },
+ "tables/emotion_v2_weight_congruence.csv": {
+  "sha256": "b033299a53a080a7b82ac406a5792aa6da0910d09bd62b76a5bbc15f53ceb357",
+  "rows": 5,
+  "columns": 15,
+  "numeric_sums": {
+   "share": 3.1333,
+   "fit_raw_dz": 0.8985,
+   "fit_generic_dz": 0.2157,
+   "fit_personal_dz": 1.207,
+   "fit_otheruser_dz": 0.3693,
+   "fit_userspecific_dz": 0.6747,
+   "fit_personal_user_dz": 1.4648,
+   "valid_raw_dz": 0.8302,
+   "valid_generic_dz": 0.042,
+   "valid_personal_dz": 1.1675,
+   "valid_otheruser_dz": 0.2278,
+   "valid_userspecific_dz": 0.6777,
+   "valid_personal_user_dz": 1.2558
+  }
+ },
+ "tables/emotion_weighted_vs_combined.json": {
+  "sha256": "df06245a5faaabc46d10a9d352e9a61cd39dafc92cc1c7dc15b9e4e80b616038",
+  "keys": 2
+ },
+ "tables/lexicon_coverage.json": {
+  "sha256": "8791ae60775ecc9c8e1b06cb727aaa3b6f39ca4c3525d8e01c4368b3702a3f91",
+  "keys": 3
+ },
+ "tables/lexicon_top_words.csv": {
+  "sha256": "9f1af8d54cfdb9ad429ed118cdac68640b62e67b024403b9c5c3c8d140ab2e11",
+  "rows": 30,
+  "columns": 3,
+  "numeric_sums": {
+   "count": 77335.0
+  }
+ },
+ "tables/m0_popularity_dev_meta.json": {
+  "sha256": "b7d16dfd6c4f736ef53fb887cac5a8ce4ed32a257773b792fcd357046e327b8b",
+  "keys": 6
+ },
+ "tables/m0_popularity_tuning_valid.csv": {
+  "sha256": "7ca64fc08f8e42685f2a2b8d07d1efb29ebdc2ab66675faa0cd20384a85105f1",
+  "rows": 3,
+  "columns": 11,
+  "numeric_sums": {
+   "a": 111.0,
+   "auc": 1.7199,
+   "mrr": 0.7095,
+   "ndcg@5": 0.7289,
+   "p@5": 0.2634,
+   "r@5": 1.0671,
+   "hr@5": 1.2463,
+   "ndcg@10": 0.9124,
+   "p@10": 0.2062,
+   "r@10": 1.5973,
+   "hr@10": 1.8279
+  }
+ },
+ "tables/m1_tfidf_dev_meta.json": {
+  "sha256": "7a978cbaf0e268f1f8a98c96a5834b1e31e48ac63edc5b49bb00cccd51d9ea8a",
+  "keys": 8
+ },
+ "tables/m1_tfidf_tuning_valid.csv": {
+  "sha256": "3b5c158b1af8c798db6b7b2c018032eab4cefece0fcdf3043a7da0264d3595f2",
+  "rows": 8,
+  "columns": 13,
+  "numeric_sums": {
+   "auc": 4.643,
+   "mrr": 2.1554,
+   "ndcg@5": 2.2721,
+   "p@5": 0.803,
+   "r@5": 3.1691,
+   "hr@5": 3.7236,
+   "ndcg@10": 2.7311,
+   "p@10": 0.5892,
+   "r@10": 4.4963,
+   "hr@10": 5.1359
+  }
+ },
+ "tables/percentile_robustness.csv": {
+  "sha256": "2659f4b16c25ade11d77224248b47e7b70261fa09d2e9c9892e7aa5127a3c278",
+  "rows": 24,
+  "columns": 7,
+  "numeric_sums": {
+   "dz_current": 1.535421,
+   "dz_train_ecdf": 1.534916,
+   "change": -0.000506
+  }
+ },
+ "tables/percentile_robustness_meta.json": {
+  "sha256": "af2d10275fa5ee591910fe77d862121851d944eb83887ee73d63eb9266760b83",
+  "keys": 10
+ },
+ "tables/runs_log.csv": {
+  "sha256": "8cbb54e3af6906646afd1b5ccd18ac585fc797084af53081c3bac1818230cbb4",
+  "rows": 37,
+  "columns": 19,
+  "numeric_sums": {
+   "auc": 21.449878,
+   "mrr": 9.735013,
+   "ndcg@5": 10.217487,
+   "p@5": 3.628256,
+   "r@5": 14.390877,
+   "hr@5": 16.881997,
+   "ndcg@10": 12.378281,
+   "p@10": 2.696443,
+   "r@10": 20.637273,
+   "hr@10": 23.565162,
+   "note": 0.0
+  }
+ },
+ "tables/story_category_emotion.csv": {
+  "sha256": "78914ee4b95525e6a876d3aa64a008a7b38f3aebda319771bd6f7b203d109cec",
+  "rows": 10,
+  "columns": 7,
+  "numeric_sums": {
+   "joy": 381.8,
+   "sadness": 162.8,
+   "anger": 47.9,
+   "fear": 21.8,
+   "surprise": 152.2,
+   "neutral": 233.7
+  }
+ },
+ "tables/story_category_valence_arousal.csv": {
+  "sha256": "94a3d8af9cd4fdca78f448efad32264022b31a7969d07b6c0e3486eee527ce0c",
+  "rows": 10,
+  "columns": 7,
+  "numeric_sums": {
+   "valence": 1.608,
+   "arousal": 1.544,
+   "v_low": -1.598,
+   "v_high": 5.024,
+   "a_low": 0.627,
+   "a_high": 2.481
+  }
+ },
+ "tables/story_emotion_mix.csv": {
+  "sha256": "4451b7773f2691aaf6fc70eea7bb75c34766b6bcbbc8071416a8ee1610d63b1f",
+  "rows": 4,
+  "columns": 7,
+  "numeric_sums": {
+   "joy": 74.13,
+   "sadness": 50.11,
+   "anger": 9.72,
+   "fear": 4.75,
+   "surprise": 39.72,
+   "neutral": 221.58
+  }
+ },
+ "tables/story_intensity.csv": {
+  "sha256": "f0bba094334845d92c93fa5e44511b79f13ac1a81687e95b2c3ccf9a08e9401a",
+  "rows": 2,
+  "columns": 4,
+  "numeric_sums": {
+   "n": 123646.0,
+   "median": 0.1831,
+   "pct_at_least_0.05": 132.5882
+  }
+ },
+ "tables/summary.csv": {
+  "sha256": "ff10c5b995e6ae9927a98d01d8f2257dc3809c463b5d20f88e98f91473a2dc19",
+  "rows": 4,
+  "columns": 13,
+  "numeric_sums": {
+   "impressions": 206844.0,
+   "auc": 2.3274,
+   "mrr": 1.062,
+   "ndcg@5": 1.1171,
+   "p@5": 0.3985,
+   "r@5": 1.5844,
+   "hr@5": 1.8525,
+   "ndcg@10": 1.3583,
+   "p@10": 0.2974,
+   "r@10": 2.2809,
+   "hr@10": 2.5911
+  }
+ },
+ "tables/token_lengths.json": {
+  "sha256": "859476e0492db7bf0283902224836d77a013c6383927a22d3fca326a39f35965",
+  "keys": 2
+ },
+ "tables/true_recency_comparison.csv": {
+  "sha256": "2dcd86b0edbb9d910114524efee3bde38bf61380ec7ff3fe84538c7bf5cc8be3",
+  "rows": 18,
+  "columns": 10,
+  "numeric_sums": {
+   "n": 761944.0,
+   "dz_diff": 0.214052,
+   "ci_low": -0.055536,
+   "ci_high": 0.48364,
+   "p": 2.784851,
+   "p_holm": 5.209256
+  }
+ },
+ "tables/true_recency_meta.json": {
+  "sha256": "75c5949873a72d391c395123c4d5eb9bfa6f2b2d505e4a8e8d746991fd1fd35d",
+  "keys": 8
+ },
+ "tables/true_recency_residual_by_category.csv": {
+  "sha256": "e765f71a2df7b076cb774ea1ada0c0bd2f11670acc9642e6eadf6773c602550e",
+  "rows": 36,
+  "columns": 24,
+  "numeric_sums": {
+   "n_groups": 263970.0,
+   "mean_diff": 0.12125,
+   "median_diff": 0.211115,
+   "sd_diff": 3.643876,
+   "dz": 1.219661,
+   "dz_ci_low": 0.151494,
+   "dz_ci_high": 2.287827,
+   "t_stat": 104.580425,
+   "p": 7.523095,
+   "pct_positive": 1915.55847,
+   "rank_biserial": 2.092109,
+   "p_wilcoxon": 4.329391,
+   "n_users": 186642.0,
+   "user_dz": 1.340316,
+   "user_p": 8.098983,
+   "p_holm": 16.543348,
+   "p_wilcoxon_holm": 9.747164,
+   "user_p_holm": 17.858958
+  }
+ },
+ "tables/true_recency_signal.csv": {
+  "sha256": "4c4763642387431646094f93147c00915b84b4f2edf32f3d556228b0f753c147",
+  "rows": 84,
+  "columns": 26,
+  "numeric_sums": {
+   "n_groups": 3328668.0,
+   "mean_diff": 0.778241,
+   "median_diff": 1.016844,
+   "sd_diff": 8.195604,
+   "dz": 8.531334,
+   "dz_ci_low": 7.506617,
+   "dz_ci_high": 9.556051,
+   "t_stat": 1531.850501,
+   "p": 0.012898,
+   "pct_positive": 4744.817003,
+   "rank_biserial": 12.329357,
+   "p_wilcoxon": 0.860869,
+   "n_users": 1407636.0,
+   "user_dz": 10.758856,
+   "user_p": 0.008575,
+   "p_holm": 0.013403,
+   "p_wilcoxon_holm": 0.911281,
+   "user_p_holm": 0.008798
+  }
+ },
+ "frozen/M0_popularity.json": {
+  "sha256": "8aab5f3d080bcafd8ea72b2fc58709a0cfee85862b5642d45224044d730c3bc2",
+  "keys": 7
+ },
+ "frozen/M1_tfidf.json": {
+  "sha256": "8eb3593bcdac773250b6372fea2e5caadc014d8a1dbecb57ccbf98ebdaf3fc3d",
+  "keys": 7
+ },
+ "processed/behaviors.parquet": {
+  "sha256": "172b96ec110ca0cbdf774dbfb09d53ab4545e5fb83bea3ccfe4045380f47455b",
+  "rows": 230117,
+  "columns": 8,
+  "numeric_sums": {
+   "history_len": 7470153.0
+  }
+ },
+ "processed/data_summary.json": {
+  "sha256": "1de3eb0c869d302867f42237e3106a66c59996249cec1b49dba1e68b4a2b07c2",
+  "keys": 9
+ },
+ "processed/impressions.parquet": {
+  "sha256": "afa14c450d6dc1d64a088aa1399b734efac5680d6da009fb9e23ee51c0f00568",
+  "rows": 8584442,
+  "columns": 7,
+  "numeric_sums": {
+   "position": 329916054.0,
+   "label": 347727.0
+  }
+ },
+ "processed/news.parquet": {
+  "sha256": "cbc5ada5e80c27f52c276cfc95b6b17c90a0e2c943a947acac2ec54c33a3b592",
+  "rows": 65238,
+  "columns": 6,
+  "numeric_sums": {}
+ },
+ "processed/news_emotion.parquet": {
+  "sha256": "9c926f06a6aeb4a235c398494abaccc8ae067e036e27099dcae136fc44d9f5ff",
+  "rows": 65238,
+  "columns": 9,
+  "numeric_sums": {
+   "joy": 10583.206736,
+   "sadness": 4735.743693,
+   "anger": 2216.785632,
+   "fear": 962.638535,
+   "surprise": 5723.775546,
+   "neutral": 41015.849858,
+   "dominant_score": 46898.841085
+  }
+ },
+ "processed/news_emotion_features.parquet": {
+  "sha256": "6bb3ed21212f340c344d151eb6b785fc22ea213e88a3120e37b175835958e96d",
+  "rows": 65238,
+  "columns": 103,
+  "numeric_sums": {
+   "go_curiosity": 2004.037927,
+   "go_desire": 481.994142,
+   "go_excitement": 1105.602929,
+   "go_joy": 1192.638115,
+   "go_optimism": 996.595916,
+   "go_nervousness": 205.841637,
+   "go_annoyance": 1018.88656,
+   "go_fear": 605.810299,
+   "go_neutral": 44977.122449,
+   "go_emotionality": 20260.877551,
+   "go_emotion_mass": 7611.407524,
+   "go_dist_curiosity": 8548.677658,
+   "go_dist_desire": 4914.344085,
+   "go_dist_excitement": 8349.774395,
+   "go_dist_joy": 9721.079848,
+   "go_dist_optimism": 9956.552726,
+   "go_dist_nervousness": 2298.004026,
+   "go_dist_annoyance": 15491.721511,
+   "go_dist_fear": 5957.845751,
+   "go_pct_curiosity": 32619.5,
+   "go_pct_desire": 32619.5,
+   "go_pct_excitement": 32619.5,
+   "go_pct_joy": 32619.5,
+   "go_pct_optimism": 32619.5,
+   "go_pct_nervousness": 32619.5,
+   "go_pct_annoyance": 32619.5,
+   "go_pct_fear": 32619.5,
+   "go_vad_valence": 8477.025481,
+   "go_vad_arousal": 9262.201211,
+   "go_vad_dominance": 12009.79664,
+   "nrc_anger": 5700.368422,
+   "nrc_anticipation": 11112.331082,
+   "nrc_disgust": 2446.863608,
+   "nrc_fear": 8629.672326,
+   "nrc_joy": 6205.252979,
+   "nrc_sadness": 5662.745237,
+   "nrc_surprise": 4429.517985,
+   "nrc_trust": 15922.248361,
+   "nrc_positive": 3663.000187,
+   "nrc_negative": 2687.402556
+  }
+ },
+ "processed/news_emotion_features_meta.json": {
+  "sha256": "18c83654ab69835c7a6a62cbed6ef15f507c748b6c1ec6595b7f7d916b373f1d",
+  "keys": 9
+ },
+ "processed/news_emotion_features_v2.parquet": {
+  "sha256": "f5b532d6c79931cc2e639d1b3af054397109e70fe9b095a0d57660f9e012cb04",
+  "rows": 65238,
+  "columns": 50,
+  "numeric_sums": {
+   "go_curiosity": 2033.517457,
+   "go_desire": 461.18032,
+   "go_excitement": 1093.540667,
+   "go_joy": 1142.221155,
+   "go_optimism": 906.399211,
+   "go_nervousness": 199.84826,
+   "go_annoyance": 1023.340857,
+   "go_fear": 614.821684,
+   "go_neutral": 45543.532807,
+   "go_emotionality": 19694.467193,
+   "go_emotion_mass": 7474.86961,
+   "go_dist_curiosity": 8783.914652,
+   "go_dist_desire": 4894.255757,
+   "go_dist_excitement": 8530.566976,
+   "go_dist_joy": 9750.863213,
+   "go_dist_optimism": 9431.823187,
+   "go_dist_nervousness": 2241.106657,
+   "go_dist_annoyance": 15559.208958,
+   "go_dist_fear": 6046.260601,
+   "go_pct_curiosity": 32619.5,
+   "go_pct_desire": 32619.5,
+   "go_pct_excitement": 32619.5,
+   "go_pct_joy": 32619.5,
+   "go_pct_optimism": 32619.5,
+   "go_pct_nervousness": 32619.5,
+   "go_pct_annoyance": 32619.5,
+   "go_pct_fear": 32619.5,
+   "go_vad_valence": 7787.212518,
+   "go_vad_arousal": 9615.024325,
+   "go_vad_dominance": 11098.086883,
+   "nrc_anger": 5785.55112,
+   "nrc_anticipation": 11022.75353,
+   "nrc_disgust": 2464.138914,
+   "nrc_fear": 8753.191503,
+   "nrc_joy": 6180.326531,
+   "nrc_sadness": 5717.254396,
+   "nrc_surprise": 4521.280448,
+   "nrc_trust": 15664.503559,
+   "nrc_positive": 3729.500754,
+   "nrc_negative": 2904.950495
+  }
+ },
+ "processed/news_emotion_go_features.parquet": {
+  "sha256": "25bafd52f4470117e9069901ac62c61e1ac53e2bb8314afe0dba51642d1dc988",
+  "rows": 65238,
+  "columns": 20,
+  "numeric_sums": {
+   "go_curiosity": 2004.037927,
+   "go_desire": 481.994142,
+   "go_excitement": 1105.602929,
+   "go_joy": 1192.638115,
+   "go_optimism": 996.595916,
+   "go_nervousness": 205.841637,
+   "go_annoyance": 1018.88656,
+   "go_fear": 605.810299,
+   "go_neutral": 44977.122449,
+   "go_emotionality": 20260.877551,
+   "go_emotion_mass": 7611.407524,
+   "go_dist_curiosity": 8548.677658,
+   "go_dist_desire": 4914.344085,
+   "go_dist_excitement": 8349.774395,
+   "go_dist_joy": 9721.079848,
+   "go_dist_optimism": 9956.552726,
+   "go_dist_nervousness": 2298.004026,
+   "go_dist_annoyance": 15491.721511,
+   "go_dist_fear": 5957.845751
+  }
+ },
+ "processed/news_emotion_go_vad.parquet": {
+  "sha256": "7dd6f9f53f40eaa6ddfbdfd9faec4f09a794df2152cf2b45d5636bad35558a47",
+  "rows": 65238,
+  "columns": 4,
+  "numeric_sums": {
+   "go_vad_valence": 8477.025481,
+   "go_vad_arousal": 9262.201211,
+   "go_vad_dominance": 12009.79664
+  }
+ },
+ "processed/news_emotion_labels_v2.parquet": {
+  "sha256": "4cfe025d5a258cd8880c25a59d88494ce4e996b71fb80968f99c46fdbeee7f16",
+  "rows": 65238,
+  "columns": 6,
+  "numeric_sums": {
+   "intensity": 11506.163328,
+   "neutral_score": 45543.532807
+  }
+ },
+ "processed/news_emotion_labels_variants.parquet": {
+  "sha256": "050d7b558c227b60632a2aa48c817b71d05b23286ce6515b47f6dfef2a0059b4",
+  "rows": 65238,
+  "columns": 10,
+  "numeric_sums": {
+   "intensity_v2": 11506.163328,
+   "intensity_v2b": 10264.49246,
+   "intensity_v2c": 9960.793841
+  }
+ },
+ "processed/news_emotion_lexicon_meta.json": {
+  "sha256": "ea18e6c4f89d069e600acc279e14e8a46b0b75b84f1ecbe6ed912abff1ee6844",
+  "keys": 8
+ },
+ "processed/news_emotion_meta.json": {
+  "sha256": "929fbc3cc1d487c53ca013890593f5df24cb56b68a96b3f4da5367c0598c058f",
+  "keys": 4
+ },
+ "processed/news_emotion_nrc_features.parquet": {
+  "sha256": "d6763c4b9d732b420b4f0fb5bafc4e49e38b764bdccbc66c0759e77928815629",
+  "rows": 65238,
+  "columns": 18,
+  "numeric_sums": {
+   "nrc_anger": 5700.368422,
+   "nrc_anticipation": 11112.331082,
+   "nrc_disgust": 2446.863608,
+   "nrc_fear": 8629.672326,
+   "nrc_joy": 6205.252979,
+   "nrc_sadness": 5662.745237,
+   "nrc_surprise": 4429.517985,
+   "nrc_trust": 15922.248361,
+   "nrc_positive": 3663.000187,
+   "nrc_negative": 2687.402556,
+   "nrc_coverage": 6627.647563,
+   "nrc_has_hits": 60109.0,
+   "vad_valence": 8226.985546,
+   "vad_arousal": -1250.064501,
+   "vad_dominance": 5072.053066,
+   "vad_coverage": 41825.092183,
+   "vad_has_hits": 65226.0
+  }
+ },
+ "processed/news_emotion_raw28.parquet": {
+  "sha256": "3b37ddc87fff48ab9fd60f5dafa0fd73707a910b1c4820f2c3717901455a53d2",
+  "rows": 65238,
+  "columns": 29,
+  "numeric_sums": {
+   "admiration": 2076.063721,
+   "amusement": 340.547546,
+   "anger": 194.778488,
+   "annoyance": 1040.550049,
+   "approval": 3881.86084,
+   "caring": 582.271484,
+   "confusion": 1324.269043,
+   "curiosity": 2659.293457,
+   "desire": 488.289337,
+   "disappointment": 2091.106934,
+   "disapproval": 1013.612427,
+   "disgust": 249.679474,
+   "embarrassment": 197.808441,
+   "excitement": 1209.024902,
+   "fear": 652.900635,
+   "gratitude": 375.275024,
+   "grief": 193.2771,
+   "joy": 967.35791,
+   "love": 411.073608,
+   "nervousness": 234.144012,
+   "neutral": 43858.414062,
+   "optimism": 1058.280762,
+   "pride": 125.50415,
+   "realization": 2051.032227,
+   "relief": 167.881134,
+   "remorse": 211.21463,
+   "sadness": 3227.922363,
+   "surprise": 666.471802
+  }
+ },
+ "processed/news_emotion_raw28_abstract.parquet": {
+  "sha256": "af877cb0860e366847196eeaf16c67e0857f896c1da003e17b6a7d567da91232",
+  "rows": 61823,
+  "columns": 29,
+  "numeric_sums": {
+   "admiration": 1926.062134,
+   "amusement": 297.461395,
+   "anger": 173.721161,
+   "annoyance": 956.929688,
+   "approval": 4351.745605,
+   "caring": 612.453674,
+   "confusion": 1016.444214,
+   "curiosity": 1857.744385,
+   "desire": 505.651428,
+   "disappointment": 1994.888794,
+   "disapproval": 1104.362061,
+   "disgust": 215.614075,
+   "embarrassment": 165.286865,
+   "excitement": 1077.170654,
+   "fear": 551.83905,
+   "gratitude": 396.896057,
+   "grief": 163.559525,
+   "joy": 982.213623,
+   "love": 368.715149,
+   "nervousness": 207.351013,
+   "neutral": 41362.757812,
+   "optimism": 1150.778687,
+   "pride": 126.747849,
+   "realization": 2177.821533,
+   "relief": 179.056503,
+   "remorse": 168.346802,
+   "sadness": 2729.514648,
+   "surprise": 541.988586
+  }
+ },
+ "processed/news_emotion_raw28_title.parquet": {
+  "sha256": "cc19a7748de68d4308682e336c32693758b33c102ced45dcbf824b4d6ed4598e",
+  "rows": 65238,
+  "columns": 29,
+  "numeric_sums": {
+   "admiration": 1528.553711,
+   "amusement": 301.436951,
+   "anger": 306.461304,
+   "annoyance": 1036.703857,
+   "approval": 2398.08374,
+   "caring": 381.549835,
+   "confusion": 1146.342651,
+   "curiosity": 2121.956055,
+   "desire": 398.738831,
+   "disappointment": 1677.014526,
+   "disapproval": 862.096069,
+   "disgust": 343.273804,
+   "embarrassment": 216.088928,
+   "excitement": 1057.353882,
+   "fear": 641.855835,
+   "gratitude": 209.759857,
+   "grief": 206.67569,
+   "joy": 697.494202,
+   "love": 339.448853,
+   "nervousness": 181.868134,
+   "neutral": 47242.765625,
+   "optimism": 635.809082,
+   "pride": 85.900772,
+   "realization": 1188.914673,
+   "relief": 101.876678,
+   "remorse": 208.022552,
+   "sadness": 3698.494629,
+   "surprise": 552.634155
+  }
+ },
+ "processed/news_emotion_raw28_v2.parquet": {
+  "sha256": "e9f33a7b04c68245e5844abaf3cee746ac142caac205ab1f51deae40f119e314",
+  "rows": 65238,
+  "columns": 30,
+  "numeric_sums": {
+   "admiration": 1754.340902,
+   "amusement": 305.954187,
+   "anger": 248.571403,
+   "annoyance": 1023.340857,
+   "approval": 3424.718936,
+   "caring": 507.290931,
+   "confusion": 1107.387279,
+   "curiosity": 2033.517457,
+   "desire": 461.18032,
+   "disappointment": 1886.51339,
+   "disapproval": 1002.871918,
+   "disgust": 290.440494,
+   "embarrassment": 197.189423,
+   "excitement": 1093.540667,
+   "fear": 614.821684,
+   "gratitude": 309.050745,
+   "grief": 192.72192,
+   "joy": 858.432424,
+   "love": 359.589413,
+   "nervousness": 199.84826,
+   "neutral": 45543.532807,
+   "optimism": 906.399211,
+   "pride": 108.545489,
+   "realization": 1713.840959,
+   "relief": 143.274809,
+   "remorse": 194.29415,
+   "sadness": 3348.602224,
+   "surprise": 561.478373
+  }
+ },
+ "processed/news_emotion_raw28_weighted.parquet": {
+  "sha256": "f5bef84e8d44be0711c4fe42109cd143381e23ec8e4e1da85801540220e5be97",
+  "rows": 65238,
+  "columns": 30,
+  "numeric_sums": {
+   "admiration": 1829.603293,
+   "amusement": 307.459938,
+   "anger": 229.274765,
+   "annoyance": 1018.88656,
+   "approval": 3766.930655,
+   "caring": 549.204625,
+   "confusion": 1094.402152,
+   "curiosity": 2004.037927,
+   "desire": 481.994142,
+   "disappointment": 1956.346338,
+   "disapproval": 1049.797203,
+   "disgust": 272.829386,
+   "embarrassment": 190.889585,
+   "excitement": 1105.602929,
+   "fear": 605.810299,
+   "gratitude": 342.147707,
+   "grief": 188.070662,
+   "joy": 912.078502,
+   "love": 366.302941,
+   "nervousness": 205.841637,
+   "neutral": 44977.122449,
+   "optimism": 996.595916,
+   "pride": 116.093732,
+   "realization": 1888.816383,
+   "relief": 157.074185,
+   "remorse": 189.718017,
+   "sadness": 3231.971373,
+   "surprise": 564.426437
+  }
+ },
+ "processed/news_emotion_weighted.parquet": {
+  "sha256": "92ae1745387561b7a5454b4604a5113a1532fc4b6520ec8a2192954513b9b5dd",
+  "rows": 65238,
+  "columns": 9,
+  "numeric_sums": {
+   "joy": 10079.314722,
+   "sadness": 4761.799361,
+   "anger": 2322.030987,
+   "fear": 914.173057,
+   "surprise": 4899.806308,
+   "neutral": 42260.875564,
+   "dominant_score": 45662.406858
+  }
+ },
+ "processed/news_emotion_weighted_meta.json": {
+  "sha256": "0922e25ad7dc89c7575a17bfe716471efae025498e7aa111b24e18cbb53eab2d",
+  "keys": 9
+ }
+}

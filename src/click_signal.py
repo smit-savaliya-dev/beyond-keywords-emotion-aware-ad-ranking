@@ -103,6 +103,16 @@ def permute_within_groups(groups, labels, seed):
     return out
 
 
+def holm_family(t, alpha=0.05):
+    """Recompute Holm and the significance flags across all rows of `t` (one family of tests)."""
+    for col in ("p", "p_wilcoxon", "user_p"):
+        t[f"{col}_holm"] = holm(t[col].to_numpy())
+    t["significant_holm"] = t["p_holm"] < alpha
+    t["significant_user"] = (t["user_p_holm"] < alpha) & (np.sign(t["user_dz"]) == np.sign(t["dz"]))
+    t["significant_both"] = t["significant_holm"] & t["significant_user"]
+    return t
+
+
 def signal_table(groups, labels, feature_values, alpha=0.05, group_users=None):
     """feature_values: {name: per-row values}. -> one row per feature; Holm across all of them for the t-test
     (primary), Wilcoxon (robustness) and, with group_users (user of each group id), the user-level t-test."""

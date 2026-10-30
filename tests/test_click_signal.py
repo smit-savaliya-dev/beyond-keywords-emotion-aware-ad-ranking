@@ -74,6 +74,15 @@ def test_signal_table_and_plot(tmp_path):
     assert path.stat().st_size > 0
 
 
+def test_holm_family_recomputes_all_flags_across_rows():
+    from src.click_signal import holm_family
+    t = pd.DataFrame({"p": [0.02, 0.04], "p_wilcoxon": [0.1, 0.2], "user_p": [0.01, 0.9], "dz": [0.1, 0.1],
+                      "user_dz": [0.1, 0.1]})
+    out = holm_family(t)
+    assert out["p_holm"].tolist() == pytest.approx([0.04, 0.04]) and out["p_wilcoxon_holm"].tolist() == pytest.approx([0.2, 0.2])
+    assert out["significant_both"].tolist() == [True, False]
+
+
 def test_rank_biserial_sign():
     assert signal_test(np.array([1.0, 2.0, 3.0]))["rank_biserial"] == pytest.approx(1.0)
     assert signal_test(np.array([-3.0, 1.0, 2.0]))["rank_biserial"] == pytest.approx(0.0)
