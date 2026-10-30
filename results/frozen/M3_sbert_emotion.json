@@ -1,0 +1,51 @@
+{
+  "model": "M3_sbert_emotion",
+  "config": {
+    "variant": "personal",
+    "alpha": 0.8,
+    "m2_config_hash": "b104934253"
+  },
+  "config_hash": "5abb38af3d",
+  "chosen_on": "valid",
+  "evidence": {
+    "selection": "max valid auc over 44 configs (D53)",
+    "checks": {
+      "alpha_1_reproduces_m2": {
+        "cosine": {
+          "identical": true,
+          "max_abs_diff": 0.0
+        },
+        "personal": {
+          "identical": true,
+          "max_abs_diff": 0.0
+        },
+        "user_specific": {
+          "identical": true,
+          "max_abs_diff": 0.0
+        },
+        "mood_repair": {
+          "identical": true,
+          "max_abs_diff": 0.0
+        }
+      },
+      "identical_impressions": true,
+      "shuffled_control_passes": true,
+      "shuffled_control_best_mean_diff": -0.0008650815453742184
+    }
+  },
+  "frozen_utc": "2026-10-30T16:19:11+00:00",
+  "run_info": {
+    "timestamp_utc": "2026-10-30T16:19:11+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "236055a",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

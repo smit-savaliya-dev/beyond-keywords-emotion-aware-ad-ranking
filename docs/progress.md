@@ -197,3 +197,6 @@ base-v4 is complete. Next, when asked: M2, M3. Spec v3 is the current spec; open
 ## 2026-10-30 models-m2m3 step 1: M2 encoded and tuned on valid
 - 65,238 items encoded twice (title, title+abstract), norms 1.0000. M2 frozen: title, mean (D57). Valid AUC 0.6468; M1 0.5900.
 - `load_part` moved to `src/baselines.py` so M1, M2 and M3 share it. M1 must stay identical (snapshot check at the end).
+
+## 2026-10-30 models-m2m3 step 2a: M3 tuned on valid
+- 44 configs + title-only reported. Chosen: personal, alpha 0.8 (D58). All D54 checks pass.
