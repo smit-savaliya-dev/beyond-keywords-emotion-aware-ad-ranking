@@ -190,3 +190,6 @@ base-v3 is complete. Waiting for the student: fix the merge state (Q08), hand la
 
 ## Resume here
 base-v4 is complete. Next, when asked: M2, M3. Spec v3 is the current spec; open: Q10, Q11.
+
+## 2026-10-30 models-m2m3 step 0: pre-declaration
+- D50-D56 committed before any encoding or scoring. Decided: encoder via `transformers` (same stack as the model's config files, no new dependency). Spec conflict recorded in D52: user-specific is a control in spec v3 but a variant in this task; the task is followed and the spec file is unchanged. The spec's title-only variant is reported but not eligible.
