@@ -9,7 +9,8 @@ from src.emotion_spec import load_spec, replication_selection, spec_hash, spec_p
 # Hash of the hashed content of every released spec version. Changing a released spec without a version bump
 # breaks this test on purpose: write config/emotion_spec_v<N+1>.json instead and add its hash here.
 KNOWN_SPEC_HASHES = {1: "b2a9ca38e355c6efa858a4f1ed0ab7bb4500bcc50d54bff23711ae8c897bf7f0",
-                     2: "82c7ff4b76a3eb6562e13dcfb06969a8273a5ba7f58322bb5735b7b0373b7967"}
+                     2: "82c7ff4b76a3eb6562e13dcfb06969a8273a5ba7f58322bb5735b7b0373b7967",
+                     3: "d2462a72b7cab15fecc5b16c962b628bcd9908738bdb4e134987230096871601"}
 
 
 def test_released_specs_unchanged_without_version_bump():
@@ -22,6 +23,13 @@ def test_released_specs_unchanged_without_version_bump():
         assert version in KNOWN_SPEC_HASHES, f"new spec {f.name}: add its hash to KNOWN_SPEC_HASHES"
         assert spec_hash(spec) == KNOWN_SPEC_HASHES[version], f"{f.name} changed without a version bump"
     assert spec_path().exists() and EMOTION_SPEC_VERSION == max(KNOWN_SPEC_HASHES)
+
+
+def test_spec_v3_changes_labelling_but_no_model_input():
+    v2, v3 = load_spec(2), load_spec(3)
+    for key in ("item_features_m5", "congruence_features", "congruence_profile", "fusion", "text_variant", "excluded"):
+        assert v3[key] == v2[key], key
+    assert v3["labelling"]["rule"] != v2["labelling"]["rule"] and v3["labelling"]["t"] == v2["labelling"]["t"]
 
 
 def test_status_change_does_not_change_hash_but_content_does():

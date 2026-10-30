@@ -69,6 +69,11 @@ def test_gold_classes_cutoff_disgust_and_ties():
     assert sm.gold_classes(g, 25)[1] == "fear"
 
 
+def test_gold_tie_rate_counts_only_emotional_headlines():
+    g = gold_frame([[0, 0, 0, 70, 70, 0], [0, 0, 60, 0, 0, 0], [0, 0, 0, 10, 10, 0]])
+    assert sm.gold_tie_rate(g, 50) == 0.5
+
+
 def test_group_scores_excludes_stance_labels():
     raw = raw_frame(1, {"anger": 0.5, "disapproval": 0.9, "joy": 0.4, "approval": 0.9})
     g = sm.group_scores(raw)

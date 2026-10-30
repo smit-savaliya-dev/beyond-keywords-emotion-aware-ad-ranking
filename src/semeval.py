@@ -77,6 +77,14 @@ def load_semeval(root, sizes=SEMEVAL_SPLITS):
     return pd.concat(frames, ignore_index=True)
 
 
+def gold_tie_rate(gold, cutoff):
+    """Share of emotional headlines (max >= cutoff) whose top gold score is tied."""
+    scores = gold[["joy", "sadness", "anger", "fear", "surprise"]].to_numpy(dtype=np.float64, copy=True)
+    scores[:, 2] = np.maximum(scores[:, 2], gold["disgust"].to_numpy(dtype=np.float64))
+    top = scores.max(axis=1)
+    return float(((scores == top[:, None]).sum(axis=1) > 1)[top >= cutoff].mean())
+
+
 def gold_classes(gold, cutoff, seed=SEED):
     """D46: anger = max(anger, disgust); argmax over the 5 emotions, ties at random (seeded); neutral if the max < cutoff."""
     scores = gold[["joy", "sadness", "anger", "fear", "surprise"]].to_numpy(dtype=np.float64, copy=True)
@@ -235,5 +243,5 @@ def run_validation(data, raw, lex, gv, grid, n_boot=1000):
             "verdict_nrc": _verdict(corr, "vad_valence", "nrc_emolex"),
             "neutral": {"gold_test_pct": float(chosen_row["pct_gold_neutral"]), "chosen_test_pct": float(chosen_row["pct_pred_neutral"]),
                         "chosen_mind_pct": float(mind["pct_neutral"])},
-            "nrc_tie_rate": float(tied.mean()), "nrc_hit_rate": float(lex_test["nrc_has_hits"].mean()),
+            "gold_tie_rate": gold_tie_rate(test, SEMEVAL_CUTOFF), "nrc_tie_rate": float(tied.mean()), "nrc_hit_rate": float(lex_test["nrc_has_hits"].mean()),
             "vad_hit_rate": float(lex_test["vad_has_hits"].mean())}

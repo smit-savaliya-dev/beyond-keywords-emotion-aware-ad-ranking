@@ -245,7 +245,7 @@ def semeval_correlations(corr, path, title, caption):
     series = [("goemotions_group", "go_vad_valence", "GoEmotions, group score (valence: go_vad)", "#2a78d6", "o"),
               ("goemotions_label", None, "GoEmotions, single label", "#1baf7a", "^"),
               ("nrc_emolex", "vad_valence", "NRC EmoLex share (valence: NRC VAD)", "#eb6834", "s")]
-    fig, ax = _new(8, 5.6, left=0.12, top=0.62, bottom=1.05)
+    fig, ax = _new(8, 5.8, left=0.12, top=0.62, bottom=1.3)
     _frame(ax, "x")
     y = {g: len(order) - 1 - i for i, g in enumerate(order)}
     for j, (source, valence, label, color, marker) in enumerate(series):
@@ -260,5 +260,5 @@ def semeval_correlations(corr, path, title, caption):
     ax.set_ylim(-0.6, len(order) - 0.4)
     ax.set_xlabel("Spearman correlation with the human rating")
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.11), ncol=3, frameon=False, fontsize=8, labelcolor=INK)
-    _finish(fig, path, title, caption, 5.6)
+    _finish(fig, path, title, caption, 5.8)
 

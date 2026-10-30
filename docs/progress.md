@@ -180,3 +180,7 @@ base-v3 is complete. Waiting for the student: fix the merge state (Q08), hand la
 - Moved the sheet (0 of 180 labelled), tool, guidelines, sheet maker and their tests to `results/archive/annotation/` (D45). `src/annotation.py` became `src/agreement.py` (statistics only). The pipeline, script 38 and spec code no longer depend on `annotation/*.csv`. Script 27 reads the archived ids so `emotion_examples_v2.csv` stays the same.
 - SemEval-2007 Task 14 downloaded with verified TLS; sha256 pinned in config; 250 + 1,000 headlines, ids match the gold files. New: `src/semeval.py`, scripts 14 (download), 29 (scoring), 38 (validation).
 - Fixed while testing: gold scores came back as a read-only array; the constant-input guard used std == 0, which float noise can miss.
+
+## 2026-10-30 base-v4 steps 2-4: SemEval scored and validated
+- 1,250 headlines scored on the GPU with GoEmotions (no MIND re-scoring). NRC and go_vad computed on the same headlines.
+- D47 chose v2b at t 0.05 on trial; D48 gave CONFIRM for GoEmotions and NRC on test (D49). Spec v3 written for the labelling rule; features unchanged.

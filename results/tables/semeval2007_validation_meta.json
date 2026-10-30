@@ -1,0 +1,371 @@
+{
+  "chosen": {
+    "rule": "v2b",
+    "t": 0.05,
+    "reason": "the reference rule has the highest kappa"
+  },
+  "verdict_goemotions": {
+    "verdict": "CONFIRM",
+    "valence_passes": true,
+    "emotions_passing": 4,
+    "emotions_failing": []
+  },
+  "verdict_nrc": {
+    "verdict": "CONFIRM",
+    "valence_passes": true,
+    "emotions_passing": 4,
+    "emotions_failing": []
+  },
+  "neutral": {
+    "gold_test_pct": 65.0,
+    "chosen_test_pct": 61.1,
+    "chosen_mind_pct": 38.9788,
+    "chosen_mind_title_only_pct": 52.41576995002912
+  },
+  "gold_tie_rate": 0.0,
+  "nrc_tie_rate": 0.215,
+  "nrc_hit_rate": 0.654,
+  "vad_hit_rate": 0.997,
+  "confusion": {
+    "v1": {
+      "pred_joy": {
+        "true_joy": 29,
+        "true_sadness": 1,
+        "true_anger": 0,
+        "true_fear": 0,
+        "true_surprise": 4,
+        "true_neutral": 22
+      },
+      "pred_sadness": {
+        "true_joy": 1,
+        "true_sadness": 40,
+        "true_anger": 1,
+        "true_fear": 3,
+        "true_surprise": 1,
+        "true_neutral": 31
+      },
+      "pred_anger": {
+        "true_joy": 0,
+        "true_sadness": 1,
+        "true_anger": 2,
+        "true_fear": 1,
+        "true_surprise": 0,
+        "true_neutral": 8
+      },
+      "pred_fear": {
+        "true_joy": 0,
+        "true_sadness": 0,
+        "true_anger": 0,
+        "true_fear": 7,
+        "true_surprise": 0,
+        "true_neutral": 2
+      },
+      "pred_surprise": {
+        "true_joy": 1,
+        "true_sadness": 0,
+        "true_anger": 0,
+        "true_fear": 1,
+        "true_surprise": 3,
+        "true_neutral": 22
+      },
+      "pred_neutral": {
+        "true_joy": 79,
+        "true_sadness": 58,
+        "true_anger": 22,
+        "true_fear": 62,
+        "true_surprise": 33,
+        "true_neutral": 565
+      }
+    },
+    "v2_t0.05": {
+      "pred_joy": {
+        "true_joy": 72,
+        "true_sadness": 3,
+        "true_anger": 0,
+        "true_fear": 3,
+        "true_surprise": 16,
+        "true_neutral": 131
+      },
+      "pred_sadness": {
+        "true_joy": 3,
+        "true_sadness": 73,
+        "true_anger": 0,
+        "true_fear": 4,
+        "true_surprise": 3,
+        "true_neutral": 63
+      },
+      "pred_anger": {
+        "true_joy": 1,
+        "true_sadness": 3,
+        "true_anger": 6,
+        "true_fear": 6,
+        "true_surprise": 0,
+        "true_neutral": 42
+      },
+      "pred_fear": {
+        "true_joy": 1,
+        "true_sadness": 0,
+        "true_anger": 1,
+        "true_fear": 15,
+        "true_surprise": 0,
+        "true_neutral": 6
+      },
+      "pred_surprise": {
+        "true_joy": 4,
+        "true_sadness": 2,
+        "true_anger": 0,
+        "true_fear": 1,
+        "true_surprise": 6,
+        "true_neutral": 38
+      },
+      "pred_neutral": {
+        "true_joy": 29,
+        "true_sadness": 19,
+        "true_anger": 18,
+        "true_fear": 45,
+        "true_surprise": 16,
+        "true_neutral": 370
+      }
+    },
+    "v2b_t0.05": {
+      "pred_joy": {
+        "true_joy": 50,
+        "true_sadness": 3,
+        "true_anger": 0,
+        "true_fear": 0,
+        "true_surprise": 6,
+        "true_neutral": 64
+      },
+      "pred_sadness": {
+        "true_joy": 4,
+        "true_sadness": 73,
+        "true_anger": 0,
+        "true_fear": 4,
+        "true_surprise": 3,
+        "true_neutral": 67
+      },
+      "pred_anger": {
+        "true_joy": 0,
+        "true_sadness": 2,
+        "true_anger": 6,
+        "true_fear": 5,
+        "true_surprise": 0,
+        "true_neutral": 20
+      },
+      "pred_fear": {
+        "true_joy": 1,
+        "true_sadness": 0,
+        "true_anger": 1,
+        "true_fear": 15,
+        "true_surprise": 0,
+        "true_neutral": 6
+      },
+      "pred_surprise": {
+        "true_joy": 6,
+        "true_sadness": 2,
+        "true_anger": 0,
+        "true_fear": 1,
+        "true_surprise": 6,
+        "true_neutral": 44
+      },
+      "pred_neutral": {
+        "true_joy": 49,
+        "true_sadness": 20,
+        "true_anger": 18,
+        "true_fear": 49,
+        "true_surprise": 26,
+        "true_neutral": 449
+      }
+    },
+    "v2c_t0.05": {
+      "pred_joy": {
+        "true_joy": 50,
+        "true_sadness": 3,
+        "true_anger": 0,
+        "true_fear": 0,
+        "true_surprise": 6,
+        "true_neutral": 64
+      },
+      "pred_sadness": {
+        "true_joy": 5,
+        "true_sadness": 74,
+        "true_anger": 0,
+        "true_fear": 4,
+        "true_surprise": 3,
+        "true_neutral": 69
+      },
+      "pred_anger": {
+        "true_joy": 0,
+        "true_sadness": 2,
+        "true_anger": 6,
+        "true_fear": 5,
+        "true_surprise": 0,
+        "true_neutral": 20
+      },
+      "pred_fear": {
+        "true_joy": 1,
+        "true_sadness": 0,
+        "true_anger": 1,
+        "true_fear": 15,
+        "true_surprise": 0,
+        "true_neutral": 6
+      },
+      "pred_surprise": {
+        "true_joy": 3,
+        "true_sadness": 0,
+        "true_anger": 0,
+        "true_fear": 1,
+        "true_surprise": 6,
+        "true_neutral": 33
+      },
+      "pred_neutral": {
+        "true_joy": 51,
+        "true_sadness": 21,
+        "true_anger": 18,
+        "true_fear": 49,
+        "true_surprise": 26,
+        "true_neutral": 458
+      }
+    },
+    "nrc_emolex": {
+      "pred_joy": {
+        "true_joy": 25,
+        "true_sadness": 7,
+        "true_anger": 4,
+        "true_fear": 1,
+        "true_surprise": 5,
+        "true_neutral": 66
+      },
+      "pred_sadness": {
+        "true_joy": 1,
+        "true_sadness": 11,
+        "true_anger": 2,
+        "true_fear": 3,
+        "true_surprise": 3,
+        "true_neutral": 45
+      },
+      "pred_anger": {
+        "true_joy": 7,
+        "true_sadness": 18,
+        "true_anger": 9,
+        "true_fear": 16,
+        "true_surprise": 6,
+        "true_neutral": 97
+      },
+      "pred_fear": {
+        "true_joy": 7,
+        "true_sadness": 30,
+        "true_anger": 5,
+        "true_fear": 31,
+        "true_surprise": 12,
+        "true_neutral": 74
+      },
+      "pred_surprise": {
+        "true_joy": 10,
+        "true_sadness": 2,
+        "true_anger": 0,
+        "true_fear": 2,
+        "true_surprise": 1,
+        "true_neutral": 17
+      },
+      "pred_neutral": {
+        "true_joy": 60,
+        "true_sadness": 32,
+        "true_anger": 5,
+        "true_fear": 21,
+        "true_surprise": 14,
+        "true_neutral": 351
+      }
+    },
+    "all_neutral": {
+      "pred_joy": {
+        "true_joy": 0,
+        "true_sadness": 0,
+        "true_anger": 0,
+        "true_fear": 0,
+        "true_surprise": 0,
+        "true_neutral": 0
+      },
+      "pred_sadness": {
+        "true_joy": 0,
+        "true_sadness": 0,
+        "true_anger": 0,
+        "true_fear": 0,
+        "true_surprise": 0,
+        "true_neutral": 0
+      },
+      "pred_anger": {
+        "true_joy": 0,
+        "true_sadness": 0,
+        "true_anger": 0,
+        "true_fear": 0,
+        "true_surprise": 0,
+        "true_neutral": 0
+      },
+      "pred_fear": {
+        "true_joy": 0,
+        "true_sadness": 0,
+        "true_anger": 0,
+        "true_fear": 0,
+        "true_surprise": 0,
+        "true_neutral": 0
+      },
+      "pred_surprise": {
+        "true_joy": 0,
+        "true_sadness": 0,
+        "true_anger": 0,
+        "true_fear": 0,
+        "true_surprise": 0,
+        "true_neutral": 0
+      },
+      "pred_neutral": {
+        "true_joy": 110,
+        "true_sadness": 100,
+        "true_anger": 25,
+        "true_fear": 74,
+        "true_surprise": 41,
+        "true_neutral": 650
+      }
+    }
+  },
+  "citation": "Strapparava, C. and Mihalcea, R. (2007). SemEval-2007 Task 14: Affective Text. Proceedings of SemEval-2007.",
+  "n": {
+    "test": 1000,
+    "trial": 250
+  },
+  "official_cutoff": 50,
+  "rules": "D46, D47, D48 in docs/decisions.md",
+  "go_vad_overrides_used": [],
+  "n_boot": 1000,
+  "emolex": {
+    "path": "D:\\Collage\\SEM 2\\Research Practicum\\Project\\beyond-keywords\\data\\external\\nrc\\NRC-Emotion-Lexicon\\NRC-Emotion-Lexicon-Wordlevel-v0.92.txt",
+    "sha256": "02c661544f4f12ae0c14f9576a10959e8d39a151bb091e455a71a08dcaa2535a",
+    "format": "long",
+    "n_words": 14154,
+    "n_words_with_emotion": 4454
+  },
+  "vad": {
+    "path": "D:\\Collage\\SEM 2\\Research Practicum\\Project\\beyond-keywords\\data\\external\\nrc\\NRC-VAD-Lexicon-v2.1\\NRC-VAD-Lexicon-v2.1.txt",
+    "sha256": "42c718817fc91d5c133581b24b0bb31d2b14a0b16edb19bc6ce6ab70343e5a45",
+    "header": true,
+    "scale": "-1..1",
+    "rescaled_to_minus1_1": false,
+    "n_terms": 54801,
+    "n_unigrams": 44728,
+    "n_multiword": 10073
+  },
+  "run_info": {
+    "timestamp_utc": "2026-10-30T15:39:10+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "44141a0",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

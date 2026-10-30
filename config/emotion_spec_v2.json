@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "status": "provisional (fit + valid evidence; awaiting hand-label confirmation)",
+  "status": "superseded by v3 for the labelling rule only (D49); item features, congruence features and fusion are unchanged in v3",
   "frozen_date": "2026-10-30",
   "replaces": "v1, kept for the record in config/emotion_spec_v1.json",
   "reason": "Reduce the neutral share with a pre-declared rule (D30) and re-select features on the new weighting (D32)",
@@ -118,5 +118,8 @@
     "otherwise": "confirm v2 (only 'status' changes; hashed content unchanged)",
     "not_validated_by_labels": "continuous go_pct_*, go_vad_*, go_dist_*, vad_valence: the 6-class labels do not test them directly; they stay unless a source rule above removes them",
     "any_change": "new file config/emotion_spec_v3.json + decision log entry + test hash entry"
-  }
+  },
+  "confirmation_log": [
+    "2026-10-30: SemEval-2007 rule D48 (replaces D29) gave CONFIRM for GoEmotions; the labelling rule moved to v2b under D47, so v3 was written"
+  ]
 }

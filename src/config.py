@@ -133,7 +133,7 @@ SPEC_ITEM_CANDIDATES = ([f"go_pct_{e}" for e in GO_FEATURES] + ["go_emotionality
 SPEC_CONGRUENCE_CANDIDATES = ["cong_pct_cos", "cong_pct_cos_personal", "cong_six_negkl", "cong_six_negkl_personal",
                               "cong_valence_absdist", "cong_valence_absdist_personal"]
 EMOTION_SPEC_DIR = ROOT / "config"
-EMOTION_SPEC_VERSION = 2  # bump (new file emotion_spec_v2.json) for any change to the hashed content
+EMOTION_SPEC_VERSION = 3  # bump (new file emotion_spec_v<N>.json) for any change to the hashed content
 
 # Emotion layer v2 (D30): grid on saved raw scores; selection rule constants.
 V2_TITLE_SHARES = [1.0, 0.7, 0.6, 0.5, 1 / 3]  # title share; abstract share = 1 - share; 1/3 = current v1 weighting

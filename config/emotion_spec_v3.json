@@ -1,0 +1,109 @@
+{
+  "version": 3,
+  "status": "confirmed on SemEval-2007 test headlines under the pre-declared rule D48 (GoEmotions CONFIRM); see results/tables/semeval2007_validation_meta.json",
+  "frozen_date": "2026-10-30",
+  "replaces": "v2, kept for the record in config/emotion_spec_v2.json; item features, congruence features and fusion are identical",
+  "reason": "SemEval trial selected v2b at t 0.05 as the labelling rule (D47); v2 labelled with the plain v2 rule. Reporting labels only",
+  "evidence": {
+    "grid": "results/tables/emotion_v2_grid.csv",
+    "choice": "results/tables/emotion_v2_choice.json",
+    "selection": "results/tables/emotion_spec_v2_selection.csv",
+    "selection_sha256": "72ba323bdafd7d881ae8556586753954afe52345666680b8bb467e13a782210b",
+    "rule": "D30 (weight, t), D32 (features) in docs/decisions.md; D46, D47, D48, D49 (SemEval validation)",
+    "dev": "never used",
+    "semeval": "results/tables/semeval2007_validation.csv",
+    "semeval_selection": "results/tables/semeval2007_selection_trial.csv"
+  },
+  "text_variant": {
+    "primary": "title share 0.5, abstract share 0.5",
+    "title_share": 0.5,
+    "pre_declared_variant": "title-only",
+    "variant_columns": "title-only go_pct_* for congruence",
+    "compare_on": "valid, in M3 only"
+  },
+  "labelling": {
+    "rule": "6-class group of the max raw score over the 25 non-neutral labels without approval and disapproval if >= t, else neutral (v2b, D38)",
+    "t": 0.05,
+    "use": "reporting and validation only; never a model feature",
+    "feature_table": "data/processed/news_emotion_features_v2.parquet",
+    "label_table": "data/processed/news_emotion_labels_variants.parquet, column label_v2b",
+    "caution": "Chosen on 250 trial headlines; kappa is fair and the confidence intervals of v2, v2b and v2c overlap, so the data do not separate these rules. Validated on headlines only."
+  },
+  "item_features_m5": [
+    "go_pct_excitement",
+    "go_pct_joy",
+    "go_pct_optimism",
+    "go_pct_nervousness",
+    "go_pct_annoyance",
+    "go_pct_fear",
+    "go_vad_valence",
+    "go_vad_dominance",
+    "vad_valence",
+    "nrc_trust",
+    "go_dist_optimism",
+    "go_dist_nervousness",
+    "go_dist_fear"
+  ],
+  "congruence_features": [
+    "cong_pct_cos",
+    "cong_pct_cos_personal",
+    "cong_six_negkl_personal",
+    "cong_valence_absdist_personal"
+  ],
+  "congruence_profile": {
+    "source": "behaviors.history only",
+    "decay": 0.9,
+    "newest_weight": 1.0,
+    "max_history": 50,
+    "cold_start": "corpus mean",
+    "code": "src.congruence.congruence_features"
+  },
+  "fusion": {
+    "applies_to": [
+      "M3",
+      "M7"
+    ],
+    "formula": "final = alpha * base + (1 - alpha) * emotion",
+    "normalisation": "per-impression min-max of base and emotion scores",
+    "alpha_grid": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "choose_on": "valid",
+    "selection_metric": "auc",
+    "emotion_score": "cong_pct_cos",
+    "pre_declared_variants": [
+      "mood_repair: emotion = 1 - congruence",
+      "text: title-only congruence"
+    ]
+  },
+  "excluded": {
+    "go_pct_curiosity": "sign flips on valid (fit dz +0.016, valid dz -0.054)",
+    "go_pct_desire": "sign flips on valid (fit dz +0.022, valid dz -0.069)",
+    "go_emotionality": "sign flips on valid (fit dz +0.109, valid dz -0.047)",
+    "go_vad_arousal": "sign flips on valid (fit dz -0.147, valid dz +0.053)",
+    "nrc_anticipation": "sign flips on valid (fit dz +0.017, valid dz -0.024)",
+    "vad_dominance": "sign flips on valid (fit dz -0.139, valid dz +0.009)",
+    "go_intensity": "sign flips on valid (fit dz +0.149, valid dz -0.036); kept as a column in news_emotion_features_v2.parquet (Q05)",
+    "cong_six_negkl": "sign flips on valid (fit dz -0.025, valid dz +0.115)",
+    "cong_valence_absdist": "sign flips on valid (fit dz -0.026, valid dz +0.037)",
+    "go_neutral": "deterministic: 1 - go_emotionality (D27)",
+    "vad_arousal": "not significant at both levels on fit",
+    "cong_*_otheruser / cong_*_userspecific": "analysis controls (random other user), not model features",
+    "cong_pct_negkl*": "exploratory, not pre-declared"
+  },
+  "confirmation_rule": {
+    "run": "python scripts/38_analysis_semeval_validation.py",
+    "rule": "D48 in docs/decisions.md; replaces the hand-label rule D29",
+    "any_change": "new file config/emotion_spec_v4.json + decision log entry + test hash entry"
+  }
+}

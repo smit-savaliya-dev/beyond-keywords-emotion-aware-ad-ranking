@@ -15,7 +15,7 @@ from src.config import DIAGNOSTICS, EMOLEX_PATH, PROCESSED, SEMEVAL_CITATION, SE
 from src.emotion_features import go_vad
 from src.lexicon import load_emolex, load_vad
 from src.provenance import run_info
-from src.semeval import headline_lexicon, load_semeval, run_validation
+from src.semeval import headline_lexicon, load_semeval, rule_labels, run_validation
 from src.story_charts import semeval_correlations
 
 
@@ -34,14 +34,18 @@ def main():
     gv, overridden = go_vad(raw, vad)
     grid = pd.read_csv(TABLES / "emotion_label_variants_grid.csv")
     v = run_validation(data, raw, lex, gv, grid, args.n_boot)
+    # descriptive, not pre-declared: SemEval has headlines only, so the like-for-like MIND figure is the rule on titles alone
+    title_raw = pd.read_parquet(PROCESSED / "news_emotion_raw28_title.parquet")
+    title_labels = rule_labels(title_raw, v["chosen"]["rule"], v["chosen"]["t"])
+    v["neutral"]["chosen_mind_title_only_pct"] = 100 * float((title_labels == "neutral").mean())
 
     corr, agree = v["correlations"], v["agreement"]
     table = pd.concat([corr.assign(kind="correlation"), agree.assign(kind="agreement")], ignore_index=True)
     table.to_csv(TABLES / "semeval2007_validation.csv", index=False)
     v["selection"].to_csv(TABLES / "semeval2007_selection_trial.csv", index=False)
     v["per_class"].to_csv(TABLES / "semeval2007_per_class.csv", index=False)
-    meta = {k: v[k] for k in ("chosen", "verdict_goemotions", "verdict_nrc", "neutral", "nrc_tie_rate", "nrc_hit_rate",
-                              "vad_hit_rate", "confusion")}
+    meta = {k: v[k] for k in ("chosen", "verdict_goemotions", "verdict_nrc", "neutral", "gold_tie_rate", "nrc_tie_rate",
+                              "nrc_hit_rate", "vad_hit_rate", "confusion")}
     meta |= {"citation": SEMEVAL_CITATION, "n": data["split"].value_counts().to_dict(), "official_cutoff": SEMEVAL_CUTOFF,
              "rules": "D46, D47, D48 in docs/decisions.md", "go_vad_overrides_used": overridden,
              "n_boot": args.n_boot, "emolex": emolex_info, "vad": vad_info, "run_info": run_info()}

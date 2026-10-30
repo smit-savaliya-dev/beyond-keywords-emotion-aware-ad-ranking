@@ -138,7 +138,8 @@ def build_steps(skip_official_check):
              + [T / f for f in ("story_emotion_mix.csv", "story_intensity.csv", "story_category_emotion.csv",
                                 "story_category_valence_arousal.csv")]),
         Step("38_analysis_semeval_validation", [S / "38_analysis_semeval_validation.py"],
-             inputs=[*SEMEVAL_FILES, P / "semeval_raw28.parquet", T / "emotion_label_variants_grid.csv", EMOLEX_PATH, VAD_PATH],
+             inputs=[*SEMEVAL_FILES, P / "semeval_raw28.parquet", P / "news_emotion_raw28_title.parquet",
+                     T / "emotion_label_variants_grid.csv", EMOLEX_PATH, VAD_PATH],
              script=S / "38_analysis_semeval_validation.py",
              outputs=[T / f for f in ("semeval2007_validation.csv", "semeval2007_validation_meta.json",
                                       "semeval2007_selection_trial.csv", "semeval2007_per_class.csv")]

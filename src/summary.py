@@ -118,7 +118,8 @@ def semeval_lines(tables):
         mark = " (chosen on trial)" if r["chosen"] else ""
         ci = f"{r['kappa_ci_low']:.3f} to {r['kappa_ci_high']:.3f}"
         lines.append(f"  {r['source']:30s}{r['kappa']:12.3f}{ci:>18s}{r['pct_pred_neutral']:8.1f}%{mark}")
-    lines += [f"  human neutral share {m['neutral']['gold_test_pct']:.1f}%, chosen rule on MIND {m['neutral']['chosen_mind_pct']:.1f}%",
+    lines += [f"  neutral: humans {m['neutral']['gold_test_pct']:.1f}%, chosen rule on the same headlines {m['neutral']['chosen_test_pct']:.1f}%, "
+              f"on MIND titles {m['neutral']['chosen_mind_title_only_pct']:.1f}%, on MIND title + abstract {m['neutral']['chosen_mind_pct']:.1f}%",
               f"  spec check (D48): GoEmotions {m['verdict_goemotions']['verdict']}, NRC {m['verdict_nrc']['verdict']}"]
     return lines
 
