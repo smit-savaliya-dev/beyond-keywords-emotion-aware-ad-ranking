@@ -175,3 +175,8 @@ committed before computing. `annotation/` is excluded from every commit while th
 
 ## Resume here
 base-v3 is complete. Waiting for the student: fix the merge state (Q08), hand labels, Q09, then M2/M3.
+
+## 2026-10-30 base-v4 step 1: hand labelling archived, SemEval tooling
+- Moved the sheet (0 of 180 labelled), tool, guidelines, sheet maker and their tests to `results/archive/annotation/` (D45). `src/annotation.py` became `src/agreement.py` (statistics only). The pipeline, script 38 and spec code no longer depend on `annotation/*.csv`. Script 27 reads the archived ids so `emotion_examples_v2.csv` stays the same.
+- SemEval-2007 Task 14 downloaded with verified TLS; sha256 pinned in config; 250 + 1,000 headlines, ids match the gold files. New: `src/semeval.py`, scripts 14 (download), 29 (scoring), 38 (validation).
+- Fixed while testing: gold scores came back as a read-only array; the constant-input guard used std == 0, which float noise can miss.

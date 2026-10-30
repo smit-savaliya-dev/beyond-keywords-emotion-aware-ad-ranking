@@ -27,13 +27,14 @@ def test_pipeline_never_runs_a_dev_final():
         assert "--final-dev" not in [str(c) for c in s.cmd], s.name
 
 
-def test_only_the_two_scoring_steps_need_the_gpu():
-    assert {s.name for s in load_steps() if s.gpu} == {"20_emotion_label_combined", "21_emotion_score_fields"}
+def test_only_the_scoring_steps_need_the_gpu():
+    assert {s.name for s in load_steps() if s.gpu} == {"20_emotion_label_combined", "21_emotion_score_fields",
+                                                       "29_emotion_semeval_score"}
 
 
-def test_hand_label_sheet_is_never_regenerated():
-    sheet = [s for s in load_steps() if s.name == "14_data_annotation_sheet"][0]
-    assert sheet.create_only
+def test_no_step_depends_on_the_annotation_folder():
+    for s in load_steps():
+        assert not any("annotation" in Path(p).parts and "archive" not in Path(p).parts for p in [*s.inputs, *s.outputs]), s.name
 
 
 def test_outputs_of_a_step_are_inputs_of_later_steps_only():

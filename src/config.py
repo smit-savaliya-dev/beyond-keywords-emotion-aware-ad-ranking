@@ -7,7 +7,6 @@ RESULTS = ROOT / "results"
 FIGURES = RESULTS / "figures"
 TABLES = RESULTS / "tables"
 DIAGNOSTICS = FIGURES / "diagnostics"
-ANNOTATION = ROOT / "annotation"
 
 MIND_URLS = {
     "train": "https://mind201910small.blob.core.windows.net/release/MINDsmall_train.zip",
@@ -106,12 +105,6 @@ CONGRUENCE_MEASURES = [
 CONGRUENCE_CHUNK = 500_000  # candidate rows per chunk
 CONGRUENCE_ROLES = {"": "raw", "_personal": "personal", "_userspecific": "user-specific"}
 
-# Hand labelling (scripts/label_tool.py). Keys 1-6 follow SIX_CLASSES order: joy, sadness, anger, fear, surprise, neutral.
-LABEL_SHEET = ANNOTATION / "manual_sample.csv"
-RELABEL_SHEET = ANNOTATION / "relabel_sample.csv"
-LABEL_BACKUPS = ANNOTATION / "backups"
-RELABEL_N = 30
-RELABEL_MIN_HOURS = 24
 
 # Model runs: run log, frozen settings (written by --tune), decision log checked by --final-dev.
 RUNS_LOG = RESULTS / "tables" / "runs_log.csv"
@@ -131,7 +124,7 @@ TFIDF_STOP_WORDS = "english"       # fixed, not tuned
 # Threshold sensitivity (pre-declared before the first run, 2026-10-26). Non-neutral class if score > t, else neutral.
 THRESHOLDS_RAW = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]       # max raw sigmoid over the 27 non-neutral labels (weighted)
 THRESHOLDS_PCT = [0.80, 0.85, 0.90, 0.95, 0.99]        # max go_pct_* over the 8 emotions (secondary view)
-MIN_CLASS_COUNT = 5                                   # per-class results with fewer hand labels are flagged unreliable
+MIN_CLASS_COUNT = 20                                  # per-class results with fewer gold items are flagged unreliable
 
 # Emotion spec v1 candidates (D27). Selection: fit both-level significance + same-sign replication on valid.
 SPEC_ITEM_CANDIDATES = ([f"go_pct_{e}" for e in GO_FEATURES] + ["go_emotionality", "go_vad_valence", "go_vad_dominance",
@@ -180,3 +173,19 @@ PERCENTILE_MAX_DZ_CHANGE = 0.02  # D40: larger max |dz change| goes to open_ques
 # Results snapshot (tool: scripts/snapshot_results.py). Copies are git-ignored; the manifest is tracked.
 SNAPSHOT_COPY = ROOT / "data" / "snapshots" / "pre_cleanup"
 SNAPSHOT_MANIFEST = RESULTS / "archive" / "pre_cleanup_snapshot.json"
+
+# Archived hand-label sheet: its ids stay excluded from the v2 examples file, so that file does not change.
+ARCHIVED_SHEET = RESULTS / "archive" / "annotation" / "manual_sample.csv"
+
+# External validation: SemEval-2007 Task 14 Affective Text (D45-D48).
+SEMEVAL_DIR = EXTERNAL / "semeval2007"
+SEMEVAL_URL = "https://web.eecs.umich.edu/~mihalcea/downloads/AffectiveText.Semeval.2007.tar.gz"
+SEMEVAL_SHA256 = "127c40710e48bd41963e978b0c930c5ff8b25d481654fd8eea7f6666283ae13c"
+SEMEVAL_CITATION = "Strapparava, C. and Mihalcea, R. (2007). SemEval-2007 Task 14: Affective Text. Proceedings of SemEval-2007."
+SEMEVAL_SPLITS = {"trial": 250, "test": 1000}   # trial selects, test reports
+SEMEVAL_CUTOFF = 50                             # official coarse-grained cutoff (README)
+SEMEVAL_SENSITIVITY_CUTOFFS = [25, 30]
+SEMEVAL_NEUTRAL_LIMIT = 40.0                    # eligible rules: MIND neutral % at or below this
+SEMEVAL_REFERENCE_RULE = ("v2b", 0.05)          # kept when CIs overlap (D47)
+SEMEVAL_MIN_RHO = 0.2                           # spec confirmation (D48)
+SEMEVAL_MIN_MAIN_EMOTIONS = 3

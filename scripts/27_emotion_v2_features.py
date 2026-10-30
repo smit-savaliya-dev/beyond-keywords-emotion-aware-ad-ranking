@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.config import LABEL_SHEET, PROCESSED, TABLES, SEED, V2_EXAMPLES_PER_CLASS
+from src.config import ARCHIVED_SHEET, PROCESSED, TABLES, SEED, V2_EXAMPLES_PER_CLASS
 from src.emotion_features import go_features, go_percentiles, go_vad, merge_features
 from src.emotion_v2 import class_shares, combine_share, example_rows, intensity_table, threshold_labels
 from src.lexicon import combine_lexicon_fields, field_lexicon_features, lexicon_counts, load_emolex, load_vad
@@ -53,7 +53,7 @@ def main():
     labels.to_parquet(p / "news_emotion_labels_v2.parquet", index=False)
     feats.to_parquet(p / "news_emotion_features_v2.parquet", index=False)
 
-    sheet_ids = pd.read_csv(LABEL_SHEET, usecols=["news_id"], dtype=str, encoding="utf-8-sig")["news_id"]
+    sheet_ids = pd.read_csv(ARCHIVED_SHEET, usecols=["news_id"], dtype=str, encoding="utf-8-sig")["news_id"]
     examples = example_rows(labels, news, sheet_ids, V2_EXAMPLES_PER_CLASS, SEED)
     examples.round({"intensity": 3, "neutral_score": 3}).to_csv(TABLES / "emotion_examples_v2.csv", index=False,
                                                                 encoding="utf-8-sig")

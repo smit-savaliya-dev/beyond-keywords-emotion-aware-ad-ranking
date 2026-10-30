@@ -1,4 +1,4 @@
-"""Versioned emotion specification for M3/M5/M7 (config/emotion_spec_v<N>.json) and its post-label confirmation rule."""
+"""Versioned emotion specification for M3/M5/M7 (config/emotion_spec_v<N>.json) and the replication rule."""
 import hashlib
 import json
 
@@ -8,8 +8,6 @@ import pandas as pd
 from .config import CONGRUENCE_MEASURES, EMOTION_SPEC_DIR, EMOTION_SPEC_VERSION
 
 UNHASHED = ("status", "confirmation_log")  # may change without a version bump; everything else may not
-KAPPA_MIN_UPPER = 0.2    # a source whose kappa 95% CI upper bound is below this is not trusted
-INTRA_MIN_UPPER = 0.4    # labels whose intra-rater kappa CI upper bound is below this are too unreliable to act on
 
 
 def spec_path(version=EMOTION_SPEC_VERSION, spec_dir=EMOTION_SPEC_DIR):
@@ -42,30 +40,6 @@ def validate_spec(spec, feature_columns):
     overlap = set(spec["item_features_m5"]) & set(spec.get("excluded", {}))
     problems += [f"{f} is both included and excluded" for f in sorted(overlap)]
     return problems
-
-
-def confirmation_actions(spec, summary, intra=None):
-    """Apply the pre-declared post-label rule. summary: per-source table from the label validation (source, kappa_ci_low,
-    kappa_ci_high). -> (verdict 'confirm' | 'bump' | 'hold', list of actions)."""
-    ci = summary.set_index("source")[["kappa_ci_low", "kappa_ci_high"]]
-    if intra is not None and intra["kappa_ci95"][1] < INTRA_MIN_UPPER:
-        return "hold", [f"intra-rater kappa CI upper {intra['kappa_ci95'][1]:.3f} < {INTRA_MIN_UPPER}: labels too "
-                        "unreliable to change the spec; keep v1 provisional and record this"]
-    actions = []
-    for source, features in spec["confirmation_rule"]["drop_if_source_untrusted"].items():
-        upper = float(ci.loc[source, "kappa_ci_high"])
-        if upper < KAPPA_MIN_UPPER:
-            kept = [f for f in features if f in spec["item_features_m5"] + spec["congruence_features"]]
-            if kept:
-                actions.append(f"drop {kept}: {source} kappa CI upper {upper:.3f} < {KAPPA_MIN_UPPER}")
-    rule = spec["confirmation_rule"]
-    primary = rule.get("primary_source", "goemotions_weighted")
-    w, t = ci.loc[primary], ci.loc["goemotions_title"]
-    if float(t["kappa_ci_low"]) > float(w["kappa_ci_high"]):
-        actions.append(f"make title the primary text variant: title kappa CI lies entirely above {primary}")
-    if "revert_labels_to" in rule and float(w["kappa_ci_high"]) < float(ci.loc[rule["revert_labels_to"], "kappa_ci_low"]):
-        actions.append(f"revert the labelling rule: {primary} kappa CI lies entirely below {rule['revert_labels_to']}")
-    return ("bump" if actions else "confirm"), actions
 
 
 def replication_selection(fit, valid):

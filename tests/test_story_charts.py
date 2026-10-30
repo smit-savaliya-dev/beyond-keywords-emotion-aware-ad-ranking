@@ -27,3 +27,15 @@ def test_all_eight_charts_write_files(tmp_path):
     sc.context_effects(dots(["last 5", "last 1"]), dots(["last 5", "previous 5"], False), tmp_path / "8.png", "t", "c")
     assert sorted(p.name for p in tmp_path.glob("*.png")) == [f"{i}.png" for i in range(1, 9)]
     assert all(p.stat().st_size > 0 for p in tmp_path.glob("*.png"))
+
+
+def test_semeval_correlations_chart_renders(tmp_path):
+    from src.story_charts import semeval_correlations
+    gold = ["anger", "disgust", "fear", "joy", "sadness", "surprise"]
+    rows = [(g, source, 0.3, 0.2, 0.4) for g in gold for source in ("goemotions_label", "nrc_emolex")]
+    rows += [(g, "goemotions_group", 0.4, 0.3, 0.5) for g in gold if g != "disgust"]
+    rows += [("valence", "go_vad_valence", 0.5, 0.4, 0.6), ("valence", "vad_valence", 0.3, 0.2, 0.4)]
+    corr = pd.DataFrame(rows, columns=["gold", "source", "spearman", "spearman_low", "spearman_high"])
+    path = tmp_path / "c.png"
+    semeval_correlations(corr, path, "t", "c")
+    assert path.stat().st_size > 1000

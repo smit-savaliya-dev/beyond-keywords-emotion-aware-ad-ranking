@@ -237,3 +237,28 @@ def context_effects(main, control, path, title, caption):
     a2.set_xlabel("Effect size dz (SD units)")
     a1.legend(frameon=False, ncol=2, loc="lower left", bbox_to_anchor=(-0.01, 1.07), fontsize=8.5, labelcolor=INK)
     _finish(fig, path, title, caption, 4)
+
+
+def semeval_correlations(corr, path, title, caption):
+    """corr: gold, source, spearman, spearman_low, spearman_high. One row per gold score, dots with 95% CIs per source."""
+    order = ["anger", "disgust", "fear", "joy", "sadness", "surprise", "valence"]
+    series = [("goemotions_group", "go_vad_valence", "GoEmotions, group score (valence: go_vad)", "#2a78d6", "o"),
+              ("goemotions_label", None, "GoEmotions, single label", "#1baf7a", "^"),
+              ("nrc_emolex", "vad_valence", "NRC EmoLex share (valence: NRC VAD)", "#eb6834", "s")]
+    fig, ax = _new(8, 5.6, left=0.12, top=0.62, bottom=1.05)
+    _frame(ax, "x")
+    y = {g: len(order) - 1 - i for i, g in enumerate(order)}
+    for j, (source, valence, label, color, marker) in enumerate(series):
+        names = {source: None} if valence is None else {source: None, valence: None}
+        t = corr[corr["source"].isin(names)]
+        ys = np.array([y[g] for g in t["gold"]]) + (1 - j) * 0.22
+        ax.errorbar(t["spearman"], ys, xerr=[t["spearman"] - t["spearman_low"], t["spearman_high"] - t["spearman"]], fmt=marker,
+                    color=color, markersize=6, elinewidth=1.4, capsize=0, markeredgecolor=SURFACE, markeredgewidth=0.7, label=label)
+    ax.axvline(0, color=INK_2, linewidth=0.8)
+    ax.axvline(0.2, color=INK_2, linewidth=0.9, linestyle="--")
+    ax.set_yticks(list(y.values()), list(y.keys()), color=INK)
+    ax.set_ylim(-0.6, len(order) - 0.4)
+    ax.set_xlabel("Spearman correlation with the human rating")
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.11), ncol=3, frameon=False, fontsize=8, labelcolor=INK)
+    _finish(fig, path, title, caption, 5.6)
+

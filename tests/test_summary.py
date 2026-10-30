@@ -47,3 +47,20 @@ def test_summary_module_reads_no_impression_or_behavior_data():
         strings = {n.value for n in ast.walk(ast.parse(source)) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
         assert not any(s.endswith(("impressions.parquet", "behaviors.parquet")) for s in strings), f
         assert "read_parquet" not in source, f
+
+
+def test_semeval_section(tmp_path):
+    import json
+    from src.summary import semeval_lines
+    rows = [{"kind": "correlation", "gold": g, "source": s, "spearman": 0.3} for g in ("anger", "fear", "joy", "sadness", "surprise")
+            for s in ("goemotions_group", "nrc_emolex")]
+    rows += [{"kind": "correlation", "gold": "valence", "source": s, "spearman": 0.4} for s in ("go_vad_valence", "vad_valence")]
+    rows.append({"kind": "agreement", "cutoff": 50, "source": "v2b_t0.05", "kappa": 0.2, "kappa_ci_low": 0.1, "kappa_ci_high": 0.3,
+                 "pct_pred_neutral": 30.0, "chosen": True})
+    pd.DataFrame(rows).to_csv(tmp_path / "semeval2007_validation.csv", index=False)
+    meta = {"n": {"test": 1000}, "official_cutoff": 50, "neutral": {"gold_test_pct": 60.0, "chosen_mind_pct": 39.0},
+            "verdict_goemotions": {"verdict": "CONFIRM"}, "verdict_nrc": {"verdict": "HOLD"}}
+    (tmp_path / "semeval2007_validation_meta.json").write_text(json.dumps(meta), encoding="utf-8")
+    text = "\n".join(semeval_lines(tmp_path))
+    assert "chosen on trial" in text and "GoEmotions CONFIRM, NRC HOLD" in text and "60.0%" in text
+    assert semeval_lines(tmp_path / "missing") == ["  not available"]

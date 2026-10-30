@@ -2,7 +2,7 @@
 
 A step reruns when its data inputs, its code (the script and the src/ modules it imports), its arguments or its
 outputs changed since its last successful run (content hashes; state in data/processed/.pipeline/).
-Download and the annotation sheet are create-only; label validation waits until the sheet is filled.
+Downloads are create-only.
 
   python scripts/run_base.py --dry-run          # show what would run and why, run nothing
   python scripts/run_base.py                    # run everything that is out of date
@@ -17,26 +17,18 @@ import sys
 import time
 
 import _bootstrap  # noqa: F401
-from src.annotation import read_sheet, sheet_problems
-from src.config import (ANNOTATION, DIAGNOSTICS, EMOLEX_PATH, FROZEN_DIR, M0_NAME, M1_NAME, PROCESSED, RAW, RESULTS, ROOT,
-                        STORY_CHARTS, STORY_DIR, TABLES, VAD_PATH)
+from src.config import (ARCHIVED_SHEET, DIAGNOSTICS, EMOLEX_PATH, FROZEN_DIR, M0_NAME, M1_NAME, PROCESSED, RAW, RESULTS, ROOT,
+                        SEMEVAL_DIR, SEMEVAL_SPLITS, STORY_CHARTS, STORY_DIR, TABLES, VAD_PATH)
+from src.semeval import split_files
 from src.pipeline import Pipeline, Step, StepFailed, held_gpu_steps, rebuild_steps
 
 S = ROOT / "scripts"
 P, T = PROCESSED, TABLES
-SHEET = ANNOTATION / "manual_sample.csv"
-RELABEL = ANNOTATION / "relabel_sample.csv"
 RAW_FILES = [RAW / s / f for s in ("train", "dev") for f in ("news.tsv", "behaviors.tsv")]
 NEWS, BEH, IMPS = P / "news.parquet", P / "behaviors.parquet", P / "impressions.parquet"
+SEMEVAL_FILES = [p for split in SEMEVAL_SPLITS for p in split_files(SEMEVAL_DIR, split)]
 EDA_FIGS = ["01_part_sizes", "02_candidates_per_impression", "03_clicks_per_impression", "04_categories",
             "05_history_length", "06_integrity", "eda_overview"]
-
-
-def labels_ready():
-    if not SHEET.exists():
-        return f"{SHEET.name} does not exist yet"
-    problems = sheet_problems(read_sheet(SHEET))
-    return f"waiting for hand labels ({problems[0]})" if problems else None
 
 
 def build_steps(skip_official_check):
@@ -50,8 +42,7 @@ def build_steps(skip_official_check):
         Step("12_data_harness_check", [S / "12_data_harness_check.py"], inputs=[IMPS], script=S / "12_data_harness_check.py"),
         Step("13_data_eda", [S / "13_data_eda.py"], inputs=[NEWS, BEH, IMPS, P / "data_summary.json"], script=S / "13_data_eda.py",
              outputs=[DIAGNOSTICS / f"{f}.png" for f in EDA_FIGS] + [DIAGNOSTICS / "eda_stats.json"]),
-        Step("14_data_annotation_sheet", [S / "14_data_annotation_sheet.py"], inputs=[NEWS], outputs=[SHEET],
-             create_only=True),
+        Step("14_data_semeval_download", [S / "14_data_semeval_download.py"], outputs=SEMEVAL_FILES, create_only=True),
         Step("20_emotion_label_combined", [S / "20_emotion_label_combined.py"], inputs=[NEWS], script=S / "20_emotion_label_combined.py",
              outputs=[P / "news_emotion_raw28.parquet", P / "news_emotion.parquet", P / "news_emotion_meta.json"],
              gpu=True, note="GPU; resumes from emotion_chunks/"),
@@ -90,7 +81,8 @@ def build_steps(skip_official_check):
              note="fit + valid, no GPU"),
         Step("27_emotion_v2_features", [S / "27_emotion_v2_features.py"],
              inputs=[NEWS, P / "news_emotion_raw28_title.parquet", P / "news_emotion_raw28_abstract.parquet",
-                     T / "emotion_v2_choice.json", EMOLEX_PATH, VAD_PATH], script=S / "27_emotion_v2_features.py",
+                     T / "emotion_v2_choice.json", EMOLEX_PATH, VAD_PATH, ARCHIVED_SHEET],
+             script=S / "27_emotion_v2_features.py",
              outputs=[P / "news_emotion_raw28_v2.parquet", P / "news_emotion_labels_v2.parquet",
                       P / "news_emotion_features_v2.parquet", T / "emotion_examples_v2.csv", T / "emotion_v2_meta.json"]),
         Step("28_emotion_label_variants", [S / "28_emotion_label_variants.py"],
@@ -98,6 +90,9 @@ def build_steps(skip_official_check):
              script=S / "28_emotion_label_variants.py",
              outputs=[P / "news_emotion_labels_variants.parquet", T / "emotion_label_variants_grid.csv",
                       T / "emotion_label_variants_meta.json"]),
+        Step("29_emotion_semeval_score", [S / "29_emotion_semeval_score.py"], inputs=SEMEVAL_FILES,
+             script=S / "29_emotion_semeval_score.py", outputs=[P / "semeval_raw28.parquet", P / "semeval_raw28_meta.json"],
+             gpu=True, note="GPU; small job on SemEval headlines only; resumes from emotion_chunks_semeval/"),
         Step("30_analysis_click_signal", [S / "30_analysis_click_signal.py"], inputs=[IMPS, NEWS, P / "news_emotion_features.parquet"],
              script=S / "30_analysis_click_signal.py",
              outputs=[T / f for f in ("emotion_signal_fit.csv", "emotion_signal_variants_fit.csv",
@@ -142,17 +137,12 @@ def build_steps(skip_official_check):
              outputs=[STORY_DIR / f"{n}.png" for n in STORY_CHARTS]
              + [T / f for f in ("story_emotion_mix.csv", "story_intensity.csv", "story_category_emotion.csv",
                                 "story_category_valence_arousal.csv")]),
-        Step("38_analysis_label_validation", [S / "38_analysis_label_validation.py"],
-             inputs=[SHEET, P / "news_emotion.parquet", P / "news_emotion_weighted.parquet",
-                     P / "news_emotion_raw28_title.parquet", P / "news_emotion_raw28_weighted.parquet",
-                     P / "news_emotion_nrc_features.parquet", P / "news_emotion_features.parquet",
-                     P / "news_emotion_labels_v2.parquet", P / "news_emotion_labels_variants.parquet"]
-             + ([RELABEL] if RELABEL.exists() else []),
-             script=S / "38_analysis_label_validation.py", extra_code=[ROOT / "config" / "emotion_spec_v2.json"],
-             outputs=[T / f for f in ("emotion_validation.json", "emotion_validation_sources.csv",
-                                      "emotion_validation_sources.json", "emotion_validation_per_class.csv",
-                                      "emotion_threshold_sensitivity.csv")] + [DIAGNOSTICS / "emotion_threshold_kappa.png"],
-             condition=labels_ready),
+        Step("38_analysis_semeval_validation", [S / "38_analysis_semeval_validation.py"],
+             inputs=[*SEMEVAL_FILES, P / "semeval_raw28.parquet", T / "emotion_label_variants_grid.csv", EMOLEX_PATH, VAD_PATH],
+             script=S / "38_analysis_semeval_validation.py",
+             outputs=[T / f for f in ("semeval2007_validation.csv", "semeval2007_validation_meta.json",
+                                      "semeval2007_selection_trial.csv", "semeval2007_per_class.csv")]
+             + [DIAGNOSTICS / "semeval2007_correlations.png"], note="trial selects, test reports"),
         Step("40_model_m0_popularity", [S / "40_model_m0_popularity.py", "--tune"], inputs=[IMPS], script=S / "40_model_m0_popularity.py",
              outputs=[FROZEN_DIR / f"{M0_NAME}.json", T / "m0_popularity_tuning_valid.csv"]
              + [RESULTS / sub / f"{M0_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
