@@ -74,7 +74,7 @@ Spearman correlation on the same items (items with at least one EmoLex emotion w
   county, school and president (trust). 28.3% of titles, 13.9% of abstracts and 7.9% of items (weighted) have no
   EmoLex emotion word. Topic words were not filtered (D07).
 - NRC -> 6 classes (validation only): anger + disgust -> anger, no hits -> neutral, trust and anticipation not mapped,
-  ties by seeded random choice; its agreement with hand labels is reported once the labels exist.
+  ties by seeded random choice; its agreement with human ratings on SemEval-2007 is in section 7.
 
 ## 6. Congruence and personalisation
 - Profile = recency-weighted mean (decay 0.9, newest weight 1, last 50) of history-item vectors from the `history`
@@ -85,3 +85,23 @@ Spearman correlation on the same items (items with at least one EmoLex emotion w
   removes that shared shift: dz 0.136 (fit), still significant at both levels (D13, Q01).
 - Out-of-time check on valid: personal congruence replicated (0.242 -> 0.237), while several item-level emotion
   effects flipped sign (e.g. go_emotionality +0.103 -> -0.041), so item emotion effects depend on the day's news (D28).
+
+## 7. External validation on SemEval-2007
+- Why: hand labelling was cancelled (D45), so there are **no direct human labels on MIND headlines**. SemEval-2007 Task 14 Affective Text
+  (Strapparava & Mihalcea, 2007) gives human emotion ratings (0-100) and valence (-100 to 100) for 1,250 news headlines.
+- Design, pre-declared before scoring (D46-D48): trial (250) only selects the labelling rule, test (1,000) only reports. Threshold-free
+  correlations are primary, because the model features are continuous and labels are for reporting only. Gold class: anger = max(anger,
+  disgust), argmax of 5 emotions, neutral below 50, which is the README's coarse-grained cutoff. Sensitivity cutoffs 25 and 30.
+- Same scoring as MIND: same model, max length 128, same lexicons, same no-hits rule, same go_vad formula.
+- **Title-only limitation:** SemEval has no abstracts, so this validates the title part of the scoring only. The MIND features are half
+  title, half abstract. The abstract half has no human check. For the same reason the like-for-like neutral figure for MIND is the chosen rule on
+  titles alone (52.4%), not the 39.0% of title + abstract. That title-only figure was added after the pre-declaration and is descriptive.
+- **Domain gap, 2007 vs 2019:** SemEval headlines are 12 years older than MIND, from different outlets and with different topics. The classifier
+  was trained on Reddit comments, so it is outside its home domain in both cases. These results support the scores on news headlines; they
+  do not transfer perfectly to MIND.
+- What it does not test: click behaviour, congruence, or features without a human rating (trust, go_dist_*). go_pct_* are percentile ranks of
+  scores, so a single-label Spearman result carries over to them on headlines; features built on title + abstract are only partly covered.
+- Accuracy is misleading here: 65.0% of test headlines are neutral at the official cutoff, so the all-neutral reference reaches 65.0% accuracy,
+  more than any rule. Kappa corrects for this, and the all-neutral reference has kappa 0.
+- The neutral level depends on the human cutoff as well: 65.0% at 50, 24.2% at 30, 16.0% at 25.
+

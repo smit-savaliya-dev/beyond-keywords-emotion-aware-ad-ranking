@@ -15,7 +15,7 @@ from the user's recent reading", never "the user's emotional state".
   3,415 (5.23%) empty abstracts.
 - impressions.parquet: imp_key, part, user_id, time, news_id, label, position. part = fit (train) / valid (tune) / dev (test once).
 - news_emotion_raw28.parquet + news_emotion.parquet: "combined" baseline (GoEmotions on `text`, max_length 128, 6 classes).
-  Never overwrite these, emotion_chunks/, or annotation/manual_sample.csv (6-class hand labels, filled by the user).
+  Never overwrite these or emotion_chunks/. Hand labelling is cancelled (D45); its material is archived in results/archive/annotation/.
 
 ## Emotion layer (supervisor-approved design)
 - Soft probabilities everywhere, never a hard label as a feature.
@@ -41,12 +41,13 @@ from the user's recent reading", never "the user's emotional state".
 - go_pct_*: percentile rank of each go_* emotion across all items (item-level, no clicks), because label floors differ.
   go_dist_* is kept but unreliable at low go_emotion_mass; go_emotion_mass can exceed 1 (sum of independent sigmoids).
 
-- Emotion spec: config/emotion_spec_v2.json (PROVISIONAL, D33; v1 kept for the record). Title share 0.5, labels at
-  t = 0.05 are for reporting only. M3/M5/M7 must use exactly its features/fusion (news_emotion_features_v2.parquet).
-  Any change to its hashed content = new file v2 + decision entry + test hash (tests/test_emotion_spec.py).
+- Emotion spec: config/emotion_spec_v3.json (confirmed on SemEval, D48/D49; v1 and v2 kept for the record; v3 differs from v2 only in
+  labelling). Title share 0.5, labels at t = 0.05 are for reporting only. M3/M5/M7 must use exactly its features/fusion
+  (news_emotion_features_v2.parquet). Any change to its hashed content = new file v4 + decision entry + test hash (tests/test_emotion_spec.py).
 
-- Reporting labels: v2 (t = 0.05), v2b (no approval/disapproval), v2c (also no realization); chosen later by hand-label kappa (D38).
-- True recency (script 35) uses earlier log clicks for analysis only; models keep the history column until Q09 is decided.
+- Reporting labels: v2b at t = 0.05 (no approval/disapproval), chosen on SemEval trial (D47); v2 and v2c stay for reference.
+- SemEval-2007 (scripts 14, 29, 38, src/semeval.py): trial selects, test reports. Headlines only: it validates the title part of the scoring.
+- True recency (script 35) uses earlier log clicks for analysis only; M2-M7 use the history column only (Q09 decided, D45).
 - M5-all is a pre-declared robustness variant with all 19 item candidates (D37).
 
 ## Engineering rules
@@ -67,5 +68,5 @@ from the user's recent reading", never "the user's emotional state".
 - Work in phases and stop for review after each one; ask when the request conflicts with the code.
 
 ## Phases
-Done: base pipeline, emotion layer v1 and v2, click signal, congruence, context windows, true recency, M0, M1, cleanup.
-Waiting: hand labels (script 38 then compares v1, v2, v2b, v2c and confirms the spec). Next: M2, M3.
+Done: base pipeline, emotion layer v1 and v2, click signal, congruence, context windows, true recency, M0, M1, cleanup, SemEval validation.
+Next: M2, M3.

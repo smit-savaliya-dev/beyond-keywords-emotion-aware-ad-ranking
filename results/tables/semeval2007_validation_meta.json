@@ -355,10 +355,10 @@
     "n_multiword": 10073
   },
   "run_info": {
-    "timestamp_utc": "2026-10-30T15:39:10+00:00",
+    "timestamp_utc": "2026-10-30T15:46:53+00:00",
     "python": "3.11.9",
     "platform": "Windows-10-10.0.26200-SP0",
-    "git_commit": "44141a0",
+    "git_commit": "45b01ec",
     "git_dirty": true,
     "pandas": "3.0.6",
     "numpy": "2.4.6",

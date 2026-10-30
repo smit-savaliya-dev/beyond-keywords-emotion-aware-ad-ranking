@@ -184,3 +184,9 @@ base-v3 is complete. Waiting for the student: fix the merge state (Q08), hand la
 ## 2026-10-30 base-v4 steps 2-4: SemEval scored and validated
 - 1,250 headlines scored on the GPU with GoEmotions (no MIND re-scoring). NRC and go_vad computed on the same headlines.
 - D47 chose v2b at t 0.05 on trial; D48 gave CONFIRM for GoEmotions and NRC on test (D49). Spec v3 written for the labelling rule; features unchanged.
+
+## 2026-10-30 base-v4 step 5: wrap-up
+- `--rebuild`: exit 0, GPU steps held, 76 of 76 snapshot files identical, 164 tests pass, no dev run. Docs updated. Reports: `docs/reports/base_v4_report.md`, `results/reports/week6_report_draft.md`.
+
+## Resume here
+base-v4 is complete. Next, when asked: M2, M3. Spec v3 is the current spec; open: Q10, Q11.

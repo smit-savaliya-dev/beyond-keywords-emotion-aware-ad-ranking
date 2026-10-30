@@ -1,6 +1,6 @@
-# Guide to the eight story charts
+# Guide to the charts
 
-All charts are in `results/figures/story/` and use one style. On charts 6, 7 and 8, the blue circle is fit (9-13 Nov) and
+The eight story charts are in `results/figures/story/` and use one style. A ninth, on external validation, is at the end. On charts 6, 7 and 8, the blue circle is fit (9-13 Nov) and
 the orange square is valid (14 Nov, the next day). "dz" is an effect size: how far clicked items differ from unclicked
 items in the same list, in standard deviations. 0 means no difference, 0.1-0.2 is small but real. A hollow marker means the
 result was not significant at both the impression level and the user level. Dev data was never used.
@@ -9,7 +9,7 @@ result was not significant at both the impression level and the user level. Dev 
 - **Shows:** the share of each emotion label under four rules: the original combined text, v1, v2, and v2b (v2 without the
   stance labels approval and disapproval).
 - **Why it matters:** neutral falls from 81% to 26% in v2, or 39% in v2b. The v2b bar is the more careful figure, because
-  approval and disapproval express an opinion, not an emotion. Your hand labels will decide between them.
+  approval and disapproval express an opinion, not an emotion. The SemEval-2007 selection kept v2b (D47, D49).
 - **Read with care:** the classifier did not change. Only the rule for what counts as emotion changed. For 91.6% of the
   items that left neutral, the classifier's own neutral score is still above 0.5.
 
@@ -53,3 +53,13 @@ result was not significant at both the impression level and the user level. Dev 
 - **Why it matters:** longer history is stronger, but the right panel shows newer items are not better than slightly older
   ones. So the gain does not come from recency: it looks like a stable preference, measured better with more items.
 - **Read with care:** the history list stops before the log period, so "last 1" is not the click just before the impression.
+
+## External validation (`results/figures/diagnostics/semeval2007_correlations.png`)
+The story folder already holds 8 charts, so this one sits in diagnostics.
+- **Shows:** how well our emotion scores track human ratings on the 1,000 SemEval-2007 test headlines, with 95% intervals. Blue circles
+  are GoEmotions group scores, green triangles single GoEmotions labels, orange squares NRC EmoLex. The bottom row is valence, where blue
+  is go_vad_valence and orange is NRC VAD. The dashed line is the pre-declared minimum of 0.2. Dev and MIND clicks are not involved.
+- **Why it matters:** this is the only human check of the scores. GoEmotions passes on anger, fear, joy, sadness and valence, and beats NRC
+  everywhere except fear, where the intervals overlap. There is no group score for disgust, because disgust is part of the anger group.
+- **Read with care:** the data are headlines from 2007, so this tests the title scoring, not the abstracts. Surprise is weak for every source.
+
