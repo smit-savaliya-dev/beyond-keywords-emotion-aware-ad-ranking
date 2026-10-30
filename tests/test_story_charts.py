@@ -18,7 +18,7 @@ def test_all_eight_charts_write_files(tmp_path):
     va = pd.DataFrame({"category": ["a", "b"], "valence": [0.1, 0.2], "arousal": [0.1, 0.2], "v_low": [0.0, 0.1],
                        "v_high": [0.2, 0.3], "a_low": [0.0, 0.1], "a_high": [0.2, 0.3]})
     sc.emotion_mix(mix, tmp_path / "1.png", "t", "c")
-    sc.neutral_curve(grid, 0.5, 0.05, tmp_path / "2.png", "t", "c")
+    sc.neutral_curve(grid, 0.5, 0.05, tmp_path / "2.png", "t", "c", extra=("v2b", grid[grid["share"] == 0.5]))
     sc.intensity_compare(np.linspace(0.01, 0.9, 50), np.linspace(0.02, 0.9, 50), 0.05, tmp_path / "3.png", "t", "c")
     sc.category_heatmap(heat, tmp_path / "4.png", "t", "c")
     sc.valence_arousal_map(va, {"a": (6, -13)}, tmp_path / "5.png", "t", "c")

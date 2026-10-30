@@ -43,29 +43,34 @@ def main():
     choice = json.loads((TABLES / "emotion_v2_choice.json").read_text(encoding="utf-8"))
     share, t = choice["chosen_title_share"], choice["chosen_t"]
     labels = pd.read_parquet(p / "news_emotion_labels_v2.parquet")
+    variants = pd.read_parquet(p / "news_emotion_labels_variants.parquet", columns=["news_id", "label_v2b"])
 
     # 1 emotion mix
     def mix_of(s):
         return s.value_counts(normalize=True).mul(100).reindex(SIX_CLASSES, fill_value=0)
     mix = pd.DataFrame({"Original (combined text)": mix_of(pd.read_parquet(p / "news_emotion.parquet")["dominant_emotion"]),
                         "v1 (1/3 title, argmax)": mix_of(pd.read_parquet(p / "news_emotion_weighted.parquet")["dominant_emotion"]),
-                        f"v2 (title {share}, t = {t})": mix_of(labels["label"])}).T
+                        f"v2 (title {share}, t = {t})": mix_of(labels["label"]),
+                        "v2b (v2 without stance labels)": mix_of(variants["label_v2b"])}).T
     mix.round(2).to_csv(TABLES / "story_emotion_mix.csv")
     v1 = pd.read_parquet(p / "news_emotion_weighted.parquet").set_index("news_id")["dominant_emotion"]
     lab = labels.set_index("news_id")
     moved = lab[(v1.reindex(lab.index) == "neutral") & (lab["label"] != "neutral")]
     moved_pct, still = 100 * len(moved) / len(lab), 100 * (moved["neutral_score"] > 0.5).mean()
     sc.emotion_mix(mix, out / "1_emotion_mix.png",
-                   f"Neutral falls from {mix.iloc[1]['neutral']:.0f}% to {mix.iloc[2]['neutral']:.0f}% under the v2 labelling rule",
+                   f"Neutral falls from {mix.iloc[1]['neutral']:.0f}% to {mix.iloc[2]['neutral']:.0f}% (v2), or to "
+                   f"{mix.iloc[3]['neutral']:.0f}% without stance labels (v2b)",
                    f"Emotion labels of all 65,238 news items under each rule. The classifier is unchanged: {moved_pct:.1f}% of "
-                   f"items left neutral because v2 counts weaker scores as emotion, and for {still:.1f}% of those the "
-                   "classifier's own neutral score is still above 0.5.")
+                   f"items left neutral in v2 because it counts weaker scores as emotion, and for {still:.1f}% of those the "
+                   "classifier's own neutral score is still above 0.5. v2b ignores approval and disapproval.")
 
     # 2 neutral vs threshold
     grid = pd.read_csv(TABLES / "emotion_v2_grid.csv")
+    v2b = pd.read_csv(TABLES / "emotion_label_variants_grid.csv").query("variant == 'v2b'")
     sc.neutral_curve(grid, share, t, out / "2_neutral_vs_threshold.png", "The threshold drives the neutral share far more than the title weight",
                      "Share of items labelled neutral for each title weight and threshold. The ringed point is the setting "
-                     "chosen by the rule written before the analysis (D30).")
+                     "chosen by the rule written before the analysis (D30). The dashed line ignores approval and disapproval.",
+                     extra=("v2b: title 0.50, no stance labels", v2b))
 
     # 3 title vs abstract intensity
     title_i = intensity_table(pd.read_parquet(p / "news_emotion_raw28_title.parquet"))

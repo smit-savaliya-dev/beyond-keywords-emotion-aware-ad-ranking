@@ -6,15 +6,17 @@ items in the same list, in standard deviations. 0 means no difference, 0.1-0.2 i
 result was not significant at both the impression level and the user level. Dev data was never used.
 
 ## 1. Emotion mix, old vs new (`1_emotion_mix.png`)
-- **Shows:** the share of each emotion label under three rules: the original combined text, v1, and v2.
-- **Why it matters:** neutral falls from 81% to 26%, which answers the concern that neutral was too high.
+- **Shows:** the share of each emotion label under four rules: the original combined text, v1, v2, and v2b (v2 without the
+  stance labels approval and disapproval).
+- **Why it matters:** neutral falls from 81% to 26% in v2, or 39% in v2b. The v2b bar is the more careful figure, because
+  approval and disapproval express an opinion, not an emotion. Your hand labels will decide between them.
 - **Read with care:** the classifier did not change. Only the rule for what counts as emotion changed. For 91.6% of the
   items that left neutral, the classifier's own neutral score is still above 0.5.
 
 ## 2. Neutral share vs threshold (`2_neutral_vs_threshold.png`)
 - **Shows:** how the neutral share changes with the threshold t, one line per title weight. The ring marks the chosen setting.
 - **Why it matters:** the threshold moves neutral far more than the title weight. Neutral is largely a choice of cut-off, not
-  a fixed fact about the news.
+  a fixed fact about the news. The dashed line (v2b) sits higher because stance labels no longer count as emotion.
 
 ## 3. Title vs abstract intensity (`3_title_vs_abstract_intensity.png`)
 - **Shows:** for the same items, how many titles and abstracts reach each level of emotion score.

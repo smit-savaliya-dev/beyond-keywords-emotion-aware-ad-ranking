@@ -26,12 +26,13 @@ def combine_share(title_raw, abstract_raw, share):
     return combine_fields(title_raw, abstract_raw, share, 1 - share)
 
 
-def intensity_table(raw):
-    """Per item: intensity (max non-neutral raw score), its GoEmotions label and 6-class group."""
-    scores = raw[NON_NEUTRAL].to_numpy(dtype=np.float64)
+def intensity_table(raw, exclude=()):
+    """Per item: intensity (max raw score over non-neutral labels, minus `exclude`), its label and 6-class group."""
+    keep = [i for i, label in enumerate(NON_NEUTRAL) if label not in set(exclude)]
+    scores = raw[[NON_NEUTRAL[i] for i in keep]].to_numpy(dtype=np.float64)
     best = scores.argmax(axis=1)
     return pd.DataFrame({"news_id": raw["news_id"].to_numpy(), "intensity": scores[np.arange(len(scores)), best],
-                         "top_label": _NN_LABEL[best], "group": _NN_GROUP[best]})
+                         "top_label": _NN_LABEL[keep][best], "group": _NN_GROUP[keep][best]})
 
 
 def threshold_labels(table, t):

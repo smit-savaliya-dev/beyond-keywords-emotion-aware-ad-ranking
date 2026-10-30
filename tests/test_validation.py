@@ -90,6 +90,11 @@ def fake_project(tmp_path):
     pct.to_parquet(proc / "news_emotion_features.parquet", index=False)
     pd.DataFrame({"news_id": ids, "intensity": rng.uniform(0, 0.6, n), "group": rng.choice(SIX_CLASSES[:5], n),
                   "label": rng.choice(SIX_CLASSES, n)}).to_parquet(proc / "news_emotion_labels_v2.parquet", index=False)
+    variants = {"news_id": ids}
+    for v in ("v2b", "v2c"):
+        variants.update({f"intensity_{v}": rng.uniform(0, 0.6, n), f"group_{v}": rng.choice(SIX_CLASSES[:5], n),
+                         f"label_{v}": rng.choice(SIX_CLASSES, n)})
+    pd.DataFrame(variants).to_parquet(proc / "news_emotion_labels_variants.parquet", index=False)
     labels = rng.choice(SIX_CLASSES, n)
     sheet = pd.DataFrame({"sample_id": [str(i + 1) for i in range(n)], "news_id": ids,
                           "title": [f"title {i}" for i in range(n)], "abstract": ["abs"] * n, "your_label": labels})
@@ -101,7 +106,7 @@ def fake_project(tmp_path):
 def run_06(p, sheet="sheet.csv"):
     cmd = [sys.executable, str(ROOT / "scripts" / "06_validate_emotion_labels.py"), "--sheet", str(p / sheet),
            "--relabel-sheet", str(p / "relabel.csv"), "--processed", str(p / "processed"),
-           "--out-dir", str(p / "out"), "--fig-dir", str(p / "fig")]
+           "--out-dir", str(p / "out"), "--fig-dir", str(p / "fig"), "--n-boot", "30"]
     return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
 
 
@@ -111,14 +116,16 @@ def test_script_06_end_to_end_with_fakes(fake_project):
     out = fake_project / "out"
     src = pd.read_csv(out / "emotion_validation_sources.csv")
     assert src["source"].tolist() == ["goemotions_combined", "goemotions_weighted", "goemotions_title",
-                                      "goemotions_v2", "nrc_emolex_6class", "reference_all_neutral"]
+                                      "goemotions_v2", "goemotions_v2b", "goemotions_v2c", "nrc_emolex_6class",
+                                      "reference_all_neutral"]
     sens = pd.read_csv(out / "emotion_threshold_sensitivity.csv")
-    assert len(sens) == 18 and sens["kappa_ci_low"].le(sens["kappa_ci_high"]).all()
+    assert len(sens) == 32 and sens["kappa_ci_low"].le(sens["kappa_ci_high"]).all()
+    assert set(sens["score"]) >= {"v2_intensity", "v2b_intensity", "v2c_intensity"}
     meta = json.loads((out / "emotion_validation_sources.json").read_text(encoding="utf-8"))
     assert meta["intra_rater"]["accuracy"] == 1.0 and meta["n_labelled"] == 40
     assert meta["emotion_spec_confirmation"]["verdict"] in {"confirm", "bump", "hold"}
     assert "Emotion spec v2" in r.stdout
-    assert len(pd.read_csv(out / "emotion_validation_per_class.csv")) == 6 * 6
+    assert len(pd.read_csv(out / "emotion_validation_per_class.csv")) == 8 * 6
     assert (fake_project / "fig" / "emotion_threshold_kappa.png").stat().st_size > 0
 
 

@@ -124,3 +124,22 @@ emotion spec), review/merge of branch `week5-autonomous`, then M2/M3.
 ## Resume here
 base-v2 is complete. Waiting for the student: hand labels (then script 06 confirms, bumps or holds spec v2), review of the
 open questions, review and merge of `base-v2`, then M2/M3.
+
+## base-v3 (2026-11-01)
+Branch `base-v3`, built from the base-v2 tip (759d563) because main does not contain it (Q08). Pre-declarations D37-D40 were
+committed before computing. `annotation/` is excluded from every commit while the student labels.
+
+| Step | Status |
+|---|---|
+| 1 Stance-excluded labels v2b, v2c | done |
+| 2 True recency | pending |
+| 3 Percentile robustness | pending |
+| 4 Cleanup and restructure | pending |
+| 5 Terminal summary, --rebuild | pending |
+| Final report | pending |
+
+### Step 1
+- At t = 0.05: v2 neutral 25.6 (joy 34.5, sadness 18.9, anger 5.6, fear 1.9, surprise 13.5); v2b 39.0 (20.7, 19.8, 2.8, 1.9, 15.8);
+  v2c 42.4 (20.9, 20.3, 2.8, 2.0, 11.6). Anger is now 82% annoyance. Script 06 compares v1, v2, v2b, v2c when labels exist.
+- Issue: the end-to-end test took 3 minutes after adding the variants (1,000 bootstraps x 32 thresholds). Added --n-boot; the
+  test uses 30, the real run keeps 1,000.

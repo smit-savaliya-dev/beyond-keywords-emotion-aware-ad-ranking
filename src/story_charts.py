@@ -13,8 +13,8 @@ from matplotlib.colors import LinearSegmentedColormap  # noqa: E402
 INK, INK_2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#ffffff"
 EMOTION_COLORS = {"joy": "#2a78d6", "sadness": "#eb6834", "anger": "#1baf7a", "fear": "#eda100", "surprise": "#e87ba4",
                   "neutral": "#c9c8c0"}
-LINE_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"]
-LINE_MARKERS = ["o", "s", "^", "D", "v"]
+LINE_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#6250d6"]
+LINE_MARKERS = ["o", "s", "^", "D", "v", "P"]
 PART_STYLE = {"fit": ("#2a78d6", "o", "fit (9-13 Nov)"), "valid": ("#eb6834", "s", "valid (14 Nov, next day)")}
 RAMP = LinearSegmentedColormap.from_list("blue", ["#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"])
 DZ_LABEL = "Effect size dz (SD units; 0 = no difference)"
@@ -52,7 +52,8 @@ def _new(width, height, top=0.62, bottom=0.95, left=0.1, right=0.97, **kw):
 
 def emotion_mix(mix, path, title, caption):
     """mix: index = version names (top bar first), columns = classes, values = % of items. Stacked bars."""
-    fig, ax = _new(8, 4, left=0.2, top=0.72)
+    height = 2.5 + 0.55 * len(mix)
+    fig, ax = _new(8, height, left=0.24, top=0.72)
     y = np.arange(len(mix))[::-1]
     left = np.zeros(len(mix))
     for c in mix.columns:
@@ -69,11 +70,12 @@ def emotion_mix(mix, path, title, caption):
     _frame(ax, "x")
     ax.legend(frameon=False, ncol=6, loc="lower left", bbox_to_anchor=(-0.01, 1.0), fontsize=8.5, labelcolor=INK,
               handlelength=1.1, columnspacing=1.2)
-    _finish(fig, path, title, caption, 4)
+    _finish(fig, path, title, caption, height)
 
 
-def neutral_curve(grid, chosen_share, chosen_t, path, title, caption):
-    """grid: share, t, pct_neutral. One line per title share, the chosen point ringed, neutral limits marked."""
+def neutral_curve(grid, chosen_share, chosen_t, path, title, caption, extra=None):
+    """grid: share, t, pct_neutral. One line per title share, the chosen point ringed, neutral limits marked.
+    extra: optional (name, frame with t, pct_neutral) drawn as one more line."""
     fig, ax = _new(8, 4.6, left=0.09, top=0.95)
     shares = sorted(grid["share"].unique(), reverse=True)
     for i, s in enumerate(shares):
@@ -81,6 +83,11 @@ def neutral_curve(grid, chosen_share, chosen_t, path, title, caption):
         name = "title only" if s == 1 else f"title {s:.2f} / abstract {1 - s:.2f}"
         ax.plot(g["t"], g["pct_neutral"], color=LINE_COLORS[i], marker=LINE_MARKERS[i], markersize=5.5, linewidth=1.8,
                 label=name)
+    if extra is not None:
+        name, g = extra
+        g = g.sort_values("t")
+        ax.plot(g["t"], g["pct_neutral"], color=LINE_COLORS[5], marker=LINE_MARKERS[5], markersize=6, linewidth=1.8,
+                linestyle="--", label=name)
     pick = grid[(grid["share"] == chosen_share) & (grid["t"] == chosen_t)].iloc[0]
     ax.scatter([chosen_t], [pick["pct_neutral"]], s=170, facecolor="none", edgecolor=INK, linewidth=1.6, zorder=5)
     ax.annotate(f"chosen: title {chosen_share:.1f}, t = {chosen_t}\n{pick['pct_neutral']:.1f}% neutral",

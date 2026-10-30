@@ -76,3 +76,13 @@ def test_load_part_context_uses_history_and_refuses_dev(fake_processed):
     assert [index[i] for i in ctx.histories[0]] == ["N1", "N2"]
     with pytest.raises(ValueError, match="only load fit or valid"):
         load_part_context(fake_processed, "dev", index)
+
+
+def test_intensity_table_exclusions_change_presence_and_dominant_class():
+    r = raw(["A", "B"], [{"approval": 0.6, "joy": 0.1}, {"disapproval": 0.5}])
+    base = intensity_table(r)
+    assert base["top_label"].tolist() == ["approval", "disapproval"] and base.equals(intensity_table(r, ()))
+    no_stance = intensity_table(r, ("approval", "disapproval"))
+    assert no_stance.loc[0, "top_label"] == "joy" and no_stance.loc[0, "intensity"] == pytest.approx(0.1)
+    assert threshold_labels(no_stance, 0.05).tolist() == ["joy", "neutral"]      # B had only stance, so it turns neutral
+    assert "approval" not in set(no_stance["top_label"])

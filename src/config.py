@@ -167,3 +167,6 @@ STORY_CHARTS = ["1_emotion_mix", "2_neutral_vs_threshold", "3_title_vs_abstract_
 
 # M5-all robustness variant (D37): all 19 item candidates; go_intensity stays out (Q05).
 M5_ROBUSTNESS_ITEM_FEATURES = list(SPEC_ITEM_CANDIDATES)
+
+# Reporting-label variants (D38): GoEmotions labels ignored for emotion presence and the dominant class.
+LABEL_VARIANTS = {"v2": [], "v2b": ["approval", "disapproval"], "v2c": ["approval", "disapproval", "realization"]}

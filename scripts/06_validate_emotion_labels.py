@@ -28,6 +28,7 @@ def main():
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     ap.add_argument("--out-dir", type=Path, default=RESULTS / "tables")
     ap.add_argument("--fig-dir", type=Path, default=FIGURES)
+    ap.add_argument("--n-boot", type=int, default=1000, help="bootstrap resamples for the kappa CIs")
     args = ap.parse_args()
 
     if not args.sheet.exists():
@@ -39,7 +40,7 @@ def main():
             print(" -", p)
         sys.exit(1)
 
-    v = run_validation(args.sheet, args.processed, args.relabel_sheet)
+    v = run_validation(args.sheet, args.processed, args.relabel_sheet, args.n_boot)
     summary, per_class, sens = v["summary"], v["per_class"], v["sensitivity"]
     counts = v["label_counts"]
     rare = [c for c, n in counts.items() if n < MIN_CLASS_COUNT]

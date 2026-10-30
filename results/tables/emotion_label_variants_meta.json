@@ -1,0 +1,115 @@
+{
+  "rule": "D38",
+  "variants_excluded_labels": {
+    "v2": [],
+    "v2b": [
+      "approval",
+      "disapproval"
+    ],
+    "v2c": [
+      "approval",
+      "disapproval",
+      "realization"
+    ]
+  },
+  "weight": "title 0.5, abstract 0.5 (same as v2)",
+  "t_for_comparison": 0.05,
+  "use": "reporting and hand-label validation only, never a model feature",
+  "top_raw_labels_per_class_pct": {
+    "v2": {
+      "anger": {
+        "disapproval": 59.7,
+        "annoyance": 31.8,
+        "disgust": 5.2
+      },
+      "fear": {
+        "fear": 81.9,
+        "embarrassment": 10.2,
+        "nervousness": 7.9
+      },
+      "joy": {
+        "approval": 51.1,
+        "admiration": 15.2,
+        "excitement": 11.3
+      },
+      "sadness": {
+        "sadness": 67.0,
+        "disappointment": 31.4,
+        "remorse": 1.6
+      },
+      "surprise": {
+        "curiosity": 57.3,
+        "realization": 19.4,
+        "confusion": 13.5
+      }
+    },
+    "v2b": {
+      "anger": {
+        "annoyance": 82.4,
+        "disgust": 10.9,
+        "anger": 6.6
+      },
+      "fear": {
+        "fear": 81.9,
+        "embarrassment": 9.8,
+        "nervousness": 8.3
+      },
+      "joy": {
+        "admiration": 34.3,
+        "excitement": 21.2,
+        "optimism": 13.3
+      },
+      "sadness": {
+        "sadness": 64.9,
+        "disappointment": 33.6,
+        "remorse": 1.6
+      },
+      "surprise": {
+        "curiosity": 51.2,
+        "realization": 27.7,
+        "confusion": 12.6
+      }
+    },
+    "v2c": {
+      "anger": {
+        "annoyance": 82.7,
+        "disgust": 10.8,
+        "anger": 6.5
+      },
+      "fear": {
+        "fear": 81.9,
+        "embarrassment": 9.8,
+        "nervousness": 8.3
+      },
+      "joy": {
+        "admiration": 34.2,
+        "excitement": 21.3,
+        "optimism": 13.4
+      },
+      "sadness": {
+        "sadness": 64.5,
+        "disappointment": 33.9,
+        "remorse": 1.5
+      },
+      "surprise": {
+        "curiosity": 70.2,
+        "confusion": 17.7,
+        "surprise": 12.2
+      }
+    }
+  },
+  "run_info": {
+    "timestamp_utc": "2026-10-30T14:09:32+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "9c15e13",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}
