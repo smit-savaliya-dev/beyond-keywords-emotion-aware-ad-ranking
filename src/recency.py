@@ -45,6 +45,24 @@ def repeated_candidates(groups, item_idx, lists):
     return np.isin(np.asarray(groups, dtype=np.int64) * n_items + item_idx, keys)
 
 
+def time_matched_partner(times, users):
+    """For each impression: the nearest-in-time impression of a different user (placebo for shared trends)."""
+    order = np.argsort(np.asarray(times), kind="stable")
+    users = np.asarray(users)
+    n = len(order)
+    out = np.empty(n, dtype=np.int64)
+    for pos, i in enumerate(order):
+        for step in range(1, n):
+            lo, hi = pos - step, pos + step
+            hit = next((order[j] for j in (lo, hi) if 0 <= j < n and users[order[j]] != users[i]), None)
+            if hit is not None:
+                out[i] = hit
+                break
+        else:
+            out[i] = i
+    return out
+
+
 def within_slope(groups, x, y):
     """Slope of y on x after removing each impression's mean (the comparison happens inside impressions)."""
     groups = np.asarray(groups)

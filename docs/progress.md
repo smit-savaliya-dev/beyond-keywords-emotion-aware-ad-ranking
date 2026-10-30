@@ -132,7 +132,7 @@ committed before computing. `annotation/` is excluded from every commit while th
 | Step | Status |
 |---|---|
 | 1 Stance-excluded labels v2b, v2c | done |
-| 2 True recency | pending |
+| 2 True recency | done |
 | 3 Percentile robustness | pending |
 | 4 Cleanup and restructure | pending |
 | 5 Terminal summary, --rebuild | pending |
@@ -143,3 +143,9 @@ committed before computing. `annotation/` is excluded from every commit while th
   v2c 42.4 (20.9, 20.3, 2.8, 2.0, 11.6). Anger is now 82% annoyance. Script 06 compares v1, v2, v2b, v2c when labels exist.
 - Issue: the end-to-end test took 3 minutes after adding the variants (1,000 bootstraps x 32 thresholds). Added --n-boot; the
   test uses 30, the real run keeps 1,000.
+
+### Step 2
+- Coverage: 63.68% of fit and 86.82% of valid impressions have an earlier log click.
+  1.12% / 0.846% of candidates removed as repeats. Shuffled labels 0 of 18 on both parts.
+- Residual dz fit / valid: last 1 0.054 / 0.017, last 3 0.067 / 0.023, last 5 0.068 / 0.033; rule D39 says 'adds'. Long-term stays stronger.
+  Same-size controls n.s. Placebo (D41, post-hoc) tested a shared-trend explanation and rejected it. Outcome D42; Q09 left undecided.

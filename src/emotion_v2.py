@@ -35,6 +35,20 @@ def intensity_table(raw, exclude=()):
                          "top_label": _NN_LABEL[keep][best], "group": _NN_GROUP[keep][best]})
 
 
+def ecdf_percentiles(scores, reference):
+    """(n, d) scores -> percentile rank in (0, 1] against the rows where `reference` is True, per column.
+    Equals pandas rank(pct=True, method='average') for reference rows; other rows use the same ECDF."""
+    scores = np.asarray(scores, dtype=np.float64)
+    ref = np.sort(scores[np.asarray(reference, dtype=bool)], axis=0)
+    out = np.empty_like(scores)
+    n = len(ref)
+    for j in range(scores.shape[1]):
+        left = np.searchsorted(ref[:, j], scores[:, j], side="left")
+        right = np.searchsorted(ref[:, j], scores[:, j], side="right")
+        out[:, j] = np.minimum((left + right + 1) / 2 / n, 1.0)
+    return out
+
+
 def threshold_labels(table, t):
     """6-class group if intensity >= t, else neutral."""
     return np.where(table["intensity"].to_numpy() >= t, table["group"].to_numpy(), "neutral")
@@ -82,6 +96,7 @@ class PartContext:
     item_idx: np.ndarray      # item row per candidate
     histories: list           # item rows per impression row, oldest -> newest
     n_impressions: int
+    imp_keys: pd.Index = None # impression key per impression row
 
 
 def load_part_context(processed, part, item_index):
@@ -97,4 +112,4 @@ def load_part_context(processed, part, item_index):
     if beh["history"].isna().any():
         raise ValueError(f"{part} impressions without a behaviors row")
     return PartContext(groups, users, imps["label"].to_numpy(), idx,
-                       history_index_lists(beh["history"].to_numpy(), item_index), len(imp_keys))
+                       history_index_lists(beh["history"].to_numpy(), item_index), len(imp_keys), imp_keys)

@@ -170,3 +170,6 @@ M5_ROBUSTNESS_ITEM_FEATURES = list(SPEC_ITEM_CANDIDATES)
 
 # Reporting-label variants (D38): GoEmotions labels ignored for emotion presence and the dominant class.
 LABEL_VARIANTS = {"v2": [], "v2b": ["approval", "disapproval"], "v2c": ["approval", "disapproval", "realization"]}
+
+RECENCY_WINDOWS = [1, 3, 5]  # true recency (D39): last k earlier log clicks, no decay
+PERCENTILE_MAX_DZ_CHANGE = 0.02  # D40: larger max |dz change| goes to open_questions.md

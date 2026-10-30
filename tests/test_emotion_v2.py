@@ -86,3 +86,13 @@ def test_intensity_table_exclusions_change_presence_and_dominant_class():
     assert no_stance.loc[0, "top_label"] == "joy" and no_stance.loc[0, "intensity"] == pytest.approx(0.1)
     assert threshold_labels(no_stance, 0.05).tolist() == ["joy", "neutral"]      # B had only stance, so it turns neutral
     assert "approval" not in set(no_stance["top_label"])
+
+
+def test_ecdf_percentiles_match_pandas_on_reference_and_apply_to_other_rows():
+    from src.emotion_v2 import ecdf_percentiles
+    scores = np.array([[0.1], [0.3], [0.3], [0.5], [0.2], [0.9]])
+    ref = np.array([True, True, True, True, False, False])
+    out = ecdf_percentiles(scores, ref)
+    expected = pd.Series(scores[ref, 0]).rank(pct=True, method="average").to_numpy()
+    assert np.allclose(out[ref, 0], expected)
+    assert out[4, 0] == pytest.approx(1.5 / 4) and out[5, 0] == 1.0          # outside the reference: same ECDF, capped at 1

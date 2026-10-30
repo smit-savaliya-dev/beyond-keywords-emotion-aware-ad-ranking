@@ -1,0 +1,90 @@
+{
+  "rule": "D39 in docs/decisions.md; time-matched placebo is post-hoc (D41)",
+  "parts": "fit and valid (dev never read)",
+  "coverage": {
+    "fit": {
+      "n_impressions": 126695,
+      "impressions_with_earlier_click": 80680,
+      "pct_impressions_covered": 63.68,
+      "users_covered": 28604,
+      "median_earlier_clicks": 3.0,
+      "pct_candidates_removed_as_repeats": 1.12,
+      "clicks_removed_as_repeats": 1456
+    },
+    "valid": {
+      "n_impressions": 30270,
+      "impressions_with_earlier_click": 26281,
+      "pct_impressions_covered": 86.82,
+      "users_covered": 16933,
+      "median_earlier_clicks": 5.0,
+      "pct_candidates_removed_as_repeats": 0.846,
+      "clicks_removed_as_repeats": 417
+    }
+  },
+  "slopes": {
+    "1": {
+      "short_on_long": 0.7493976386991092,
+      "long_on_short": 0.3537902781993171,
+      "partner_on_long": 0.6582165197502493
+    },
+    "3": {
+      "short_on_long": 0.8160288331011739,
+      "long_on_short": 0.5251374882771372,
+      "partner_on_long": 0.723920516940473
+    },
+    "5": {
+      "short_on_long": 0.8263910901329138,
+      "long_on_short": 0.557066844727132,
+      "partner_on_long": 0.7343991974951823
+    }
+  },
+  "adds_beyond_long_term": {
+    "log_1": {
+      "adds_beyond_long_term": true,
+      "fit_dz": 0.0542,
+      "valid_dz": 0.017
+    },
+    "log_3": {
+      "adds_beyond_long_term": true,
+      "fit_dz": 0.0667,
+      "valid_dz": 0.023
+    },
+    "log_5": {
+      "adds_beyond_long_term": true,
+      "fit_dz": 0.0675,
+      "valid_dz": 0.0325
+    }
+  },
+  "shuffled_label_false_positives": {
+    "fit": {
+      "both_levels": 0,
+      "of": 18,
+      "max_abs_null_dz": 0.0051
+    },
+    "valid": {
+      "both_levels": 0,
+      "of": 18,
+      "max_abs_null_dz": 0.0074
+    }
+  },
+  "limitations": [
+    "analysis only: standard MIND protocol uses the history column alone (Q09)",
+    "active users only: the sample needs at least one earlier log click",
+    "emotion tracks topic: recent clicks may share a topic with candidates",
+    "a positive residual is an association, not a ranking gain"
+  ],
+  "run_info": {
+    "timestamp_utc": "2026-10-30T14:20:11+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "bcdac9a",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

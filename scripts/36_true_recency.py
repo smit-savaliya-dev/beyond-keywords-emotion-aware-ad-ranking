@@ -21,7 +21,7 @@ from src.congruence import congruence_features, window_histories
 from src.emotion_features import GO_EMOTIONS
 from src.emotion_v2 import load_part_context
 from src.provenance import run_info
-from src.recency import earlier_click_lists, load_log, repeated_candidates, within_slope
+from src.recency import earlier_click_lists, load_log, repeated_candidates, time_matched_partner, within_slope
 from src.stats import dz_difference, holm
 
 TABLES = RESULTS / "tables"
@@ -106,6 +106,26 @@ def main():
         nulls[part] = {"both_levels": int(null["significant_both"].sum()), "of": len(null),
                        "max_abs_null_dz": round(float(null["dz"].abs().max()), 4)}
 
+        # D41 (post-hoc): same residual built from a different user's recent clicks at nearly the same time
+        partner = time_matched_partner(info["time"].to_numpy()[sel], users)
+        hist_partner = [hist_short[j] for j in partner]
+        keep = ~repeated_candidates(groups, items, hist_partner)
+        placebo = {}
+        for k in RECENCY_WINDOWS:
+            y = window_features(groups, items, hist_partner, vectors, f"partner_{k}", 0, k, 1.0)[f"partner_{k}"]
+            if part == "fit":
+                slopes[k]["partner_on_long"] = within_slope(groups, x, y)
+            placebo[f"resid_partner_{k}"] = (y - slopes[k]["partner_on_long"] * x).astype(np.float32)
+            placebo[f"resid_log_{k}"] = values[f"resid_log_{k}"]
+        tables.append(tidy(signal_table(groups[keep], labels[keep], MaskedValues(placebo, keep), SIGNAL_ALPHA, users), part,
+                           "time-matched placebo"))
+        for k in RECENCY_WINDOWS:
+            comparisons.append({"part": part, "sample": "time-matched placebo", "window_a": f"resid_log_{k}",
+                                "window_b": f"resid_partner_{k}",
+                                **dz_difference(within_group_diffs(groups[keep], labels[keep], placebo[f"resid_log_{k}"][keep]),
+                                                within_group_diffs(groups[keep], labels[keep],
+                                                                   placebo[f"resid_partner_{k}"][keep]))})
+
         for k in RECENCY_WINDOWS:
             da = within_group_diffs(groups, labels, values[f"log_{k}{USER}"])
             db = within_group_diffs(groups, labels, values[f"long_50{USER}"])
@@ -159,7 +179,7 @@ def main():
               for part in ("fit", "valid")]
         adds[f"log_{k}"] = {"adds_beyond_long_term": all(ok), "fit_dz": round(float(main_rows.loc[("fit", f), "dz"]), 4),
                             "valid_dz": round(float(main_rows.loc[("valid", f), "dz"]), 4)}
-    meta = {"rule": "D39 in docs/decisions.md", "parts": "fit and valid (dev never read)", "coverage": coverage, "slopes": slopes,
+    meta = {"rule": "D39 in docs/decisions.md; time-matched placebo is post-hoc (D41)", "parts": "fit and valid (dev never read)", "coverage": coverage, "slopes": slopes,
             "adds_beyond_long_term": adds, "shuffled_label_false_positives": nulls,
             "limitations": ["analysis only: standard MIND protocol uses the history column alone (Q09)",
                             "active users only: the sample needs at least one earlier log click",
@@ -173,6 +193,9 @@ def main():
     print(s.pivot_table(index=["window", "role"], columns="part", values=["dz", "user_dz"], sort=False).round(4).to_string())
     print(s.groupby("part")["significant_both"].agg(["sum", "size"]).to_string())
     print("\n" + comp.round(4).to_string(index=False))
+    plc = table[table["sample"] == "time-matched placebo"]
+    print("\nplacebo:\n" + plc.pivot_table(index="window", columns="part", values=["dz", "user_dz"]).round(4).to_string())
+    print(plc[["part", "feature", "significant_both"]].to_string(index=False))
     ctrl = table[table["sample"].str.startswith("control") & (table["role"] == "user-specific")]
     print("\n" + ctrl.pivot_table(index=["sample", "window"], columns="part", values="dz", sort=False).round(4).to_string())
     print("\nresidual by category (dz):\n" + cats.pivot_table(index=["feature", "category"], columns="part", values="dz",
