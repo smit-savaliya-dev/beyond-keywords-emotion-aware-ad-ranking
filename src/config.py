@@ -164,3 +164,6 @@ STORY_DIR = FIGURES / "story"
 STORY_TOP_CATEGORIES = 10
 STORY_CHARTS = ["1_emotion_mix", "2_neutral_vs_threshold", "3_title_vs_abstract_intensity", "4_emotion_by_category",
                 "5_valence_arousal_map", "6_clicked_vs_not_effects", "7_congruence_effects", "8_short_vs_long_context"]
+
+# M5-all robustness variant (D37): all 19 item candidates; go_intensity stays out (Q05).
+M5_ROBUSTNESS_ITEM_FEATURES = list(SPEC_ITEM_CANDIDATES)
