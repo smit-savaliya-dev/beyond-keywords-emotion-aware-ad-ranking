@@ -173,3 +173,8 @@ LABEL_VARIANTS = {"v2": [], "v2b": ["approval", "disapproval"], "v2c": ["approva
 
 RECENCY_WINDOWS = [1, 3, 5]  # true recency (D39): last k earlier log clicks, no decay
 PERCENTILE_MAX_DZ_CHANGE = 0.02  # D40: larger max |dz change| goes to open_questions.md
+
+# Results snapshot (tool: scripts/snapshot_results.py). Copies are git-ignored; the manifest is tracked.
+TABLES = RESULTS / "tables"
+SNAPSHOT_COPY = ROOT / "data" / "snapshots" / "pre_cleanup"
+SNAPSHOT_MANIFEST = RESULTS / "archive" / "pre_cleanup_snapshot.json"

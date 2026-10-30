@@ -133,7 +133,7 @@ committed before computing. `annotation/` is excluded from every commit while th
 |---|---|
 | 1 Stance-excluded labels v2b, v2c | done |
 | 2 True recency | done |
-| 3 Percentile robustness | pending |
+| 3 Percentile robustness | done (max dz change 0.00022, D43) |
 | 4 Cleanup and restructure | pending |
 | 5 Terminal summary, --rebuild | pending |
 | Final report | pending |
