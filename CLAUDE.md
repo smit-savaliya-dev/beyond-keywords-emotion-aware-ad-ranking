@@ -3,7 +3,12 @@
 MSc Data Analytics practicum (NCI). Question: does emotional congruence between a user's click history and a news item
 improve click ranking? Data: MIND-small (news stands in for ads). Planned 8-model ablation, each with/without emotion:
 M0 popularity, M1 TF-IDF, M2 Sentence-BERT, M3 = M2+emotion, M4 LightGBM, M5 = M4+emotion, M6 NRMS, M7 = M6+emotion.
-No ranking model is built yet; do not build one unless asked.
+M0 and M1 are done (valid + dev once each); do not build further models unless asked.
+
+## Research direction
+Recommenders match content context (words/meaning). Hypothesis: clicks are also driven by emotional context, so content
+context + emotion improves recommendation (ads/news/similar content). Wording rule: write "emotional context inferred
+from the user's recent reading", never "the user's emotional state".
 
 ## Data (data/processed/, built by `python scripts/run_base.py`)
 - news.parquet: news_id, category, subcategory, title, abstract, text (title + ". " + abstract). 65,238 items, 0 empty titles,
@@ -46,13 +51,13 @@ No ranking model is built yet; do not build one unless asked.
 - Model labelling is resumable: chunk folders with a settings.json guard and atomic .tmp -> replace writes (label_corpus).
   New runs use new chunk folders and new output files.
 - Do not change src/data.py, src/metrics.py, src/evaluate.py unless needed (explain why).
-- No leakage: features are item-level text only; click analyses use part == "fit" only; never look at or tune on dev.
+- No leakage: features are item-level text only; click analyses use fit, replication and settings use valid; never load or tune on dev.
 - Every new function gets a test with small fakes (fake classifier, tiny lexicon files in tmp_path); no internet/GPU/real lexicons.
 - NRC files live in data/external/nrc/ (git-ignored, research-only licence). Never download or commit them.
 - Windows, PowerShell, Python 3.11 venv (.venv), RTX 3050 6GB; use pick_device("auto").
 - `python scripts/run_base.py` runs the whole pipeline incrementally (src/pipeline.py). Every new script must be
   registered there as a Step with its data inputs and outputs (code deps are found from its src imports).
-- Short code comments. Do not commit or push; suggest a commit message instead.
+- Short code comments. Never push. Commit only when the user asks (autonomous runs commit locally on their own branch).
 - Work in phases and stop for review after each one; ask when the request conflicts with the code.
 
 ## Phases
