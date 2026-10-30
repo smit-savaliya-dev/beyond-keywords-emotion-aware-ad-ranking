@@ -200,3 +200,7 @@ base-v4 is complete. Next, when asked: M2, M3. Spec v3 is the current spec; open
 
 ## 2026-10-30 models-m2m3 step 2a: M3 tuned on valid
 - 44 configs + title-only reported. Chosen: personal, alpha 0.8 (D58). All D54 checks pass.
+
+## 2026-10-30 models-m2m3 steps 2-3: dev runs and RQ5
+- M2 and M3 each ran on dev once (4 final-dev rows in runs_log: M0, M1, M2, M3). M3 - M2 AUC +0.0029 (D59); only AUC survives Holm.
+- RQ5 ran once by hand: `results/tables/m3_where_it_helps_dev.csv` and `_examples_dev.csv`. Cold-start impressions change by exactly 0, so the gain does not come from them.

@@ -1,0 +1,28 @@
+{
+  "rule": "D56",
+  "top_categories_from_fit": [
+    "news",
+    "sports",
+    "lifestyle",
+    "finance",
+    "music",
+    "tv"
+  ],
+  "max_history_used": 50,
+  "impressions": 73152,
+  "impressions_without_defined_auc": 0,
+  "run_info": {
+    "timestamp_utc": "2026-10-30T16:21:14+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "1a43535",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

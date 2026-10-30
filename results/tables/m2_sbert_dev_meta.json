@@ -1,0 +1,22 @@
+{
+  "encoder": "sentence-transformers/all-mpnet-base-v2",
+  "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130",
+  "pct_cold_start_profiles": 2.81,
+  "n_unique_profiles": 50000,
+  "config": {
+    "text": "title",
+    "aggregation": "mean"
+  },
+  "metrics": {
+    "auc": 0.6253,
+    "mrr": 0.2979,
+    "ndcg@5": 0.3246,
+    "p@5": 0.1165,
+    "r@5": 0.4621,
+    "hr@5": 0.5342,
+    "ndcg@10": 0.385,
+    "p@10": 0.0833,
+    "r@10": 0.635,
+    "hr@10": 0.7116
+  }
+}
