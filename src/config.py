@@ -148,3 +148,13 @@ V2_CURRENT_VALID_DZ = 0.23715                   # cong_pct_cos_personal on valid
 V2_MAIN_MEASURE = [("pct", "cos", "main")]
 V2_EXAMPLES_PER_CLASS = 10
 V2_ITEM_EXTRA = ["go_intensity"]                # candidate added to the v1 item list for spec v2 (D32)
+
+# Context windows (D31). skip = newest items dropped first; size = items kept; decay 1.0 = plain mean.
+CONTEXT_WINDOWS = {
+    "long_50": {"skip": 0, "size": 50, "decay": 0.9},
+    "short_5": {"skip": 0, "size": 5, "decay": 1.0},
+    "short_3": {"skip": 0, "size": 3, "decay": 1.0},
+    "short_1": {"skip": 0, "size": 1, "decay": 1.0},
+}
+CONTEXT_CONTROL = {"older_5": {"skip": 5, "size": 5, "decay": 1.0}}  # same size as short_5, older items
+CONTEXT_CONTROL_MIN_HISTORY = 10

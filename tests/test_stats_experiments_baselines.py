@@ -124,3 +124,14 @@ def test_unique_profiles_dedupes_same_user_history():
 def test_pick_best_ties_go_to_first():
     from src.experiments import pick_best
     assert pick_best([{"auc": 0.6}, {"auc": 0.7}, {"auc": 0.7}], "auc") == 1
+
+
+def test_dz_difference_matches_definition_and_is_scale_free():
+    from src.stats import dz_difference
+    rng = np.random.default_rng(0)
+    a, b = rng.normal(0.3, 1.0, 2000), rng.normal(0.1, 1.0, 2000)
+    r = dz_difference(a, b)
+    assert r["dz_diff"] == pytest.approx(a.mean() / a.std(ddof=1) - b.mean() / b.std(ddof=1))
+    assert r["ci_low"] < r["dz_diff"] < r["ci_high"] and r["p"] < 0.01
+    assert dz_difference(a * 50, b)["dz_diff"] == pytest.approx(r["dz_diff"])    # scale of a does not matter
+    assert dz_difference(np.r_[a, np.nan], np.r_[b, 1.0])["n"] == 2000

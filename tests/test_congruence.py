@@ -99,3 +99,21 @@ def test_masked_values_is_lazy_view():
     from src.click_signal import MaskedValues
     m = MaskedValues({"a": np.arange(4), "b": np.arange(4) * 2}, np.array([True, False, True, False]))
     assert list(m) == ["a", "b"] and len(m) == 2 and m["b"].tolist() == [0, 4]
+
+
+def test_window_histories_skip_size_and_unknown_items():
+    from src.congruence import window_histories
+    h = [np.array([1, -1, 2, 3, 4, 5, 6]), np.array([7]), np.array([], dtype=np.int64)]
+    assert [x.tolist() for x in window_histories(h, size=2)] == [[5, 6], [7], []]
+    assert [x.tolist() for x in window_histories(h, skip=2, size=2)] == [[3, 4], [], []]
+    assert [x.tolist() for x in window_histories(h)] == [[1, 2, 3, 4, 5, 6], [7], []]
+
+
+def test_congruence_features_window_no_decay_is_plain_mean():
+    from src.congruence import congruence_features, window_histories
+    vec = {"v": np.array([[1.0, 0.0], [0.0, 1.0], [0.5, 0.5]])}
+    hist = window_histories([np.array([0, 1])], size=2)
+    plain, _ = congruence_features(np.array([0]), np.array([2]), hist, vec, [("v", "cos", "main")], decay=1.0, max_items=2)
+    assert plain["cong_v_cos"][0] == pytest.approx(1.0)                  # mean of items 0 and 1 points along item 2
+    decayed, _ = congruence_features(np.array([0]), np.array([2]), hist, vec, [("v", "cos", "main")], decay=0.1, max_items=2)
+    assert decayed["cong_v_cos"][0] < 0.9                                # newest item dominates

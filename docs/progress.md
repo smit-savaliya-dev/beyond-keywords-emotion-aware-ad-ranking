@@ -94,7 +94,7 @@ emotion spec), review/merge of branch `week5-autonomous`, then M2/M3.
 |---|---|
 | Pre-declaration D30-D32 (committed before computing) | done |
 | 1 Reduce neutral, spec v2 | done |
-| 2 Short-term vs long-term context | pending |
+| 2 Short-term vs long-term context | done |
 | 3 Eight story charts + figures guide | pending |
 | Final report | pending |
 
@@ -106,3 +106,9 @@ emotion spec), review/merge of branch `week5-autonomous`, then M2/M3.
 - New files only: news_emotion_raw28_v2, news_emotion_labels_v2, news_emotion_features_v2 (v1 outputs untouched).
 - Issues: (1) a long shell heredoc failed to parse (nothing ran), edits moved to a script file. (2) The weights are
   statistically tied (D33). (3) Low t is a relabelling, not more detection (Q04). Hand-label sheet hash unchanged.
+
+### Step 2
+- Long-term wins on fit and valid (user-specific dz 0.138 / 0.137); last 1 is weakest (0.057 / 0.062). All 12 features
+  significant at both levels on both parts; shuffled labels 0 of 12.
+- Control on users with >= 10 history items: last 5 does not beat the previous 5, so the win comes from size and stable
+  preference, not recency (D35). True recency cannot be tested with the history column (Q07).

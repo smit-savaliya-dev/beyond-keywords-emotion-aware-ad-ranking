@@ -1,0 +1,77 @@
+{
+  "rule": "D31 in docs/decisions.md",
+  "vector": "v2 go_pct_* (title share 0.5)",
+  "windows": {
+    "long_50": {
+      "skip": 0,
+      "size": 50,
+      "decay": 0.9
+    },
+    "short_5": {
+      "skip": 0,
+      "size": 5,
+      "decay": 1.0
+    },
+    "short_3": {
+      "skip": 0,
+      "size": 3,
+      "decay": 1.0
+    },
+    "short_1": {
+      "skip": 0,
+      "size": 1,
+      "decay": 1.0
+    }
+  },
+  "control": {
+    "older_5": {
+      "skip": 5,
+      "size": 5,
+      "decay": 1.0
+    }
+  },
+  "best_window_by_user_specific_dz": {
+    "fit": "long_50",
+    "valid": "long_50"
+  },
+  "same_winner_on_fit_and_valid": true,
+  "parts": {
+    "fit": {
+      "n_impressions": 126695,
+      "pct_impressions_cold_start": 1.95,
+      "pct_impressions_history_ge_10": 70.04
+    },
+    "valid": {
+      "n_impressions": 30270,
+      "pct_impressions_cold_start": 2.55,
+      "pct_impressions_history_ge_10": 70.84
+    }
+  },
+  "shuffled_label_false_positives": {
+    "fit": {
+      "both_levels": 0,
+      "of": 12,
+      "max_abs_null_dz": 0.0075
+    },
+    "valid": {
+      "both_levels": 0,
+      "of": 12,
+      "max_abs_null_dz": 0.0088
+    }
+  },
+  "limitation": "history is one list per user from before the log period; a short window is the newest part of that list, not the reading just before the impression",
+  "run_info": {
+    "timestamp_utc": "2026-10-30T13:22:31+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "5a86783",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

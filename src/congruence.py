@@ -64,7 +64,20 @@ def history_index_lists(histories, item_index):
     return np.split(pos, np.cumsum(lengths)[:-1])
 
 
-def congruence_features(groups, item_idx, histories, vectors, measures, chunk_size=None, shuffle_seed=None):
+def window_histories(histories, skip=0, size=None):
+    """Known history items per row after dropping the newest `skip`, keeping the newest `size` of the rest."""
+    out = []
+    for h in histories:
+        h = np.asarray(h, dtype=np.int64)
+        h = h[h >= 0]
+        if skip:
+            h = h[:-skip]
+        out.append(h if size is None else h[-size:])
+    return out
+
+
+def congruence_features(groups, item_idx, histories, vectors, measures, chunk_size=None, shuffle_seed=None,
+                        decay=CONGRUENCE_DECAY, max_items=CONGRUENCE_MAX_HISTORY):
     """Candidate-level congruence for each (version, measure, status) in `measures`.
 
     groups: profile row per candidate; item_idx: item row per candidate; histories: per profile row, item rows;
@@ -82,7 +95,7 @@ def congruence_features(groups, item_idx, histories, vectors, measures, chunk_si
             mat = mat[:, None]
         vectors = {**vectors, version: mat}
         means[version] = mat.mean(axis=0)
-        profiles[version], used = user_profiles(histories, mat, means[version])
+        profiles[version], used = user_profiles(histories, mat, means[version], decay, max_items)
     out, n = {}, len(item_idx)
     n_rows = len(histories)
     other = None if shuffle_seed is None else np.random.default_rng(shuffle_seed).permutation(n_rows)

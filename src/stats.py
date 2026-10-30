@@ -38,6 +38,18 @@ def paired_test(a, b):
             "p_wilcoxon": p_w, "pct_b_better": 100 * float((d > 0).mean()) if n else np.nan}
 
 
+def dz_difference(diffs_a, diffs_b):
+    """dz(a) - dz(b) on paired per-impression differences: each divided by its own sd, then a one-sample t-test.
+    NaN pairs are dropped. -> mean difference with t-based 95% CI and p."""
+    a, b = np.asarray(diffs_a, dtype=np.float64), np.asarray(diffs_b, dtype=np.float64)
+    ok = ~(np.isnan(a) | np.isnan(b))
+    a, b = a[ok], b[ok]
+    z = a / a.std(ddof=1) - b / b.std(ddof=1)
+    half = float(st.t.ppf(0.975, len(z) - 1) * z.std(ddof=1) / np.sqrt(len(z)))
+    return {"n": len(z), "dz_diff": float(z.mean()), "ci_low": float(z.mean() - half), "ci_high": float(z.mean() + half),
+            "p": float(st.ttest_1samp(z, 0.0).pvalue)}
+
+
 def compare_models(per_a, per_b, metrics, name_a="A", name_b="B", alpha=0.05):
     """Per-impression tables of two models on the same part -> one row per metric (B - A), Holm across metrics."""
     for name, t in ((name_a, per_a), (name_b, per_b)):
