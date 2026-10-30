@@ -1,0 +1,30 @@
+{
+  "rule": "D30 in docs/decisions.md",
+  "chosen_title_share": 0.5,
+  "chosen_t": 0.05,
+  "neutral_tier_used": 30.0,
+  "pct_neutral": 25.6,
+  "fit_personal_dz": 0.2463,
+  "valid_personal_dz": 0.2388,
+  "valid_gate": 0.21344,
+  "n_passing_settings": 8,
+  "shuffled_label_false_positives": {
+    "fit": 0,
+    "valid": 0
+  },
+  "part_used": "fit + valid (dev never read)",
+  "run_info": {
+    "timestamp_utc": "2026-10-30T13:11:42+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "7ccfe5e",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

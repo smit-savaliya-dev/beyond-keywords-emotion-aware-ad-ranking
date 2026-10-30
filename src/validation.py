@@ -3,9 +3,10 @@ import numpy as np
 import pandas as pd
 
 from .annotation import agreement, compare_sources, read_sheet, sheet_problems
-from .config import GO_FEATURES, MIN_CLASS_COUNT, SEED, THRESHOLDS_PCT, THRESHOLDS_RAW
+from .config import GO_FEATURES, MIN_CLASS_COUNT, SEED, THRESHOLDS_PCT, THRESHOLDS_RAW, V2_T_GRID
 from .emotion import GOEMOTIONS_LABELS, LABEL_TO_GROUP, SIX_CLASSES, build_emotion_table
 from .emotion_features import GO_EMOTIONS
+from .emotion_v2 import threshold_labels
 from .lexicon import nrc_to_six
 
 NON_NEUTRAL = [label for label in GOEMOTIONS_LABELS if label != "neutral"]
@@ -82,14 +83,16 @@ def load_sources(processed, news_ids):
     title = build_emotion_table(table("news_emotion_raw28_title.parquet").reset_index()).set_index("news_id")
     nrc = table("news_emotion_nrc_features.parquet")
     nrc_labels, nrc_tied = nrc_to_six(nrc, SEED)
+    v2 = table("news_emotion_labels_v2.parquet")
     preds = {"goemotions_combined": combined["dominant_emotion"].to_numpy(),
              "goemotions_weighted": weighted["dominant_emotion"].to_numpy(),
              "goemotions_title": title["dominant_emotion"].to_numpy(),
+             "goemotions_v2": v2["label"].to_numpy(),
              "nrc_emolex_6class": nrc_labels.to_numpy(),
              "reference_all_neutral": np.array(["neutral"] * len(ids), dtype=object)}
     extra = {"raw28_weighted": table("news_emotion_raw28_weighted.parquet"),
              "go_pct": table("news_emotion_features.parquet"), "nrc": nrc, "nrc_tied": nrc_tied,
-             "combined": combined, "weighted": weighted}
+             "combined": combined, "weighted": weighted, "labels_v2": v2}
     return preds, extra
 
 
@@ -113,6 +116,12 @@ def run_validation(sheet_path, processed, relabel_path=None, n_boot=1000):
             rows.append({"score": kind, "threshold": t, "kappa": res["kappa"], "kappa_ci_low": res["kappa_ci95"][0],
                          "kappa_ci_high": res["kappa_ci95"][1], "accuracy": res["accuracy"],
                          "macro_f1": res["macro_f1"], "sample_pct_neutral": 100 * float((lab == "neutral").mean())})
+    for t in V2_T_GRID:  # v2 labelling rule (D30) on its own t grid
+        lab = threshold_labels(extra["labels_v2"], t)
+        res = agreement(y, lab, n_boot=n_boot)
+        rows.append({"score": "v2_intensity", "threshold": t, "kappa": res["kappa"], "kappa_ci_low": res["kappa_ci95"][0],
+                     "kappa_ci_high": res["kappa_ci95"][1], "accuracy": res["accuracy"], "macro_f1": res["macro_f1"],
+                     "sample_pct_neutral": 100 * float((lab == "neutral").mean())})
     sensitivity = pd.DataFrame(rows)
 
     relabel = read_sheet(relabel_path) if relabel_path is not None and relabel_path.exists() else None

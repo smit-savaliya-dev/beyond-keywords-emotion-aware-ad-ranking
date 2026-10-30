@@ -1,0 +1,60 @@
+{
+  "part": "fit + valid (dev never read)",
+  "rule": "D32 (D27 rule on v2 features)",
+  "kept": [
+    "go_pct_excitement",
+    "go_pct_joy",
+    "go_pct_optimism",
+    "go_pct_nervousness",
+    "go_pct_annoyance",
+    "go_pct_fear",
+    "go_vad_valence",
+    "go_vad_dominance",
+    "vad_valence",
+    "nrc_trust",
+    "go_dist_optimism",
+    "go_dist_nervousness",
+    "go_dist_fear",
+    "cong_pct_cos",
+    "cong_pct_cos_personal",
+    "cong_six_negkl_personal",
+    "cong_valence_absdist_personal"
+  ],
+  "dropped": {
+    "go_pct_curiosity": "sign flips on valid",
+    "go_pct_desire": "sign flips on valid",
+    "go_emotionality": "sign flips on valid",
+    "go_vad_arousal": "sign flips on valid",
+    "nrc_anticipation": "sign flips on valid",
+    "vad_dominance": "sign flips on valid",
+    "go_intensity": "sign flips on valid",
+    "cong_six_negkl": "sign flips on valid",
+    "cong_valence_absdist": "sign flips on valid"
+  },
+  "shuffled_label_false_positives": {
+    "fit": {
+      "both_levels": 0,
+      "of": 28,
+      "max_abs_null_dz": 0.0052
+    },
+    "valid": {
+      "both_levels": 0,
+      "of": 28,
+      "max_abs_null_dz": 0.0098
+    }
+  },
+  "run_info": {
+    "timestamp_utc": "2026-10-30T13:12:19+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "7ccfe5e",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

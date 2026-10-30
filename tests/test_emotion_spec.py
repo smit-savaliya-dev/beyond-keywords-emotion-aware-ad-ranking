@@ -11,7 +11,8 @@ from src.emotion_spec import (confirmation_actions, load_spec, replication_selec
 
 # Hash of the hashed content of every released spec version. Changing a released spec without a version bump
 # breaks this test on purpose: write config/emotion_spec_v<N+1>.json instead and add its hash here.
-KNOWN_SPEC_HASHES = {1: "b2a9ca38e355c6efa858a4f1ed0ab7bb4500bcc50d54bff23711ae8c897bf7f0"}
+KNOWN_SPEC_HASHES = {1: "b2a9ca38e355c6efa858a4f1ed0ab7bb4500bcc50d54bff23711ae8c897bf7f0",
+                     2: "82c7ff4b76a3eb6562e13dcfb06969a8273a5ba7f58322bb5735b7b0373b7967"}
 
 
 def test_released_specs_unchanged_without_version_bump():
@@ -45,7 +46,8 @@ def test_validate_spec_catches_unknown_and_inconsistent_entries():
 
 
 def summary(weighted=(0.3, 0.5), title=(0.3, 0.5), nrc=(0.1, 0.3)):
-    rows = [("goemotions_weighted", *weighted), ("goemotions_title", *title), ("nrc_emolex_6class", *nrc),
+    rows = [("goemotions_v2", *weighted), ("goemotions_weighted", 0.3, 0.5), ("goemotions_title", *title),
+            ("nrc_emolex_6class", *nrc),
             ("goemotions_combined", 0.3, 0.5), ("reference_all_neutral", 0.0, 0.0)]
     return pd.DataFrame(rows, columns=["source", "kappa_ci_low", "kappa_ci_high"])
 
@@ -60,6 +62,9 @@ def test_confirmation_rule_confirm_drop_title_and_hold():
     assert any("title" in a for a in actions)                         # title CI (0.3) above weighted upper (0.18)
     verdict, actions = confirmation_actions(spec, summary(nrc=(-0.05, 0.15)), {"kappa_ci95": [0.1, 0.35]})
     assert verdict == "hold"
+    verdict, actions = confirmation_actions(spec, summary(weighted=(0.05, 0.25)))   # v2 CI below v1 argmax CI
+    assert verdict == "bump" and any("revert the labelling rule" in a for a in actions)
+    assert confirmation_actions(load_spec(1), summary())[0] == "confirm"            # v1 rule still works
 
 
 def test_replication_selection_rule():

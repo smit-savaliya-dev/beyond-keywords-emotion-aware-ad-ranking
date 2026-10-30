@@ -137,4 +137,14 @@ SPEC_ITEM_CANDIDATES = ([f"go_pct_{e}" for e in GO_FEATURES] + ["go_emotionality
 SPEC_CONGRUENCE_CANDIDATES = ["cong_pct_cos", "cong_pct_cos_personal", "cong_six_negkl", "cong_six_negkl_personal",
                               "cong_valence_absdist", "cong_valence_absdist_personal"]
 EMOTION_SPEC_DIR = ROOT / "config"
-EMOTION_SPEC_VERSION = 1  # bump (new file emotion_spec_v2.json) for any change to the hashed content
+EMOTION_SPEC_VERSION = 2  # bump (new file emotion_spec_v2.json) for any change to the hashed content
+
+# Emotion layer v2 (D30): grid on saved raw scores; selection rule constants.
+V2_TITLE_SHARES = [1.0, 0.7, 0.6, 0.5, 1 / 3]  # title share; abstract share = 1 - share; 1/3 = current v1 weighting
+V2_T_GRID = [0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3]
+V2_NEUTRAL_PREFER, V2_NEUTRAL_MAX = 30.0, 40.0  # % neutral: preferred tier, then hard limit
+V2_VALID_TOLERANCE = 0.9                        # valid personal dz must stay >= this share of the current value
+V2_CURRENT_VALID_DZ = 0.23715                   # cong_pct_cos_personal on valid, v1 (emotion_spec_selection.csv)
+V2_MAIN_MEASURE = [("pct", "cos", "main")]
+V2_EXAMPLES_PER_CLASS = 10
+V2_ITEM_EXTRA = ["go_intensity"]                # candidate added to the v1 item list for spec v2 (D32)

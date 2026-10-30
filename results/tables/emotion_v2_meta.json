@@ -1,0 +1,65 @@
+{
+  "title_share": 0.5,
+  "t": 0.05,
+  "rule": "D30",
+  "n_items": 65238,
+  "class_pct": {
+    "pct_joy": 34.53048836567645,
+    "pct_sadness": 18.924553174530182,
+    "pct_anger": 5.6010300744964585,
+    "pct_fear": 1.8670100248321533,
+    "pct_surprise": 13.479873693246267,
+    "pct_neutral": 25.597044667218494
+  },
+  "emotional_items": {
+    "median_intensity": 0.178,
+    "pct_intensity_below_0.1": 27.5,
+    "pct_classifier_neutral_score_above_0.5": 75.0
+  },
+  "top_raw_labels_per_class_pct": {
+    "anger": {
+      "disapproval": 59.7,
+      "annoyance": 31.8,
+      "disgust": 5.2,
+      "anger": 3.3
+    },
+    "fear": {
+      "fear": 81.9,
+      "embarrassment": 10.2,
+      "nervousness": 7.9
+    },
+    "joy": {
+      "approval": 51.1,
+      "admiration": 15.2,
+      "excitement": 11.3,
+      "optimism": 6.2
+    },
+    "sadness": {
+      "sadness": 67.0,
+      "disappointment": 31.4,
+      "remorse": 1.6
+    },
+    "surprise": {
+      "curiosity": 57.3,
+      "realization": 19.4,
+      "confusion": 13.5,
+      "surprise": 9.8
+    }
+  },
+  "caution": "a low t reduces neutral by definition, not by detecting more emotion; approval counts as joy and disapproval as anger in the 28 -> 6 mapping. Hand labels are the real test.",
+  "examples_exclude_hand_label_sheet": true,
+  "run_info": {
+    "timestamp_utc": "2026-10-30T13:11:48+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "7ccfe5e",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

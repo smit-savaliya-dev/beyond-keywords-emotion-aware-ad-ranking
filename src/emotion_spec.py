@@ -58,9 +58,13 @@ def confirmation_actions(spec, summary, intra=None):
             kept = [f for f in features if f in spec["item_features_m5"] + spec["congruence_features"]]
             if kept:
                 actions.append(f"drop {kept}: {source} kappa CI upper {upper:.3f} < {KAPPA_MIN_UPPER}")
-    w, t = ci.loc["goemotions_weighted"], ci.loc["goemotions_title"]
+    rule = spec["confirmation_rule"]
+    primary = rule.get("primary_source", "goemotions_weighted")
+    w, t = ci.loc[primary], ci.loc["goemotions_title"]
     if float(t["kappa_ci_low"]) > float(w["kappa_ci_high"]):
-        actions.append("make title the primary text variant: title kappa CI lies entirely above weighted")
+        actions.append(f"make title the primary text variant: title kappa CI lies entirely above {primary}")
+    if "revert_labels_to" in rule and float(w["kappa_ci_high"]) < float(ci.loc[rule["revert_labels_to"], "kappa_ci_low"]):
+        actions.append(f"revert the labelling rule: {primary} kappa CI lies entirely below {rule['revert_labels_to']}")
     return ("bump" if actions else "confirm"), actions
 
 

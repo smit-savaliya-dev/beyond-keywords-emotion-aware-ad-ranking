@@ -1,7 +1,7 @@
 # Progress (week 5 autonomous run)
 
-Read this first when resuming. Branch: `week5-autonomous` (local only, never pushed). Plan: Phases 1-6 of the
-2026-10-26 instruction, a test run and a local commit after each phase.
+Read this first when resuming. Latest work: branch `base-v2` (local only), section "base-v2" at the end of this file.
+Earlier: branch `week5-autonomous`, Phases 1-6 of the 2026-10-26 instruction.
 
 | Phase | Status | Commit |
 |---|---|---|
@@ -88,3 +88,21 @@ Read this first when resuming. Branch: `week5-autonomous` (local only, never pus
 ## Resume here
 Everything planned is done. Remaining work needs the student: hand labels (then script 06 confirms or bumps the
 emotion spec), review/merge of branch `week5-autonomous`, then M2/M3.
+
+## base-v2 (2026-10-30)
+| Step | Status |
+|---|---|
+| Pre-declaration D30-D32 (committed before computing) | done |
+| 1 Reduce neutral, spec v2 | done |
+| 2 Short-term vs long-term context | pending |
+| 3 Eight story charts + figures guide | pending |
+| Final report | pending |
+
+### Step 1
+- Grid reproduces v1 exactly (share 1/3: fit 0.2419, valid 0.2371). Chosen by D30: title share 0.5, t = 0.05.
+- Neutral 25.6% (v1 argmax 81.1%, combined 75.9%). Joy 34.5, sadness 18.9, surprise 13.5, anger 5.6, fear 1.9.
+- Personal congruence fit 0.2463, valid 0.2388 (gate 0.2134). Shuffled labels: 0 on fit and on valid.
+- D32 on v2 features: 17 of 26 candidates kept; go_intensity fails (sign flips). Spec v2 frozen, v1 kept.
+- New files only: news_emotion_raw28_v2, news_emotion_labels_v2, news_emotion_features_v2 (v1 outputs untouched).
+- Issues: (1) a long shell heredoc failed to parse (nothing ran), edits moved to a script file. (2) The weights are
+  statistically tied (D33). (3) Low t is a relabelling, not more detection (Q04). Hand-label sheet hash unchanged.

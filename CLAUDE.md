@@ -41,7 +41,8 @@ from the user's recent reading", never "the user's emotional state".
 - go_pct_*: percentile rank of each go_* emotion across all items (item-level, no clicks), because label floors differ.
   go_dist_* is kept but unreliable at low go_emotion_mass; go_emotion_mass can exceed 1 (sum of independent sigmoids).
 
-- Emotion spec: config/emotion_spec_v1.json (PROVISIONAL, D28). M3/M5/M7 must use exactly its features/fusion.
+- Emotion spec: config/emotion_spec_v2.json (PROVISIONAL, D33; v1 kept for the record). Title share 0.5, labels at
+  t = 0.05 are for reporting only. M3/M5/M7 must use exactly its features/fusion (news_emotion_features_v2.parquet).
   Any change to its hashed content = new file v2 + decision entry + test hash (tests/test_emotion_spec.py).
 
 ## Engineering rules
