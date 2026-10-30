@@ -25,8 +25,10 @@ Short justifications for the main methodological choices. Decision IDs (Dxx) ref
   abstract (3,415, 5.23%) use the title alone (weight 1.0). The raw 28 scores are combined first, then all features
   are derived (D01, D02).
 - Honest note: on the full corpus, the dominant class is neutral for 75.9% of items with the combined text and for
-  81.1% with the weighted scores, because abstracts are more neutral than titles. The weighting did not reduce
-  neutrality; percentile features (section 4) and thresholds (Phase 4) address this instead.
+  81.1% with the weighted scores. The cause is dilution by averaging: when title and abstract peak on different emotions,
+  the mean weakens both peaks while the neutral score stays high. Abstracts are not more neutral than titles: on the same
+  items, argmax neutral is 79.5% for titles, 76.2% for abstracts and 84.0% for their plain mean. (An earlier version of
+  this note gave the wrong reason; corrected 2026-10-30.) Spec v2 addresses this with a threshold on intensity.
 - Title and abstract agree only moderately on the same item (Spearman 0.27-0.56 per emotion), and in the click
   analysis the title-only percentile features carried slightly more signal than abstract-only (fit).
 

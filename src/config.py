@@ -158,3 +158,9 @@ CONTEXT_WINDOWS = {
 }
 CONTEXT_CONTROL = {"older_5": {"skip": 5, "size": 5, "decay": 1.0}}  # same size as short_5, older items
 CONTEXT_CONTROL_MIN_HISTORY = 10
+
+# Story charts (base-v2 Step 3).
+STORY_DIR = FIGURES / "story"
+STORY_TOP_CATEGORIES = 10
+STORY_CHARTS = ["1_emotion_mix", "2_neutral_vs_threshold", "3_title_vs_abstract_intensity", "4_emotion_by_category",
+                "5_valence_arousal_map", "6_clicked_vs_not_effects", "7_congruence_effects", "8_short_vs_long_context"]

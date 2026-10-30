@@ -18,7 +18,7 @@ import time
 import _bootstrap  # noqa: F401
 from src.annotation import read_sheet, sheet_problems
 from src.config import (ANNOTATION, EMOLEX_PATH, FIGURES, FROZEN_DIR, M0_NAME, M1_NAME, PROCESSED, RAW, RESULTS,
-                        ROOT, VAD_PATH)
+                        ROOT, STORY_CHARTS, STORY_DIR, VAD_PATH)
 from src.pipeline import Pipeline, Step, StepFailed
 
 S = ROOT / "scripts"
@@ -132,6 +132,15 @@ def build_steps(skip_official_check):
              inputs=[IMPS, BEH, P / "news_emotion_features_v2.parquet"], script=S / "33_context_windows.py",
              outputs=[T / "context_windows_signal.csv", T / "context_windows_comparison.csv",
                       T / "context_windows_meta.json"], note="fit + valid"),
+        Step("34_story_charts", [S / "34_story_charts.py"],
+             inputs=[NEWS, P / "news_emotion.parquet", P / "news_emotion_weighted.parquet",
+                     P / "news_emotion_labels_v2.parquet", P / "news_emotion_features_v2.parquet",
+                     P / "news_emotion_raw28_title.parquet", P / "news_emotion_raw28_abstract.parquet",
+                     T / "emotion_v2_grid.csv", T / "emotion_v2_choice.json", T / "emotion_signal_v2.csv",
+                     T / "context_windows_signal.csv"], script=S / "34_story_charts.py",
+             outputs=[STORY_DIR / f"{n}.png" for n in STORY_CHARTS]
+             + [T / f for f in ("story_emotion_mix.csv", "story_intensity.csv", "story_category_emotion.csv",
+                                "story_category_valence_arousal.csv")]),
         Step("06_validate_labels", [S / "06_validate_emotion_labels.py"],
              inputs=[SHEET, P / "news_emotion.parquet", P / "news_emotion_weighted.parquet",
                      P / "news_emotion_raw28_title.parquet", P / "news_emotion_raw28_weighted.parquet",

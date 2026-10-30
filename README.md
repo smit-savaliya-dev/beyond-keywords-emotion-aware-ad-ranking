@@ -48,6 +48,11 @@ NRC lexicons (research-only licence, git-ignored, never commit). Unzip so these 
 | 22 | `python scripts/22_compare_baselines.py --part valid` | valid | paired M1 vs M0 |
 | 16 | `python scripts/16_emotion_thresholds.py` | items | neutral share per pre-declared threshold |
 | 17 | `python scripts/17_emotion_spec_valid.py` | valid | replication behind `config/emotion_spec_v1.json` |
+| 30 | `python scripts/30_emotion_v2_grid.py` | fit + valid | title weight / threshold grid, selection rule D30 |
+| 31 | `python scripts/31_emotion_v2_features.py` | items | v2 raw scores, labels, features, 60 examples |
+| 32 | `python scripts/32_emotion_spec_v2.py` | fit + valid | replication behind `config/emotion_spec_v2.json` |
+| 33 | `python scripts/33_context_windows.py` | fit + valid | short-term vs long-term emotional context |
+| 34 | `python scripts/34_story_charts.py` | saved tables | the 8 charts in `results/figures/story/` |
 | 06 | `python scripts/06_validate_emotion_labels.py` | labels | per-source kappa, thresholds, intra-rater, spec verdict (waits for labels) |
 
 **Final test (never run by the pipeline, once per model, after its settings are frozen and recorded in
@@ -63,6 +68,7 @@ Colab: upload `src/`, `scripts/` and `data/processed/news.parquet`, run step 04,
 and `news_emotion*.parquet` back.
 
 ## 3. Where things are documented
+- `docs/base_v2_report.md` latest report; `docs/figures_guide.md` the 8 charts in simple language.
 - `docs/decisions.md` every non-trivial choice with evidence; `docs/methodology_notes.md` the main justifications;
   `docs/progress.md` phase status; `docs/open_questions.md` items for the student; `results/tables/runs_log.csv` every run.
 

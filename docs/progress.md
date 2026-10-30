@@ -95,8 +95,8 @@ emotion spec), review/merge of branch `week5-autonomous`, then M2/M3.
 | Pre-declaration D30-D32 (committed before computing) | done |
 | 1 Reduce neutral, spec v2 | done |
 | 2 Short-term vs long-term context | done |
-| 3 Eight story charts + figures guide | pending |
-| Final report | pending |
+| 3 Eight story charts + figures guide | done |
+| Final report | done (`docs/base_v2_report.md`) |
 
 ### Step 1
 - Grid reproduces v1 exactly (share 1/3: fit 0.2419, valid 0.2371). Chosen by D30: title share 0.5, t = 0.05.
@@ -112,3 +112,15 @@ emotion spec), review/merge of branch `week5-autonomous`, then M2/M3.
   significant at both levels on both parts; shuffled labels 0 of 12.
 - Control on users with >= 10 history items: last 5 does not beat the previous 5, so the win comes from size and stable
   preference, not recency (D35). True recency cannot be tested with the history column (Q07).
+
+### Step 3 and final
+- `src/story_charts.py` (one style, palette validated), `scripts/34_story_charts.py`, `docs/figures_guide.md`, exactly 8 PNGs
+  in `results/figures/story/`, each rendered and inspected.
+- Issues found while checking the charts: (1) a drafted chart 3 title said titles are more intense; the data says abstracts
+  are (median 0.116 vs 0.068), so the title was fixed. (2) That exposed a wrong statement in `docs/methodology_notes.md`
+  ("abstracts are more neutral than titles"); the real cause of the higher v1 neutral share is dilution by averaging. Fixed.
+  (3) A drafted chart 1 caption was replaced by computed numbers. (4) Label collisions and tick overlap fixed.
+
+## Resume here
+base-v2 is complete. Waiting for the student: hand labels (then script 06 confirms, bumps or holds spec v2), review of the
+open questions, review and merge of `base-v2`, then M2/M3.
