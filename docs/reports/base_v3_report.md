@@ -79,7 +79,7 @@ features stay.
 - **Merged:** `TABLES` (19 copies), lazy value views, Holm family logic, part loader, window congruence helper, chart colours.
 - **Archived:** 3 superseded figures in `results/archive/figures/`, with a README.
 - **Moved:** 9 files to `results/figures/diagnostics/`, 3 reports to `docs/reports/`.
-- **Renamed:** 26 scripts by stage. Old-to-new table in `docs/cleanup_plan.md`, which lists every file.
+- **Renamed:** 27 scripts by stage. Old-to-new table in `docs/cleanup_plan.md`, which lists every file.
 - **Kept on purpose:** v1 tables at their paths and spec files unchanged, because hashes pin them. Spec text still names old scripts.
 
 ```
