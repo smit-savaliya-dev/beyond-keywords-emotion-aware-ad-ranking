@@ -27,7 +27,7 @@ Steps run in number order and stop at the first failure. A step reruns only if i
 modules it imports), the config constants it uses, its arguments or its outputs changed (content hashes; state in
 `data/processed/.pipeline/`).
 - `--rebuild` reruns every step except GPU scoring. Dev runs are never in the pipeline.
-- GPU steps never start on their own while their outputs exist; run them with `--force-step 20`, `21` or `29`.
+- GPU steps never start on their own while their outputs exist; run them with `--force-step 20`, `21`, `29` or `43`.
 - `--force-step 30` reruns one step; `--from 30` reruns 30 and everything after; `--only 30 31` limits the run; `--force` reruns all.
 - `--adopt` (once, e.g. after restoring results) records existing outputs as current without rerunning them.
 - `--skip-tests`, `--skip-official-check`.
@@ -62,11 +62,17 @@ modules it imports), the config constants it uses, its arguments or its outputs 
 | 40 | `40_model_m0_popularity.py --tune` | valid | M0 grid, frozen settings |
 | 41 | `41_model_m1_tfidf.py --tune` | valid | M1 grid, frozen settings |
 | 42 | `42_model_compare_baselines.py --part valid` | valid | paired M1 vs M0 |
+| 43 | `43_model_m2_encode.py` | items | all-mpnet-base-v2 embeddings, title and title+abstract (GPU, resumable) |
+| 44 | `44_model_m2_sbert.py --tune` | valid | M2 grid, frozen settings |
+| 45 | `45_model_m3_fusion.py --tune` | valid | M3 grid (variant, alpha), checks, frozen settings |
+| 46 | `46_model_compare_m2m3.py --part valid` | valid | paired M2 vs M1 and M3 vs M2, user-level check |
 | - | `show_results.py` | saved tables | terminal summary (last step) |
 
 **Final test (never run by the pipeline, once per model, after its settings are frozen and recorded in `docs/decisions.md`):**
 `python scripts/40_model_m0_popularity.py --final-dev`, `python scripts/41_model_m1_tfidf.py --final-dev`, then
-`python scripts/42_model_compare_baselines.py --part dev`. A second dev run needs `--rerun-dev "<reason>"`.
+`python scripts/42_model_compare_baselines.py --part dev`. For M2 and M3: `44_model_m2_sbert.py --final-dev`, `45_model_m3_fusion.py --final-dev`,
+`46_model_compare_m2m3.py --part dev`, then `47_model_m3_where_it_helps.py` (descriptive, reads dev, so never a pipeline step).
+A second dev run needs `--rerun-dev "<reason>"`.
 
 **Optional:** `check_goemotions.py` (in-domain GoEmotions test, needs internet), `21_emotion_score_fields.py --measure / --smoke / --report`,
 `20_emotion_label_combined.py --smoke`, `snapshot_results.py --take / --check` (prove a change did not alter results).

@@ -4,8 +4,8 @@ import json
 import numpy as np
 import pandas as pd
 
+from .config import PROCESSED, SBERT_CHUNK, SBERT_MAX_LENGTH, SBERT_MODEL, SBERT_REVISION
 from .congruence import cosine_rows
-from .config import CONGRUENCE_CHUNK, PROCESSED, SBERT_MAX_LENGTH, SBERT_MODEL, SBERT_REVISION
 from .emotion import texts_fingerprint
 
 
@@ -88,7 +88,7 @@ def load_embeddings(text, news_ids, processed=PROCESSED):
     return np.load(mat_path)
 
 
-def profile_cosine(profiles, items, groups, item_idx, chunk_size=CONGRUENCE_CHUNK):
+def profile_cosine(profiles, items, groups, item_idx, chunk_size=SBERT_CHUNK):
     """cosine(profiles[groups[i]], items[item_idx[i]]) per candidate; 0 for a zero profile (cold start)."""
     out = np.zeros(len(groups), dtype=np.float64)
     for s in range(0, len(groups), chunk_size):

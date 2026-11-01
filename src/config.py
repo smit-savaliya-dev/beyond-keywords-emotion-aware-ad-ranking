@@ -124,6 +124,7 @@ SBERT_MODEL = "sentence-transformers/all-mpnet-base-v2"
 SBERT_REVISION = "e8c3b32edf5434bc2275fc9bab85f82640a19130"
 SBERT_MAX_LENGTH = 384                                   # sentence_bert_config.json of the model
 SBERT_BATCH_SIZE = 64
+SBERT_CHUNK = 50_000                                     # candidate rows per chunk; 768-d vectors need far smaller chunks than emotion vectors
 M3_NAME = "M3_sbert_emotion"
 M3_VARIANTS = ["cosine", "personal", "user_specific", "mood_repair"]  # grid order; first = primary (D52, D53)
 M3_REPORT_ONLY = "title_only"                            # spec v3 variant, reported, never selected

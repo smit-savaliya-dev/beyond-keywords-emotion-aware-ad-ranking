@@ -105,3 +105,22 @@ Spearman correlation on the same items (items with at least one EmoLex emotion w
   more than any rule. Kappa corrects for this, and the all-neutral reference has kappa 0.
 - The neutral level depends on the human cutoff as well: 65.0% at 50, 24.2% at 30, 16.0% at 25.
 
+## 8. M2 and M3
+- **M2:** all-mpnet-base-v2, pretrained and never fitted, so encoding dev items leaks nothing. Loaded through `transformers` with mean pooling and L2
+  normalisation, the stack in the model's own config files, at a pinned revision (D50). User vector = mean of the last 50 history embeddings, score
+  = cosine, cold start = 0. Four configs chosen on valid; title with mean aggregation won (D51, D57).
+- **M3, late fusion:** final = alpha * norm(M2) + (1 - alpha) * norm(emotion), min-max within each impression, so the two scores share a scale
+  without any label. Min-max uses only the candidates in the list. A constant score normalises to 0.
+- **Emotion variants (D52):** cosine (primary), personal (cosine minus the corpus-mean profile's cosine), user-specific (minus the mean cosine with
+  10 other users' fit profiles), mood repair (1 - cosine). The spec's title-only variant is reported but not eligible. Selection covers 4 x 11 = 44
+  configs by valid AUC, and ties go to the primary variant and the alpha closest to M2 (D53).
+- **Why valid overstates a selected model:** the best of 44 configs is optimistic on the data that chose it. The dev run with frozen settings is the claim.
+- **Order:** M3 was frozen before M2 ran on dev, so no dev number existed while any choice was open (D57).
+- **Checks (D54):** alpha = 1.0 reproduces M2 exactly on every metric; all configs score identical impressions; permuting the emotion score within each
+  impression must not beat M2 at any alpha.
+- **Test (D55):** paired t-test on per-impression AUC, all metrics with Holm, user-level robustness. dz is reported because a large sample makes tiny
+  differences significant. With 73,152 impressions a gain of 0.003 is significant, so significance alone says little about usefulness.
+- **Limits:** late fusion with one global alpha cannot tell M3 when emotion helps. `personal` is 0 for cold-start users, so those impressions keep M2's
+  (tied) order. RQ5 conditions on the clicked item and uses labels of history items, so it describes rather than explains; emotion is linked to topic,
+  so its category and profile rows may reflect topic.
+

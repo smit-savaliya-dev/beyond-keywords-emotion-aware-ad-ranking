@@ -5,8 +5,8 @@ MSc Data Analytics practicum (National College of Ireland). Recommenders match c
 tests whether emotional context also helps: does the match between a news item and the emotional context inferred from the user's
 recent reading improve click ranking? Data: MIND-small (Microsoft News). Design: 8 models, M0 to M7, each with and without emotion.
 
-Status: the data, emotion features, analyses, the two baselines M0 and M1, and the external validation on SemEval-2007 headlines are
-done. M2 to M7 are not built yet. Hand labelling was cancelled (D45), so there are no direct human labels on MIND headlines.
+Status: the data, emotion features, analyses, external validation on SemEval-2007 headlines, and models M0 to M3 are done. M4 to M7 are
+not built yet. Hand labelling was cancelled (D45), so there are no direct human labels on MIND headlines.
 
 ## How to run
 ```bash
@@ -26,7 +26,7 @@ Step 14 downloads SemEval-2007 into `data/external/semeval2007/` (git-ignored, n
 | `scripts/1x_data_*` | download, prepare, harness check, EDA, SemEval-2007 download |
 | `scripts/2x_emotion_*` | emotion scoring and features, SemEval headline scoring |
 | `scripts/3x_analysis_*` | click signal, congruence, context, charts, SemEval validation |
-| `scripts/4x_model_*` | baselines: `--tune` is in the pipeline, `--final-dev` is run once by hand |
+| `scripts/4x_model_*` | M0 to M3: `--tune` is in the pipeline; `--final-dev`, dev comparisons and script 47 are run once by hand |
 | `scripts/` (unnumbered) | `run_base.py`, `show_results.py`, `snapshot_results.py`, `check_goemotions.py` (optional) |
 | `src/` | all logic; `src/config.py` holds every constant |
 | `config/` | frozen emotion specifications (hash-locked by a test) |
@@ -39,7 +39,7 @@ Step 14 downloads SemEval-2007 into `data/external/semeval2007/` (git-ignored, n
 
 ## Reading order
 1. This file.
-2. `docs/reports/base_v4_report.md`: the latest results in simple language.
+2. `docs/reports/m2m3_report.md`: the latest results in simple language.
 3. `docs/figures_guide.md`: the 8 charts and the SemEval chart explained.
 4. `docs/methodology_notes.md`: why the method is what it is.
 5. `docs/decisions.md`: every decision, with alternatives and evidence.

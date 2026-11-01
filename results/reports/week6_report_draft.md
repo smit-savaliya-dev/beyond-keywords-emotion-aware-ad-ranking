@@ -16,7 +16,15 @@
 - Learned: emotion scores measure something real in headlines, but exact labels are much less reliable than soft scores, which supports the choice
   of soft features.
 - Limits: the check covers 2007 headlines only, not abstracts, and there are no human labels on MIND. It says nothing about clicks yet.
-- Next: build M2 (Sentence-BERT) and M3 (Sentence-BERT + emotion congruence, weight chosen on validation).
+- Built M2 (Sentence-BERT) and M3 (M2 + emotion, late fusion). All rules were written down before computing, and each model ran once on the final test.
+- Final test AUC: popularity 0.589, TF-IDF 0.574, M2 0.625, M3 0.628. Meaning-based matching clearly beats both baselines.
+- M3 beats M2 by +0.0029 AUC (95% CI 0.0023 to 0.0035, dz 0.03), close to the validation gain of +0.0031. The gain is real but very small, and no top-of-list
+  metric improved significantly on the final test.
+- The best emotion score was personal congruence with weight 0.2. Mood repair never beat M2, so clicks follow the match, not the opposite.
+- Checks passed: weight 0 on emotion reproduces M2 exactly, and shuffled emotion scores never beat M2.
+- Where it helps (descriptive): more for long histories (21+ items) and news and music clicks; negative for sports and finance. Emotion is linked to topic,
+  so these are not causes.
+- Next: M4 and M5 (LightGBM with and without emotion), to see whether emotion adds more inside a richer model.
 
 ## Supervisor Feedback
 _(to be added after the meeting)_

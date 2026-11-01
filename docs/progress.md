@@ -204,3 +204,12 @@ base-v4 is complete. Next, when asked: M2, M3. Spec v3 is the current spec; open
 ## 2026-10-30 models-m2m3 steps 2-3: dev runs and RQ5
 - M2 and M3 each ran on dev once (4 final-dev rows in runs_log: M0, M1, M2, M3). M3 - M2 AUC +0.0029 (D59); only AUC survives Holm.
 - RQ5 ran once by hand: `results/tables/m3_where_it_helps_dev.csv` and `_examples_dev.csv`. Cold-start impressions change by exactly 0, so the gain does not come from them.
+
+## 2026-11-01 models-m2m3 step 4: wrap-up
+- MY BUG: the first rebuild stopped at step 44 with a memory error (500,000-row chunks of 768-dimension vectors). Fixed with SBERT_CHUNK; M2 valid scores identical.
+- Second `--rebuild`: exit 0, GPU steps held. It paused while the laptop was closed and resumed in the same process. M2 and M3 valid outputs identical to before, frozen hashes unchanged, 8 of 8 dev hashes match, 4 final-dev rows.
+- Snapshot 75 of 76; `summary.csv` differs only by the 4 new rows (D60). 185 tests pass.
+- Reports: `docs/reports/m2m3_report.md`, `results/reports/week6_report_draft.md`.
+
+## Resume here
+M0 to M3 are complete. Next, when asked: M4, M5. Spec v3 is current; open: Q12, Q13.

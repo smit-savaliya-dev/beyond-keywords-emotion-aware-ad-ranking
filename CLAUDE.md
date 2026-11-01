@@ -3,7 +3,7 @@
 MSc Data Analytics practicum (NCI). Question: does emotional congruence between a user's click history and a news item
 improve click ranking? Data: MIND-small (news stands in for ads). Planned 8-model ablation, each with/without emotion:
 M0 popularity, M1 TF-IDF, M2 Sentence-BERT, M3 = M2+emotion, M4 LightGBM, M5 = M4+emotion, M6 NRMS, M7 = M6+emotion.
-M0 and M1 are done (valid + dev once each); do not build further models unless asked.
+M0 to M3 are done (valid + dev once each); do not build further models unless asked.
 
 ## Research direction
 Recommenders match content context (words/meaning). Hypothesis: clicks are also driven by emotional context, so content
@@ -49,6 +49,8 @@ from the user's recent reading", never "the user's emotional state".
 - SemEval-2007 (scripts 14, 29, 38, src/semeval.py): trial selects, test reports. Headlines only: it validates the title part of the scoring.
 - True recency (script 35) uses earlier log clicks for analysis only; M2-M7 use the history column only (Q09 decided, D45).
 - M5-all is a pre-declared robustness variant with all 19 item candidates (D37).
+- M2 frozen: title, mean (D57). M3 frozen: personal, alpha 0.8 (D58). Dev scores are saved in results/scores/; never rerun them.
+- Script 47 reads dev for RQ5 and is not a pipeline step (like --final-dev).
 
 ## Engineering rules
 - Decisions: docs/decisions.md (every non-trivial choice, with evidence part). Progress: docs/progress.md.
@@ -68,5 +70,5 @@ from the user's recent reading", never "the user's emotional state".
 - Work in phases and stop for review after each one; ask when the request conflicts with the code.
 
 ## Phases
-Done: base pipeline, emotion layer v1 and v2, click signal, congruence, context windows, true recency, M0, M1, cleanup, SemEval validation.
-Next: M2, M3.
+Done: base pipeline, emotion layer v1 and v2, click signal, congruence, context windows, true recency, M0-M3, cleanup, SemEval validation.
+Next: M4, M5 when asked.

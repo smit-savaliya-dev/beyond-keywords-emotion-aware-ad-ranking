@@ -63,3 +63,9 @@ The story folder already holds 8 charts, so this one sits in diagnostics.
   everywhere except fear, where the intervals overlap. There is no group score for disgust, because disgust is part of the anger group.
 - **Read with care:** the data are headlines from 2007, so this tests the title scoring, not the abstracts. Surprise is weak for every source.
 
+## M3 alpha curve (`results/figures/diagnostics/m3_alpha_curve.png`)
+This chart is also in diagnostics: replacing a story chart would have changed existing files.
+- **Shows:** valid AUC as the blend moves from emotion alone (alpha 0) to M2 alone (alpha 1), one line per emotion score. The dashed line is M2.
+- **Why it matters:** only the personal score rises clearly above M2, and only near alpha 0.8. Mood repair stays below M2. Emotion works as a small correction.
+- **Read with care:** this is the set that chose the setting, so the peak is optimistic. The dev result is in `docs/reports/m2m3_report.md`.
+
