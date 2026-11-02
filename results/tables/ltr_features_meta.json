@@ -1,0 +1,91 @@
+{
+  "rules": "D63, D64, D65",
+  "rows": {
+    "fit": 4621015,
+    "valid": 1222429
+  },
+  "check_valid_max_gap": {
+    "pop_ctr": 1.0390624305411933e-08,
+    "m1_score": 2.9564237724599707e-08,
+    "m2_score": 2.9797225686856166e-08
+  },
+  "fit_days": {
+    "2019-11-09": {
+      "rows": 524529,
+      "clicks": 20179,
+      "pop_distinct": 1
+    },
+    "2019-11-10": {
+      "rows": 520041,
+      "clicks": 21774,
+      "pop_distinct": 836
+    },
+    "2019-11-11": {
+      "rows": 1166308,
+      "clicks": 48077,
+      "pop_distinct": 1020
+    },
+    "2019-11-12": {
+      "rows": 1178464,
+      "clicks": 51528,
+      "pop_distinct": 1263
+    },
+    "2019-11-13": {
+      "rows": 1231673,
+      "clicks": 47961,
+      "pop_distinct": 1419
+    }
+  },
+  "columns": [
+    "imp_key",
+    "news_id",
+    "label",
+    "day",
+    "pop_ctr",
+    "m1_score",
+    "m2_score",
+    "category",
+    "subcategory",
+    "user_cat_affinity",
+    "history_len",
+    "title_len",
+    "imp_size",
+    "go_pct_excitement",
+    "go_pct_joy",
+    "go_pct_optimism",
+    "go_pct_nervousness",
+    "go_pct_annoyance",
+    "go_pct_fear",
+    "go_vad_valence",
+    "go_vad_dominance",
+    "vad_valence",
+    "nrc_trust",
+    "go_dist_optimism",
+    "go_dist_nervousness",
+    "go_dist_fear",
+    "go_pct_curiosity",
+    "go_pct_desire",
+    "go_emotionality",
+    "go_vad_arousal",
+    "nrc_anticipation",
+    "vad_dominance",
+    "cong_pct_cos",
+    "cong_pct_cos_personal",
+    "cong_six_negkl_personal",
+    "cong_valence_absdist_personal"
+  ],
+  "run_info": {
+    "timestamp_utc": "2026-11-02T18:01:47+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "24fc41f",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}
