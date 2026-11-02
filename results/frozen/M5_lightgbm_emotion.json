@@ -1,0 +1,80 @@
+{
+  "model": "M5_lightgbm_emotion",
+  "config": {
+    "num_leaves": 63,
+    "learning_rate": 0.05,
+    "min_child_samples": 200,
+    "best_iteration": 81,
+    "seed": 42,
+    "n_features": 26,
+    "model_sha256": "024038af35b11d8d191292cfbaf5349ac50be1bedd6949c6df8524b4e002e35f"
+  },
+  "config_hash": "74aeee3004",
+  "chosen_on": "valid",
+  "evidence": {
+    "selection": "max valid auc over 8 configs (D66)",
+    "features": [
+      "pop_ctr",
+      "m1_score",
+      "m2_score",
+      "category",
+      "subcategory",
+      "user_cat_affinity",
+      "history_len",
+      "title_len",
+      "imp_size",
+      "go_pct_excitement",
+      "go_pct_joy",
+      "go_pct_optimism",
+      "go_pct_nervousness",
+      "go_pct_annoyance",
+      "go_pct_fear",
+      "go_vad_valence",
+      "go_vad_dominance",
+      "vad_valence",
+      "nrc_trust",
+      "go_dist_optimism",
+      "go_dist_nervousness",
+      "go_dist_fear",
+      "cong_pct_cos",
+      "cong_pct_cos_personal",
+      "cong_six_negkl_personal",
+      "cong_valence_absdist_personal"
+    ],
+    "train_rows": 899931,
+    "checks": {
+      "identical_impressions": true,
+      "m4_below_leakage_limit": true,
+      "shuffled_control_passes": true,
+      "shuffled_auc": 0.6744161155525198,
+      "shuffled_vs_m4": {
+        "n": 30270,
+        "mean_a": 0.6745165033546411,
+        "mean_b": 0.6744161155525198,
+        "mean_diff": -0.00010038780212110956,
+        "ci_low": -0.0012478737903051003,
+        "ci_high": 0.0010470981860628812,
+        "dz": -0.0009855820875341332,
+        "t_stat": -0.1714742895943488,
+        "p": 0.8638519912005276,
+        "p_wilcoxon": 9.959894641867779e-05,
+        "pct_b_better": 27.443012884043604
+      }
+    }
+  },
+  "frozen_utc": "2026-11-02T18:48:04+00:00",
+  "run_info": {
+    "timestamp_utc": "2026-11-02T18:48:04+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "b81764e",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

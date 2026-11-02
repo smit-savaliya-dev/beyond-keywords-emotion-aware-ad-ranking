@@ -92,6 +92,23 @@ def history_gain(t, path, title, caption, ylabel):
     _finish(fig, path, title, caption, 4.9)
 
 
+def importance_chart(t, path, title, caption):
+    """t: feature, family, mean_abs_contrib, sorted strongest first. One thin bar per feature, coloured by family."""
+    colors = {"popularity": LINE_COLORS[3], "content": LINE_COLORS[0], "context": "#a3a29b", "emotion": LINE_COLORS[1]}
+    height = 2.2 + 0.25 * len(t)
+    fig, ax = _new(8, height, left=0.3, top=0.62, bottom=1.25)
+    _frame(ax, "x")
+    y = np.arange(len(t))[::-1]
+    ax.barh(y, t["mean_abs_contrib"], height=0.62, color=[colors[f] for f in t["family"]], edgecolor=SURFACE, linewidth=0.8)
+    ax.set_yticks(y, t["feature"], color=INK, fontsize=8)
+    ax.set_ylim(-0.7, len(t) - 0.3)
+    ax.set_xlabel("Mean absolute contribution to the score (raw model units)")
+    for family, color in colors.items():
+        ax.barh([0], [0], color=color, label=family)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.75 / (height - 1.87)), ncol=4, frameon=False, fontsize=8, labelcolor=INK)
+    _finish(fig, path, title, caption, height)
+
+
 def _pair(comparison, a, b):
     return comparison[(comparison["model_a"] == a) & (comparison["model_b"] == b)]
 

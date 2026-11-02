@@ -191,3 +191,19 @@ def test_check_saved_scores_stops_on_a_gap(tmp_path):
     with pytest.raises(SystemExit, match="D67b"):
         ltr.check_saved_scores(frame.assign(m2_score=[0.5, 0.7]), "valid", results=tmp_path)
 
+
+def test_feature_families():
+    assert [ltr.feature_family(f) for f in ("pop_ctr", "m2_score", "imp_size", "go_pct_fear", "cong_pct_cos")] == ["popularity", "content", "context", "emotion", "emotion"]
+
+
+def test_importance_table_ranks_the_real_signal_first():
+    pytest.importorskip("lightgbm")
+    tr, va = fake_frame(200, 5), fake_frame(60, 6)
+    f = ["good", "noise", "category"]
+    booster, best, _, _ = train_ranker(tr, va, f, {"num_leaves": 7, "learning_rate": 0.1, "min_child_samples": 5}, seed=42, max_rounds=30, patience=10)
+    t = ltr.importance_table(booster, va, f, 20, 1)
+    assert t.loc[0, "feature"] == "good" and t["contrib_rank"].tolist() == [1, 2, 3]
+    assert t["gain_share"].sum() == pytest.approx(1) and t["contrib_share"].sum() == pytest.approx(1)
+    s = ltr.family_shares(t.assign(family=["content", "emotion", "emotion"]))
+    assert s["emotion"]["n_features"] == 2 and s["content"]["contrib_share"] + s["emotion"]["contrib_share"] == pytest.approx(1)
+

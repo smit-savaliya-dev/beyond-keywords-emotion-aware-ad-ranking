@@ -142,6 +142,26 @@ def m3_lines(tables):
     return lines
 
 
+def m5_lines(tables):
+    m = _read(tables / "m4m5_meta.json")
+    c = _read(tables / "m4m5_comparison.csv")
+    s = _read(tables / "m4m5_seed_variability_valid.csv")
+    if m is None or c is None or s is None:
+        return ["  not available"]
+    lines = [f"  {'chosen on valid':24s}{'leaves':>7s}{'rate':>6s}{'min child':>10s}{'rounds':>8s}{'valid AUC':>11s}{'AUC, 3 seeds':>20s}"]
+    for model, r in m["chosen"].items():
+        v = s[s["model"] == model]["auc"]
+        lines.append(f"  {model:24s}{r['num_leaves']:7d}{r['learning_rate']:6.2f}{r['min_child_samples']:10d}{r['best_iteration']:8d}"
+                     f"{r['valid_auc']:11.4f}{f'{v.min():.4f} to {v.max():.4f}':>20s}")
+    lines += [f"  checks: shuffled emotion {'pass' if m['checks']['shuffled_control_passes'] else 'FAIL'}", "",
+              f"  {'AUC, B minus A':30s}{'part':>6s}{'diff':>10s}{'95% CI':>22s}{'dz':>8s}{'Holm':>7s}"]
+    for _, r in c[c["metric"] == "auc"].sort_values(["part", "model_a"], ascending=[False, True]).iterrows():
+        ci = f"{r['ci_low']:+.4f} to {r['ci_high']:+.4f}"
+        name = f"{r['model_b']} - {r['model_a']}".replace("_lightgbm_emotion", "").replace("_lightgbm", "").replace("_sbert_emotion", "").replace("_sbert", "")
+        lines.append(f"  {name[:30]:30s}{r['part']:>6s}{r['mean_diff']:+10.4f}{ci:>22s}{r['dz']:+8.3f}{'yes' if r['significant_holm'] else 'no':>7s}")
+    return lines
+
+
 def build_summary(tables, processed):
     lines = ["=" * WIDTH, "BEYOND KEYWORDS: RESULTS SUMMARY", "=" * WIDTH]
     for title, body in (("Data", data_lines(processed)), ("Neutral share and emotion mix (% of items)", neutral_lines(tables)),
@@ -149,7 +169,7 @@ def build_summary(tables, processed):
                         ("Emotional congruence with the user's recent reading", congruence_lines(tables)),
                         ("Which context window matters", window_lines(tables)), ("External validation: SemEval-2007 headlines", semeval_lines(tables)),
                         ("Models", baseline_lines(tables)),
-                        ("M3 = M2 + emotion", m3_lines(tables))):
+                        ("M3 = M2 + emotion", m3_lines(tables)), ("M4 LightGBM and M5 = M4 + emotion", m5_lines(tables))):
         lines += _section(title) + body
     lines += ["", "dz: effect size in SD units; 0.1-0.2 is small but real. Associations only, not ranking gains.", "=" * WIDTH]
     return "\n".join(lines)

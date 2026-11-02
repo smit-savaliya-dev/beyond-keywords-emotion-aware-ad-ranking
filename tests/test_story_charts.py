@@ -92,3 +92,29 @@ def test_ladder_table_keeps_order_and_skips_missing_models(tmp_path):
     assert t["model"].tolist() == ["M0_popularity", "M3_sbert_emotion"] and t["emotion"].tolist() == [False, True]
     assert t.loc[1, "auc"] == pytest.approx(0.7) and t.loc[1, "ci_low"] < 0.7 < t.loc[1, "ci_high"]
 
+
+def test_importance_chart_renders(tmp_path):
+    from src.results_charts import importance_chart
+    t = pd.DataFrame({"feature": ["a", "b", "c", "d"], "family": ["popularity", "content", "context", "emotion"], "mean_abs_contrib": [0.4, 0.3, 0.2, 0.1]})
+    importance_chart(t, tmp_path / "i.png", "t", "c")
+    assert (tmp_path / "i.png").stat().st_size > 1000
+
+
+def test_compare_pairs_and_merge_part(tmp_path):
+    import json
+    from src.results_tables import compare_pairs, merge_part
+    (tmp_path / "data_summary.json").write_text(json.dumps({"parts": {"valid": {"impressions": 4}}}))
+    pd.DataFrame({"imp_key": list("abcd"), "part": "valid", "user_id": ["u", "u", "v", "v"]}).to_parquet(tmp_path / "behaviors.parquet")
+    from src.config import METRIC_COLUMNS
+    base = {m: [0.5, 0.6, 0.7, 0.8] for m in METRIC_COLUMNS}
+    pd.DataFrame({"imp_key": list("abcd"), **base}).to_parquet(tmp_path / "A__valid.parquet")
+    up = {m: [0.6, 0.7, 0.75, 0.9] for m in METRIC_COLUMNS}
+    pd.DataFrame({"imp_key": list("abcd"), **up}).to_parquet(tmp_path / "B__valid.parquet")
+    comp, user = compare_pairs(tmp_path, [("A", "B")], "valid", tmp_path)
+    assert len(comp) == 10 and comp["mean_diff"].iloc[0] == pytest.approx(0.0875) and user["users"].iloc[0] == 2
+    path = tmp_path / "t.csv"
+    merge_part(path, pd.DataFrame({"part": ["valid"], "x": [1]}), "valid")
+    merge_part(path, pd.DataFrame({"part": ["dev"], "x": [2]}), "dev")
+    merge_part(path, pd.DataFrame({"part": ["valid"], "x": [3]}), "valid")
+    assert sorted(pd.read_csv(path)["x"]) == [2, 3]
+

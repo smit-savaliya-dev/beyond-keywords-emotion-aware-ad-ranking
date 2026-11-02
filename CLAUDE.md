@@ -3,7 +3,7 @@
 MSc Data Analytics practicum (NCI). Question: does emotional congruence between a user's click history and a news item
 improve click ranking? Data: MIND-small (news stands in for ads). Planned 8-model ablation, each with/without emotion:
 M0 popularity, M1 TF-IDF, M2 Sentence-BERT, M3 = M2+emotion, M4 LightGBM, M5 = M4+emotion, M6 NRMS, M7 = M6+emotion.
-M0 to M3 are done (valid + dev once each); do not build further models unless asked.
+M0 to M5 are done (valid + dev once each); do not build further models unless asked.
 
 ## Research direction
 Recommenders match content context (words/meaning). Hypothesis: clicks are also driven by emotional context, so content
@@ -41,22 +41,24 @@ from the user's recent reading", never "the user's emotional state".
 - go_pct_*: percentile rank of each go_* emotion across all items (item-level, no clicks), because label floors differ.
   go_dist_* is kept but unreliable at low go_emotion_mass; go_emotion_mass can exceed 1 (sum of independent sigmoids).
 
-- Emotion spec: config/emotion_spec_v3.json (confirmed on SemEval, D48/D49; v1 and v2 kept for the record; v3 differs from v2 only in
-  labelling). Title share 0.5, labels at t = 0.05 are for reporting only. M3/M5/M7 must use exactly its features/fusion
-  (news_emotion_features_v2.parquet). Any change to its hashed content = new file v4 + decision entry + test hash (tests/test_emotion_spec.py).
+- Emotion spec: config/emotion_spec_v4.json (D62; v4 differs from v3 only in the fusion score, personal; v1 to v3 kept for the record; v3 differs from v2 only in
+  labelling; features and labels confirmed on SemEval, D48/D49). Title share 0.5, labels at t = 0.05 are for reporting only. M3/M5/M7 must use exactly its features/fusion
+  (news_emotion_features_v2.parquet). Any change to its hashed content = new file v5 + decision entry + test hash (tests/test_emotion_spec.py).
 
 - Reporting labels: v2b at t = 0.05 (no approval/disapproval), chosen on SemEval trial (D47); v2 and v2c stay for reference.
 - SemEval-2007 (scripts 14, 29, 38, src/semeval.py): trial selects, test reports. Headlines only: it validates the title part of the scoring.
 - True recency (script 35) uses earlier log clicks for analysis only; M2-M7 use the history column only (Q09 decided, D45).
 - M5-all is a pre-declared robustness variant with all 19 item candidates (D37).
 - M2 frozen: title, mean (D57). M3 frozen: personal, alpha 0.8 (D58). Dev scores are saved in results/scores/; never rerun them.
-- Script 47 reads dev for RQ5 and is not a pipeline step (like --final-dev).
+- Script 47 reads dev for RQ5 and is not a pipeline step (like --final-dev); script 52 reads saved dev result files for the ladder, also by hand.
+- M4/M5 (scripts 48-51, src/ltr.py): click-derived features use days strictly before the row's day (D64); training samples 4 non-clicks per click, scoring uses all candidates.
+  M5-all never runs on dev (D65). Boosters live in data/processed/ltr_models/; their sha256 is in the frozen config.
 
 ## Engineering rules
 - Decisions: docs/decisions.md (every non-trivial choice, with evidence part). Progress: docs/progress.md.
   Open questions: docs/open_questions.md. Data rules: fit trains, valid chooses, dev once per model (--final-dev).
 - Logic in src/, thin scripts in scripts/ (import _bootstrap), all constants in src/config.py, provenance via src/provenance.py.
-  Scripts are numbered by stage: 1x data, 2x emotion, 3x analysis, 4x models. Start at docs/START_HERE.md.
+  Scripts are numbered by stage: 1x data, 2x emotion, 3x analysis, 4x models, 5x results. Start at docs/START_HERE.md.
 - Model labelling is resumable: chunk folders with a settings.json guard and atomic .tmp -> replace writes (label_corpus).
   New runs use new chunk folders and new output files.
 - Do not change src/data.py, src/metrics.py, src/evaluate.py unless needed (explain why).
@@ -70,5 +72,5 @@ from the user's recent reading", never "the user's emotional state".
 - Work in phases and stop for review after each one; ask when the request conflicts with the code.
 
 ## Phases
-Done: base pipeline, emotion layer v1 and v2, click signal, congruence, context windows, true recency, M0-M3, cleanup, SemEval validation.
-Next: M4, M5 when asked.
+Done: base pipeline, emotion layer v1 and v2, click signal, congruence, context windows, true recency, M0-M5, cleanup, SemEval validation.
+Next: M6, M7 when asked.

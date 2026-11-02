@@ -1,0 +1,44 @@
+{
+  "rule": "D68",
+  "part": "valid",
+  "impressions": 5000,
+  "family_shares": {
+    "content": {
+      "gain_share": 0.546027837303369,
+      "contrib_share": 0.5864022879810059,
+      "n_features": 5
+    },
+    "context": {
+      "gain_share": 0.07557230895880342,
+      "contrib_share": 0.06387129828715166,
+      "n_features": 3
+    },
+    "emotion": {
+      "gain_share": 0.2925092604340794,
+      "contrib_share": 0.21995419053076742,
+      "n_features": 17
+    },
+    "popularity": {
+      "gain_share": 0.08589059330374825,
+      "contrib_share": 0.12977222320107504,
+      "n_features": 1
+    }
+  },
+  "top_emotion_feature": "go_vad_dominance",
+  "top_emotion_rank": 5,
+  "n_features": 26,
+  "run_info": {
+    "timestamp_utc": "2026-11-02T18:48:38+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "b81764e",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

@@ -124,3 +124,23 @@ Spearman correlation on the same items (items with at least one EmoLex emotion w
   (tied) order. RQ5 conditions on the clicked item and uses labels of history items, so it describes rather than explains; emotion is linked to topic,
   so its category and profile rows may reflect topic.
 
+## 9. M4 and M5
+- **Why:** M2 and M3 ask whether emotion helps a content model. M4 and M5 ask the production question: does emotion still add anything to a model that already combines
+  popularity, content and context? A gradient-boosted ranker is the usual way to do that, and it can learn category-specific effects from fit, which a single alpha cannot.
+- **Model:** LightGBM LGBMRanker with lambdarank, one group per impression, deterministic mode, fixed thread count. M4 has 9 features: popularity, M1 and M2 scores, category,
+  subcategory, user-category affinity, history length, title length and impression size. Position is never a feature; it is not even stored in the feature table. M5 adds the
+  spec v4 emotion features (13 item + 4 congruence). M5-all adds all 19 item candidates instead, as a robustness check on valid only.
+- **Leakage rule (D64):** a click-derived feature uses only days strictly before the row's day. Only popularity is click-derived. A fit row on day d uses fit days before d, valid uses all
+  fit days, dev uses fit + valid. Day 1 gets a fixed constant 0.04, because a prior computed from fit would include the row's own impression, and a constant cannot rank within a list.
+  Tests flip an impression's labels and prove that its own day and earlier days do not change, while later days do, so the test has power. On valid and dev the feature must also
+  equal the saved M0 score. On fit, popularity is computed from fewer days than on valid, so training sees weaker popularity than scoring does: a known limit of any strictly-past feature.
+- **Sampling:** training keeps all clicks and up to 4 non-clicks per click within each impression, seeded. Impression size is counted before sampling, so the feature means the same on all parts.
+  Valid and dev always score all candidates. Lambdarank sees only pairs inside an impression, so sampling changes the pairs, not the scale of the problem.
+- **Tuning:** the same 8 configs for M4, M5 and M5-all, up to 2000 rounds with patience 50. Early stopping uses mean per-impression AUC through a custom metric, because LightGBM's own AUC is
+  global, not per impression. A fairness check reports M5 at M4's hyperparameters, so M5 cannot gain only from a different search result. The seed also drives the negative sampling, because
+  without bagging LightGBM ignores its seed and three seeds would falsely show zero variability.
+- **Controls:** a shuffled-emotion refit (D67d) shows what M5 can gain from noise through early stopping on valid. Both valid and dev are in the comparison tables, but valid chose the settings and the
+  stopping round, so dev is the claim.
+- **Importance:** gain and mean absolute contribution are computed on valid only. Features that carry the same information share credit, so a low rank means little unique use, not that the feature
+  has no link to clicks.
+

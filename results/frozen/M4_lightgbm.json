@@ -1,0 +1,63 @@
+{
+  "model": "M4_lightgbm",
+  "config": {
+    "num_leaves": 31,
+    "learning_rate": 0.05,
+    "min_child_samples": 50,
+    "best_iteration": 149,
+    "seed": 42,
+    "n_features": 9,
+    "model_sha256": "eb3fda80d9bc20f5a5a20c2ef95a13a7f63cdd2d9246b0954fe5c6c5ced8be28"
+  },
+  "config_hash": "11ba13ceeb",
+  "chosen_on": "valid",
+  "evidence": {
+    "selection": "max valid auc over 8 configs (D66)",
+    "features": [
+      "pop_ctr",
+      "m1_score",
+      "m2_score",
+      "category",
+      "subcategory",
+      "user_cat_affinity",
+      "history_len",
+      "title_len",
+      "imp_size"
+    ],
+    "train_rows": 899931,
+    "checks": {
+      "identical_impressions": true,
+      "m4_below_leakage_limit": true,
+      "shuffled_control_passes": true,
+      "shuffled_auc": 0.6744161155525198,
+      "shuffled_vs_m4": {
+        "n": 30270,
+        "mean_a": 0.6745165033546411,
+        "mean_b": 0.6744161155525198,
+        "mean_diff": -0.00010038780212110956,
+        "ci_low": -0.0012478737903051003,
+        "ci_high": 0.0010470981860628812,
+        "dz": -0.0009855820875341332,
+        "t_stat": -0.1714742895943488,
+        "p": 0.8638519912005276,
+        "p_wilcoxon": 9.959894641867779e-05,
+        "pct_b_better": 27.443012884043604
+      }
+    }
+  },
+  "frozen_utc": "2026-11-02T18:48:04+00:00",
+  "run_info": {
+    "timestamp_utc": "2026-11-02T18:48:04+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "b81764e",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

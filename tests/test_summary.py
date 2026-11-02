@@ -77,3 +77,16 @@ def test_m3_section(tmp_path):
     text = "\n".join(m3_lines(tmp_path))
     assert "cosine, alpha 0.8 of 44" in text and "M3 - M2" in text and "+0.0100" in text and "FAIL" not in text
 
+
+def test_m5_section(tmp_path):
+    from src.summary import m5_lines
+    assert m5_lines(tmp_path) == ["  not available"]
+    meta = {"chosen": {"M4_lightgbm": {"num_leaves": 31, "learning_rate": 0.05, "min_child_samples": 50, "best_iteration": 300, "valid_auc": 0.66}},
+            "checks": {"shuffled_control_passes": True}}
+    (tmp_path / "m4m5_meta.json").write_text(json.dumps(meta), encoding="utf-8")
+    pd.DataFrame({"model": ["M4_lightgbm"] * 3, "auc": [0.66, 0.661, 0.659]}).to_csv(tmp_path / "m4m5_seed_variability_valid.csv", index=False)
+    pd.DataFrame([{"model_a": "M4_lightgbm", "model_b": "M5_lightgbm_emotion", "metric": "auc", "part": "dev", "mean_diff": 0.01, "ci_low": 0.0,
+                   "ci_high": 0.02, "dz": 0.1, "significant_holm": True}]).to_csv(tmp_path / "m4m5_comparison.csv", index=False)
+    text = "\n".join(m5_lines(tmp_path))
+    assert "0.6590 to 0.6610" in text and "M5 - M4" in text and "FAIL" not in text
+

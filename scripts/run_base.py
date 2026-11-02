@@ -17,7 +17,7 @@ import sys
 import time
 
 import _bootstrap  # noqa: F401
-from src.config import (ARCHIVED_SHEET, DIAGNOSTICS, EMOLEX_PATH, FROZEN_DIR, M0_NAME, M1_NAME, M2_GRID, M2_NAME, M3_NAME, PROCESSED, RAW, RESULT_CHARTS, RESULTS, RESULTS_FIGS, ROOT,
+from src.config import (ARCHIVED_SHEET, DIAGNOSTICS, EMOLEX_PATH, FROZEN_DIR, M0_NAME, M1_NAME, LTR_FEATURE_FILE, M2_GRID, M2_NAME, M3_NAME, M4_NAME, M5_ALL_NAME, M5_FAIR_NAME, M5_NAME, PROCESSED, RAW, RESULT_CHARTS, RESULTS, RESULTS_FIGS, ROOT,
                         SEMEVAL_DIR, SEMEVAL_SPLITS, STORY_CHARTS, STORY_DIR, TABLES, VAD_PATH)
 from src.semeval import split_files
 from src.pipeline import Pipeline, Step, StepFailed, held_gpu_steps, rebuild_steps
@@ -176,6 +176,29 @@ def build_steps(skip_official_check):
         Step("46_model_compare_m2m3", [S / "46_model_compare_m2m3.py", "--part", "valid"], script=S / "46_model_compare_m2m3.py",
              inputs=[BEH, P / "data_summary.json"] + [RESULTS / "per_impression" / f"{m}__valid.parquet" for m in (M1_NAME, M2_NAME, M3_NAME)],
              outputs=[T / "m2m3_comparison.csv", T / "m2m3_user_level.csv"]),
+        Step("48_model_ltr_features", [S / "48_model_ltr_features.py"], script=S / "48_model_ltr_features.py",
+             inputs=[IMPS, BEH, NEWS, RAW / "train" / "news.tsv", P / "news_emotion_features_v2.parquet", P / "news_emotion_raw28_v2.parquet",
+                     *[P / f"sbert_{t}.npy" for t in M2_GRID["text"]], *[FROZEN_DIR / f"{m}.json" for m in (M0_NAME, M1_NAME, M2_NAME)],
+                     *[RESULTS / "scores" / f"{m}__valid.parquet" for m in (M0_NAME, M1_NAME, M2_NAME)]],
+             extra_code=[ROOT / "config" / "emotion_spec_v4.json"],
+             outputs=[P / LTR_FEATURE_FILE.format(part=p) for p in ("fit", "valid")] + [T / "ltr_features_meta.json"],
+             note="fit + valid; click statistics strictly earlier in time (D64)"),
+        Step("49_model_m4m5_lightgbm", [S / "49_model_m4m5_lightgbm.py", "--tune"], script=S / "49_model_m4m5_lightgbm.py",
+             inputs=[IMPS, *[P / LTR_FEATURE_FILE.format(part=p) for p in ("fit", "valid")]],
+             extra_code=[ROOT / "config" / "emotion_spec_v4.json"],
+             outputs=[FROZEN_DIR / f"{m}.json" for m in (M4_NAME, M5_NAME, M5_ALL_NAME)]
+             + [T / f for f in ("m4m5_tuning_valid.csv", "m4m5_seed_variability_valid.csv", "m4m5_meta.json")]
+             + [RESULTS / sub / f"{m}__valid.parquet" for sub in ("scores", "per_impression") for m in (M4_NAME, M5_NAME, M5_ALL_NAME)]
+             + [RESULTS / "per_impression" / f"{M5_FAIR_NAME}__valid.parquet"],
+             note="valid only; stops if a D67 check fails; --final-dev is never run by the pipeline"),
+        Step("50_results_compare_m4m5", [S / "50_results_compare_m4m5.py", "--part", "valid"], script=S / "50_results_compare_m4m5.py",
+             inputs=[BEH, P / "data_summary.json"] + [RESULTS / "per_impression" / f"{m}__valid.parquet"
+                                                      for m in (M2_NAME, M3_NAME, M4_NAME, M5_NAME, M5_ALL_NAME, M5_FAIR_NAME)],
+             outputs=[T / "m4m5_comparison.csv", T / "m4m5_user_level.csv"]),
+        Step("51_results_feature_importance", [S / "51_results_feature_importance.py"], script=S / "51_results_feature_importance.py",
+             inputs=[P / LTR_FEATURE_FILE.format(part="valid"), FROZEN_DIR / f"{M5_NAME}.json"],
+             outputs=[T / "m5_feature_importance.csv", T / "m5_feature_importance_meta.json", DIAGNOSTICS / "m5_feature_importance.png"],
+             note="valid only"),
         Step("53_results_charts", [S / "53_results_charts.py"], script=S / "53_results_charts.py",
              inputs=[T / f for f in ("model_ladder.csv", "m2m3_comparison.csv", "m3_fusion_grid_valid.csv", "m3_fusion_meta.json",
                                      "m3_where_it_helps_dev.csv", "semeval2007_validation.csv")],

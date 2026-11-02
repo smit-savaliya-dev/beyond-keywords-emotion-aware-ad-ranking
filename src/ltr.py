@@ -261,3 +261,35 @@ def build_features(part, processed=PROCESSED):
     for c in cong_names:
         out[c] = cong[c]
     return out
+
+
+def feature_family(name):
+    if name == "pop_ctr":
+        return "popularity"
+    if name in ("m1_score", "m2_score", "category", "subcategory", "user_cat_affinity"):
+        return "content"
+    return "context" if name in M4_FEATURES else "emotion"
+
+
+def importance_table(booster, frame, features, n_impressions, seed):
+    """Gain importance and mean |pred_contrib| per feature, on all rows of n seeded impressions, sorted by contribution (D68)."""
+    keys = pd.unique(frame["imp_key"])
+    chosen = np.random.default_rng(seed).choice(keys, size=min(n_impressions, len(keys)), replace=False)
+    rows = frame.loc[frame["imp_key"].isin(chosen), features]
+    contrib = np.abs(booster.predict(rows, pred_contrib=True)[:, :-1]).mean(axis=0)      # the last column is the base value
+    gain = booster.feature_importance(importance_type="gain")
+    names = booster.feature_name()
+    if names != list(features):
+        raise ValueError("booster features differ from the requested list")
+    t = pd.DataFrame({"feature": names, "family": [feature_family(f) for f in names], "gain": gain, "gain_share": gain / gain.sum(),
+                      "mean_abs_contrib": contrib, "contrib_share": contrib / contrib.sum()})
+    t["gain_rank"] = t["gain"].rank(ascending=False, method="first").astype(int)
+    t["contrib_rank"] = t["mean_abs_contrib"].rank(ascending=False, method="first").astype(int)
+    return t.sort_values("contrib_rank").reset_index(drop=True)
+
+
+def family_shares(t):
+    g = t.groupby("family")[["gain_share", "contrib_share"]].sum()
+    return {f: {"gain_share": float(r["gain_share"]), "contrib_share": float(r["contrib_share"]), "n_features": int((t["family"] == f).sum())}
+            for f, r in g.iterrows()}
+
