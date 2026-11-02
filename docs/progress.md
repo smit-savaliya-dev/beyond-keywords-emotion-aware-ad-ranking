@@ -213,3 +213,7 @@ base-v4 is complete. Next, when asked: M2, M3. Spec v3 is the current spec; open
 
 ## Resume here
 M0 to M3 are complete. Next, when asked: M4, M5. Spec v3 is current; open: Q12, Q13.
+
+## 2026-11-02 results-m4m5 step 1: encoder check, spec v4
+- `scripts/check_sbert_encoder.py`: transformers path vs sentence-transformers on 500 random items, both text variants. Min cosine 0.99999999999, so M2 and M3 stand (D61).
+- Spec v4 written (D62): only the fusion score changes. Q12 and Q13 decided.

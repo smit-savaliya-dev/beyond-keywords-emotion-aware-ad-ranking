@@ -124,6 +124,8 @@ SBERT_MODEL = "sentence-transformers/all-mpnet-base-v2"
 SBERT_REVISION = "e8c3b32edf5434bc2275fc9bab85f82640a19130"
 SBERT_MAX_LENGTH = 384                                   # sentence_bert_config.json of the model
 SBERT_BATCH_SIZE = 64
+SBERT_CHECK_N = 500                                      # items in the encoder correctness check
+SBERT_CHECK_MIN_COSINE = 0.999
 SBERT_CHUNK = 50_000                                     # candidate rows per chunk; 768-d vectors need far smaller chunks than emotion vectors
 M3_NAME = "M3_sbert_emotion"
 M3_VARIANTS = ["cosine", "personal", "user_specific", "mood_repair"]  # grid order; first = primary (D52, D53)
@@ -149,7 +151,7 @@ SPEC_ITEM_CANDIDATES = ([f"go_pct_{e}" for e in GO_FEATURES] + ["go_emotionality
 SPEC_CONGRUENCE_CANDIDATES = ["cong_pct_cos", "cong_pct_cos_personal", "cong_six_negkl", "cong_six_negkl_personal",
                               "cong_valence_absdist", "cong_valence_absdist_personal"]
 EMOTION_SPEC_DIR = ROOT / "config"
-EMOTION_SPEC_VERSION = 3  # bump (new file emotion_spec_v<N>.json) for any change to the hashed content
+EMOTION_SPEC_VERSION = 4  # bump (new file emotion_spec_v<N>.json) for any change to the hashed content
 
 # Emotion layer v2 (D30): grid on saved raw scores; selection rule constants.
 V2_TITLE_SHARES = [1.0, 0.7, 0.6, 0.5, 1 / 3]  # title share; abstract share = 1 - share; 1/3 = current v1 weighting

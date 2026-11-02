@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.sbert import embedding_paths, encode_batches, encode_corpus, load_embeddings, mean_pool, profile_cosine
+from src.sbert import compare_encoders, embedding_paths, encode_batches, encode_corpus, load_embeddings, mean_pool, profile_cosine
 
 
 def fake_encode(calls=None):
@@ -70,3 +70,11 @@ def test_profile_cosine_chunked_and_cold_start():
     items = np.array([[1.0, 0.0], [0.0, 1.0]])
     out = profile_cosine(profiles, items, np.array([0, 0, 1]), np.array([0, 1, 0]), chunk_size=2)
     assert out.tolist() == [1.0, 0.0, 0.0]
+
+
+def test_compare_encoders_sees_a_pooling_difference():
+    a = np.array([[1.0, 0.0], [0.0, 1.0]])
+    assert compare_encoders(a, a)["min_cosine"] == pytest.approx(1.0)
+    r = compare_encoders(a, np.array([[1.0, 0.0], [1.0, 0.0]]))
+    assert r["min_cosine"] == pytest.approx(0.0) and r["mean_cosine"] == pytest.approx(0.5)
+

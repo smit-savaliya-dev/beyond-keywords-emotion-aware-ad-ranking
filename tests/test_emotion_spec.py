@@ -10,7 +10,8 @@ from src.emotion_spec import load_spec, replication_selection, spec_hash, spec_p
 # breaks this test on purpose: write config/emotion_spec_v<N+1>.json instead and add its hash here.
 KNOWN_SPEC_HASHES = {1: "b2a9ca38e355c6efa858a4f1ed0ab7bb4500bcc50d54bff23711ae8c897bf7f0",
                      2: "82c7ff4b76a3eb6562e13dcfb06969a8273a5ba7f58322bb5735b7b0373b7967",
-                     3: "d2462a72b7cab15fecc5b16c962b628bcd9908738bdb4e134987230096871601"}
+                     3: "d2462a72b7cab15fecc5b16c962b628bcd9908738bdb4e134987230096871601",
+                     4: "7bd6aefc13c699a2215f8f5386f48528dcc47f740764832c3a69c70542147629"}
 
 
 def test_released_specs_unchanged_without_version_bump():
@@ -30,6 +31,16 @@ def test_spec_v3_changes_labelling_but_no_model_input():
     for key in ("item_features_m5", "congruence_features", "congruence_profile", "fusion", "text_variant", "excluded"):
         assert v3[key] == v2[key], key
     assert v3["labelling"]["rule"] != v2["labelling"]["rule"] and v3["labelling"]["t"] == v2["labelling"]["t"]
+
+
+def test_spec_v4_changes_only_the_fusion_score():
+    v3, v4 = load_spec(3), load_spec(4)
+    for key in ("item_features_m5", "congruence_features", "congruence_profile", "text_variant", "excluded", "labelling"):
+        assert v4[key] == v3[key], key
+    assert v4["fusion"]["emotion_score"] == "cong_pct_cos_personal" and v4["fusion"]["emotion_score_for_fusion"] == "personal"
+    rest = lambda f: {k: v for k, v in f.items() if k not in ("emotion_score", "emotion_score_for_fusion")}
+    assert rest(v4["fusion"]) == rest(v3["fusion"])
+    assert validate_spec(v4, set(v4["item_features_m5"])) == []
 
 
 def test_status_change_does_not_change_hash_but_content_does():

@@ -75,6 +75,13 @@ def encode_corpus(news, encode, chunk_dir, settings, text_col, chunk_size=2000, 
     return np.concatenate(frames)
 
 
+def compare_encoders(a, b):
+    """Row-wise cosine of two embedding matrices of the same items. -> min and mean, plus the largest norm gap."""
+    cos = cosine_rows(a, b)
+    gap = np.abs(np.linalg.norm(a, axis=1) - np.linalg.norm(b, axis=1))
+    return {"min_cosine": float(cos.min()), "mean_cosine": float(cos.mean()), "max_norm_gap": float(gap.max())}
+
+
 def embedding_paths(text, processed=PROCESSED):
     return processed / f"sbert_{text}.npy", processed / f"sbert_{text}_ids.parquet"
 

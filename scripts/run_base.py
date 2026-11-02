@@ -166,7 +166,7 @@ def build_steps(skip_official_check):
              + [RESULTS / sub / f"{M2_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
              note="valid only; --final-dev is never run by the pipeline"),
         Step("45_model_m3_fusion", [S / "45_model_m3_fusion.py", "--tune"], script=S / "45_model_m3_fusion.py",
-             extra_code=[ROOT / "config" / "emotion_spec_v3.json"],
+             extra_code=[ROOT / "config" / "emotion_spec_v4.json"],
              inputs=[IMPS, BEH, P / "news_emotion_features_v2.parquet", P / "news_emotion_features.parquet", FROZEN_DIR / f"{M2_NAME}.json"]
              + [RESULTS / sub / f"{M2_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
              outputs=[FROZEN_DIR / f"{M3_NAME}.json", DIAGNOSTICS / "m3_alpha_curve.png"]

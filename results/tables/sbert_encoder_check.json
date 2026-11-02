@@ -1,0 +1,35 @@
+{
+  "model": "sentence-transformers/all-mpnet-base-v2",
+  "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130",
+  "n_items": 500,
+  "seed": 42,
+  "threshold": 0.999,
+  "max_seq_length": 384,
+  "results": {
+    "title": {
+      "min_cosine": 0.9999999999992438,
+      "mean_cosine": 0.9999999999998995,
+      "max_norm_gap": 1.7881393432617188e-07
+    },
+    "text": {
+      "min_cosine": 0.9999999999988475,
+      "mean_cosine": 0.9999999999999035,
+      "max_norm_gap": 1.1920928955078125e-07
+    }
+  },
+  "passed": true,
+  "run_info": {
+    "timestamp_utc": "2026-11-02T17:50:49+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "ecd7279",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

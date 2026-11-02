@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "status": "confirmed on SemEval-2007 test headlines under the pre-declared rule D48 (GoEmotions CONFIRM); see results/tables/semeval2007_validation_meta.json",
+  "status": "superseded by v4 for the fusion emotion score only (D62); features and labelling are unchanged in v4",
   "frozen_date": "2026-10-30",
   "replaces": "v2, kept for the record in config/emotion_spec_v2.json; item features, congruence features and fusion are identical",
   "reason": "SemEval trial selected v2b at t 0.05 as the labelling rule (D47); v2 labelled with the plain v2 rule. Reporting labels only",
