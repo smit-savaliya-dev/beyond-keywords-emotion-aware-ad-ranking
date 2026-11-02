@@ -128,6 +128,9 @@ SBERT_CHECK_N = 500                                      # items in the encoder 
 SBERT_CHECK_MIN_COSINE = 0.999
 SBERT_CHUNK = 50_000                                     # candidate rows per chunk; 768-d vectors need far smaller chunks than emotion vectors
 M3_NAME = "M3_sbert_emotion"
+MODEL_LADDER = [("M0_popularity", "M0 popularity", False), ("M1_tfidf", "M1 TF-IDF", False), ("M2_sbert", "M2 Sentence-BERT", False),
+                ("M3_sbert_emotion", "M3 = M2 + emotion", True), ("M4_lightgbm", "M4 LightGBM", False),
+                ("M5_lightgbm_emotion", "M5 = M4 + emotion", True), ("M6_nrms", "M6 NRMS", False), ("M7_nrms_emotion", "M7 = M6 + emotion", True)]
 M3_VARIANTS = ["cosine", "personal", "user_specific", "mood_repair"]  # grid order; first = primary (D52, D53)
 M3_REPORT_ONLY = "title_only"                            # spec v3 variant, reported, never selected
 M3_K_OTHER = 10
@@ -175,6 +178,9 @@ CONTEXT_CONTROL_MIN_HISTORY = 10
 
 # Story charts (base-v2 Step 3).
 STORY_DIR = FIGURES / "story"
+RESULTS_FIGS = FIGURES / "results"
+RESULT_CHARTS = ["1_model_ladder", "2_m3_gain_by_metric", "3_alpha_ablation", "4_m3_gain_by_category", "5_m3_gain_by_history",
+                 "6_emotion_validation"]
 STORY_TOP_CATEGORIES = 10
 STORY_CHARTS = ["1_emotion_mix", "2_neutral_vs_threshold", "3_title_vs_abstract_intensity", "4_emotion_by_category",
                 "5_valence_arousal_map", "6_clicked_vs_not_effects", "7_congruence_effects", "8_short_vs_long_context"]

@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 import pandas as pd
 
@@ -39,3 +40,55 @@ def test_semeval_correlations_chart_renders(tmp_path):
     path = tmp_path / "c.png"
     semeval_correlations(corr, path, "t", "c")
     assert path.stat().st_size > 1000
+
+
+def fake_result_tables(t):
+    import json
+    from src.config import METRIC_COLUMNS
+    pd.DataFrame({"model": ["M0_popularity", "M3_sbert_emotion"], "label": ["M0 popularity", "M3 = M2 + emotion"], "emotion": [False, True], "part": "dev",
+                  "n": 100, "auc": [0.59, 0.63], "ci_low": [0.58, 0.62], "ci_high": [0.60, 0.64]}).to_csv(t / "model_ladder.csv", index=False)
+    rows = [{"model_a": "M2_sbert", "model_b": "M3_sbert_emotion", "part": p, "metric": m, "mean_diff": 0.002, "ci_low": 0.001, "ci_high": 0.003,
+             "significant_holm": m == "auc"} for p in ("valid", "dev") for m in METRIC_COLUMNS]
+    pd.DataFrame(rows).to_csv(t / "m2m3_comparison.csv", index=False)
+    grid = [{"variant": v, "alpha": a, "auc": 0.6 + a / 100} for v in ("cosine", "personal", "user_specific", "mood_repair", "title_only") for a in (0.0, 0.5, 1.0)]
+    pd.DataFrame(grid).to_csv(t / "m3_fusion_grid_valid.csv", index=False)
+    (t / "m3_fusion_meta.json").write_text(json.dumps({"chosen": {"variant": "personal", "alpha": 0.8}, "valid_auc": 0.65, "m2_valid_auc": 0.64}))
+    rq = [{"breakdown": "clicked category", "group": g, "n": 10, "mean_diff": d, "ci_low": d - 0.001, "ci_high": d + 0.001} for g, d in (("news", 0.01), ("sports", -0.01))]
+    rq += [{"breakdown": "known history items", "group": g, "n": 10, "mean_diff": d, "ci_low": d, "ci_high": d} for g, d in (("0", 0.0), ("1-5", 0.002), ("21+", 0.004))]
+    pd.DataFrame(rq).to_csv(t / "m3_where_it_helps_dev.csv", index=False)
+    gold = ["anger", "disgust", "fear", "joy", "sadness", "surprise"]
+    sem = [{"kind": "correlation", "gold": g, "source": s, "n": 1000, "spearman": 0.3, "spearman_low": 0.2, "spearman_high": 0.4} for g in gold
+           for s in ("goemotions_label", "nrc_emolex")]
+    sem += [{"kind": "correlation", "gold": g, "source": "goemotions_group", "n": 1000, "spearman": 0.4, "spearman_low": 0.3, "spearman_high": 0.5} for g in gold if g != "disgust"]
+    sem += [{"kind": "correlation", "gold": "valence", "source": s, "n": 1000, "spearman": 0.5, "spearman_low": 0.4, "spearman_high": 0.6} for s in ("go_vad_valence", "vad_valence")]
+    pd.DataFrame(sem).to_csv(t / "semeval2007_validation.csv", index=False)
+
+
+def test_build_charts_makes_every_chart_with_real_numbers_in_captions(tmp_path):
+    from src.config import RESULT_CHARTS
+    from src.results_charts import build_charts
+    fake_result_tables(tmp_path)
+    out = tmp_path / "figs"
+    caps = build_charts(tmp_path, out)
+    assert list(caps) == RESULT_CHARTS and len(RESULT_CHARTS) <= 6
+    assert all((out / f"{n}.png").stat().st_size > 1000 for n in RESULT_CHARTS)
+    assert "1 of 10" in caps["2_m3_gain_by_metric"] and "M3 0.630" in caps["1_model_ladder"]
+    assert "Descriptive" in caps["4_m3_gain_by_category"] and "+0.0100 (news)" in caps["4_m3_gain_by_category"]
+
+
+def test_results_charts_read_no_impression_or_behavior_data():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    for f in ("src/results_charts.py", "scripts/53_results_charts.py"):
+        text = (root / f).read_text(encoding="utf-8")
+        assert "impressions.parquet" not in text and "behaviors.parquet" not in text and "per_impression" not in text
+
+
+def test_ladder_table_keeps_order_and_skips_missing_models(tmp_path):
+    from src.results_tables import ladder_table
+    pd.DataFrame({"auc": [0.6, 0.7, 0.8]}).to_parquet(tmp_path / "M3_sbert_emotion__dev.parquet")
+    pd.DataFrame({"auc": [0.5, 0.6, 0.7]}).to_parquet(tmp_path / "M0_popularity__dev.parquet")
+    t = ladder_table(tmp_path)
+    assert t["model"].tolist() == ["M0_popularity", "M3_sbert_emotion"] and t["emotion"].tolist() == [False, True]
+    assert t.loc[1, "auc"] == pytest.approx(0.7) and t.loc[1, "ci_low"] < 0.7 < t.loc[1, "ci_high"]
+

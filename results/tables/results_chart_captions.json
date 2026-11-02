@@ -1,0 +1,8 @@
+{
+  "1_model_ladder": "Dev AUC with 95% confidence intervals over 73,152 impressions: M0 0.589, M1 0.574, M2 0.625, M3 0.628; M3 = M2 + emotion is the highest so far.",
+  "2_m3_gain_by_metric": "M3 minus M2 with 95% confidence intervals: dev AUC gain +0.0029 (0.0023 to 0.0035), and 1 of 10 metrics stay significant after Holm on dev, 7 of 10 on valid.",
+  "3_alpha_ablation": "The best blend is personal emotion at alpha 0.8 (valid AUC 0.6499, against 0.6468 for M2 alone at the dashed line); mood repair peaks at 0.6449, below M2 at every alpha, and title-only was reported but not eligible.",
+  "4_m3_gain_by_category": "Descriptive, not causal: on dev the M3 minus M2 AUC gain runs from +0.0203 (music) to -0.0089 (finance), around +0.0029 overall; intervals are 95%.",
+  "5_m3_gain_by_history": "Descriptive: on dev the gain is +0.0042 for users with 21+ known history items, +0.0021 for 1-5, and exactly 0 without history, where the personal score is constant; intervals are 95%.",
+  "6_emotion_validation": "Spearman correlation with human ratings on 1,000 SemEval-2007 test headlines, 95% bootstrap intervals: valence 0.72 for GoEmotions and 0.50 for NRC, main emotions 0.45 to 0.59 for GoEmotions; dashed line = pre-declared minimum 0.2."
+}

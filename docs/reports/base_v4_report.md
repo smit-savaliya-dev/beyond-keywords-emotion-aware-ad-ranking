@@ -5,7 +5,7 @@ not re-scored on the GPU. No model was built.
 
 ## Summary for the professor
 1. Hand labelling was replaced by a published human benchmark: 1,000 news headlines rated by people (SemEval-2007).
-2. Our emotion scores follow human ratings well: 0.72 for positive vs negative tone, and 0.45 to 0.60 for anger, fear, joy and sadness.
+2. Our emotion scores follow human ratings well: 0.72 for positive vs negative tone, and 0.45 to 0.59 for anger, fear, joy and sadness.
    Surprise is weak (0.19).
 3. The classifier is clearly better than the word-list method, except on fear, where the two are close.
 4. Exact emotion labels agree with humans only fairly (kappa 0.30), so model features stay as soft scores and labels stay for reporting.

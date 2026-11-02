@@ -3,7 +3,7 @@
 ## Summary of research activities
 - Hand labelling was cancelled. Validated the emotion scores on an external human benchmark instead: SemEval-2007 Task 14 Affective Text
   (Strapparava & Mihalcea, 2007), 250 trial and 1,000 test news headlines. All rules were written down before scoring.
-- GoEmotions scores follow human ratings on the test headlines. Spearman: valence 0.72, sadness 0.60, anger 0.52, fear 0.46, joy 0.45. Surprise
+- GoEmotions scores follow human ratings on the test headlines. Spearman: valence 0.72, sadness 0.59, anger 0.52, fear 0.46, joy 0.45. Surprise
   is weak (0.19).
 - GoEmotions is stronger than NRC EmoLex on every emotion except fear, where the two overlap (valence 0.72 vs 0.50).
 - The emotion specification passed the pre-declared check (Spearman at least 0.2 for valence and at least 3 of 4 main emotions).

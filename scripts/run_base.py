@@ -17,7 +17,7 @@ import sys
 import time
 
 import _bootstrap  # noqa: F401
-from src.config import (ARCHIVED_SHEET, DIAGNOSTICS, EMOLEX_PATH, FROZEN_DIR, M0_NAME, M1_NAME, M2_GRID, M2_NAME, M3_NAME, PROCESSED, RAW, RESULTS, ROOT,
+from src.config import (ARCHIVED_SHEET, DIAGNOSTICS, EMOLEX_PATH, FROZEN_DIR, M0_NAME, M1_NAME, M2_GRID, M2_NAME, M3_NAME, PROCESSED, RAW, RESULT_CHARTS, RESULTS, RESULTS_FIGS, ROOT,
                         SEMEVAL_DIR, SEMEVAL_SPLITS, STORY_CHARTS, STORY_DIR, TABLES, VAD_PATH)
 from src.semeval import split_files
 from src.pipeline import Pipeline, Step, StepFailed, held_gpu_steps, rebuild_steps
@@ -143,7 +143,7 @@ def build_steps(skip_official_check):
              script=S / "38_analysis_semeval_validation.py",
              outputs=[T / f for f in ("semeval2007_validation.csv", "semeval2007_validation_meta.json",
                                       "semeval2007_selection_trial.csv", "semeval2007_per_class.csv")]
-             + [DIAGNOSTICS / "semeval2007_correlations.png"], note="trial selects, test reports"),
+             , note="trial selects, test reports"),
         Step("40_model_m0_popularity", [S / "40_model_m0_popularity.py", "--tune"], inputs=[IMPS], script=S / "40_model_m0_popularity.py",
              outputs=[FROZEN_DIR / f"{M0_NAME}.json", T / "m0_popularity_tuning_valid.csv"]
              + [RESULTS / sub / f"{M0_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
@@ -169,13 +169,17 @@ def build_steps(skip_official_check):
              extra_code=[ROOT / "config" / "emotion_spec_v4.json"],
              inputs=[IMPS, BEH, P / "news_emotion_features_v2.parquet", P / "news_emotion_features.parquet", FROZEN_DIR / f"{M2_NAME}.json"]
              + [RESULTS / sub / f"{M2_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
-             outputs=[FROZEN_DIR / f"{M3_NAME}.json", DIAGNOSTICS / "m3_alpha_curve.png"]
+             outputs=[FROZEN_DIR / f"{M3_NAME}.json"]
              + [T / f for f in ("m3_fusion_grid_valid.csv", "m3_shuffled_control_valid.csv", "m3_fusion_meta.json")]
              + [RESULTS / sub / f"{M3_NAME}__valid.parquet" for sub in ("scores", "per_impression")],
              note="valid only; stops if a D54 check fails; --final-dev is never run by the pipeline"),
         Step("46_model_compare_m2m3", [S / "46_model_compare_m2m3.py", "--part", "valid"], script=S / "46_model_compare_m2m3.py",
              inputs=[BEH, P / "data_summary.json"] + [RESULTS / "per_impression" / f"{m}__valid.parquet" for m in (M1_NAME, M2_NAME, M3_NAME)],
              outputs=[T / "m2m3_comparison.csv", T / "m2m3_user_level.csv"]),
+        Step("53_results_charts", [S / "53_results_charts.py"], script=S / "53_results_charts.py",
+             inputs=[T / f for f in ("model_ladder.csv", "m2m3_comparison.csv", "m3_fusion_grid_valid.csv", "m3_fusion_meta.json",
+                                     "m3_where_it_helps_dev.csv", "semeval2007_validation.csv")],
+             outputs=[RESULTS_FIGS / f"{n}.png" for n in RESULT_CHARTS] + [T / "results_chart_captions.json"], note="saved tables only"),
         Step("90_show_results", [S / "show_results.py"], always=True, adoptable=False),
     ]
 

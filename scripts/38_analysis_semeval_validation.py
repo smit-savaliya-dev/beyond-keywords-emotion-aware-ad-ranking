@@ -11,12 +11,11 @@ from pathlib import Path
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from src.config import DIAGNOSTICS, EMOLEX_PATH, PROCESSED, SEMEVAL_CITATION, SEMEVAL_CUTOFF, SEMEVAL_DIR, TABLES, VAD_PATH
+from src.config import EMOLEX_PATH, PROCESSED, SEMEVAL_CITATION, SEMEVAL_CUTOFF, SEMEVAL_DIR, TABLES, VAD_PATH
 from src.emotion_features import go_vad
 from src.lexicon import load_emolex, load_vad
 from src.provenance import run_info
 from src.semeval import headline_lexicon, load_semeval, rule_labels, run_validation
-from src.story_charts import semeval_correlations
 
 
 def main():
@@ -50,9 +49,6 @@ def main():
              "rules": "D46, D47, D48 in docs/decisions.md", "go_vad_overrides_used": overridden,
              "n_boot": args.n_boot, "emolex": emolex_info, "vad": vad_info, "run_info": run_info()}
     (TABLES / "semeval2007_validation_meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    semeval_correlations(corr, DIAGNOSTICS / "semeval2007_correlations.png", "Emotion scores against human ratings of news headlines",
-                         "Spearman correlation on the 1,000 SemEval-2007 test headlines, with 95% bootstrap intervals. "
-                         "The dashed line is the pre-declared minimum of 0.2 for the spec check.")
 
     pd.set_option("display.width", 170)
     print(corr.round(3).to_string(index=False))

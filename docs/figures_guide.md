@@ -1,6 +1,6 @@
 # Guide to the charts
 
-The eight story charts are in `results/figures/story/` and use one style. A ninth, on external validation, is at the end. On charts 6, 7 and 8, the blue circle is fit (9-13 Nov) and
+The eight story charts are in `results/figures/story/` and use one style. The six results charts for the supervisor are at the end. On charts 6, 7 and 8, the blue circle is fit (9-13 Nov) and
 the orange square is valid (14 Nov, the next day). "dz" is an effect size: how far clicked items differ from unclicked
 items in the same list, in standard deviations. 0 means no difference, 0.1-0.2 is small but real. A hollow marker means the
 result was not significant at both the impression level and the user level. Dev data was never used.
@@ -54,18 +54,42 @@ result was not significant at both the impression level and the user level. Dev 
   ones. So the gain does not come from recency: it looks like a stable preference, measured better with more items.
 - **Read with care:** the history list stops before the log period, so "last 1" is not the click just before the impression.
 
-## External validation (`results/figures/diagnostics/semeval2007_correlations.png`)
-The story folder already holds 8 charts, so this one sits in diagnostics.
-- **Shows:** how well our emotion scores track human ratings on the 1,000 SemEval-2007 test headlines, with 95% intervals. Blue circles
-  are GoEmotions group scores, green triangles single GoEmotions labels, orange squares NRC EmoLex. The bottom row is valence, where blue
-  is go_vad_valence and orange is NRC VAD. The dashed line is the pre-declared minimum of 0.2. Dev and MIND clicks are not involved.
-- **Why it matters:** this is the only human check of the scores. GoEmotions passes on anger, fear, joy, sadness and valence, and beats NRC
-  everywhere except fear, where the intervals overlap. There is no group score for disgust, because disgust is part of the anger group.
-- **Read with care:** the data are headlines from 2007, so this tests the title scoring, not the abstracts. Surprise is weak for every source.
+# Results charts for the supervisor
 
-## M3 alpha curve (`results/figures/diagnostics/m3_alpha_curve.png`)
-This chart is also in diagnostics: replacing a story chart would have changed existing files.
+All six are in `results/figures/results/`. Every caption is computed from the saved tables, so its numbers always match the results. Bars around a
+dot are 95% confidence intervals: if a bar stays clear of zero, the difference is unlikely to be chance. Dev is the final test, run once per model.
+
+## 1. Model ladder (`1_model_ladder.png`)
+- **Shows:** final test AUC for each model, with or without emotion. AUC is the chance that a clicked item is ranked above an unclicked one in the same
+  list; 0.5 is random.
+- **Why it matters:** this is the whole project on one chart. New models appear on it automatically.
+- **Read with care:** each model's bar shows the uncertainty of that model alone. To compare two models use the paired tests, which are far more precise.
+
+## 2. Gain from emotion per metric (`2_m3_gain_by_metric.png`)
+- **Shows:** M3 minus M2 on all 10 metrics, on valid and on dev. A hollow marker means not significant after Holm correction.
+- **Why it matters:** AUC measures the whole list, while the other metrics measure the top of it. Emotion improves the first, and on dev not clearly the second.
+- **Read with care:** a hollow marker can have a bar that clears zero, because Holm is stricter than a single interval: it allows for testing 10 metrics at once. Valid is
+  the set that chose M3, so it is expected to look better than dev.
+
+## 3. Alpha curve (`3_alpha_ablation.png`)
 - **Shows:** valid AUC as the blend moves from emotion alone (alpha 0) to M2 alone (alpha 1), one line per emotion score. The dashed line is M2.
-- **Why it matters:** only the personal score rises clearly above M2, and only near alpha 0.8. Mood repair stays below M2. Emotion works as a small correction.
-- **Read with care:** this is the set that chose the setting, so the peak is optimistic. The dev result is in `docs/reports/m2m3_report.md`.
+- **Why it matters:** only the personal score rises clearly above M2, and only near alpha 0.8. Mood repair stays below M2. Emotion works as a small correction, not as a ranker.
+- **Read with care:** this is the set that chose the setting, so the peak is optimistic.
+
+## 4. Where emotion helps, by category (`4_m3_gain_by_category.png`)
+- **Shows:** M3 minus M2 AUC on dev, split by the category of the clicked item.
+- **Why it matters:** the small average hides larger effects with opposite signs: up for music and news, down for sports and finance.
+- **Read with care:** descriptive only. Emotion is linked to topic, and the split uses the click itself, so this does not show why. Nothing was chosen from it.
+
+## 5. Gain by history length (`5_m3_gain_by_history.png`)
+- **Shows:** the same gain, split by how many history items the user has.
+- **Why it matters:** the gain is largest with 21 or more items, where the emotional profile is best measured. Without history it is exactly 0, because the personal score is constant.
+- **Read with care:** descriptive only, and the bars of the two middle groups overlap.
+
+## 6. Emotion validation (`6_emotion_validation.png`)
+- **Shows:** how well our emotion scores track human ratings on 1,000 SemEval-2007 news headlines, for GoEmotions and NRC EmoLex. The dashed line is the pre-declared
+  minimum of 0.2.
+- **Why it matters:** this is the only human check of the scores. GoEmotions passes on anger, fear, joy, sadness and valence, and beats NRC everywhere except fear, where the
+  intervals overlap. There is no group score for disgust, because disgust is part of the anger group.
+- **Read with care:** the data are headlines from 2007, so this tests the title scoring, not the abstracts. Surprise is weak for every source.
 

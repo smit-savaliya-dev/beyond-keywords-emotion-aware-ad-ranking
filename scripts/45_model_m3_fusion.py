@@ -13,7 +13,7 @@ import pandas as pd
 import _bootstrap  # noqa: F401
 from src.baselines import load_part
 from src.click_signal import permute_within_groups
-from src.config import (DIAGNOSTICS, GO_PCT_COLUMNS, M2_NAME, M3_K_OTHER, M3_NAME, M3_REPORT_ONLY, M3_VARIANTS, PROCESSED, RESULTS,
+from src.config import (GO_PCT_COLUMNS, M2_NAME, M3_K_OTHER, M3_NAME, M3_REPORT_ONLY, M3_VARIANTS, PROCESSED, RESULTS,
                         SEED, SELECTION_METRIC, TABLES)
 from src.congruence import history_index_lists, other_user_cosine
 from src.emotion_features import GO_EMOTIONS
@@ -22,7 +22,6 @@ from src.evaluate import attach_scores, evaluate, save_results
 from src.experiments import append_run, check_final_dev, frozen_marker, load_frozen, pick_best, save_frozen
 from src.fusion import emotion_scores, fit_profile_pool, fuse, grid_configs, minmax_within, same_metrics, shuffled_control
 from src.provenance import run_info
-from src.story_charts import alpha_curve
 
 
 def load_inputs(part, processed, need_other):
@@ -95,9 +94,6 @@ def tune(processed):
     checks = {"alpha_1_reproduces_m2": {v: {"identical": r[0], "max_abs_diff": r[1]} for v, r in alpha_one.items()},
               "identical_impressions": bool(same_imps), "shuffled_control_passes": control_ok,
               "shuffled_control_best_mean_diff": float(control["mean_diff"].max())}
-    alpha_curve(grid, float(per_m2[SELECTION_METRIC].mean()), DIAGNOSTICS / "m3_alpha_curve.png", "Valid AUC as emotion gets more weight",
-                "Each line blends M2 with one emotion score. At alpha = 1 every line is M2 alone; at alpha = 0 it is emotion alone. "
-                "Title-only is reported, not eligible for selection. Chosen on valid; dev not used.")
     print("\n" + control.round(5)[["alpha", "mean_diff", "ci_low", "ci_high", "p_holm", "beats_m2"]].to_string(index=False))
     print(json.dumps(checks, indent=2))
     if not (all(r[0] for r in alpha_one.values()) and same_imps and control_ok):
