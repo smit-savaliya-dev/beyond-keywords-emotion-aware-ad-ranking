@@ -159,6 +159,21 @@ def m5_lines(tables):
         ci = f"{r['ci_low']:+.4f} to {r['ci_high']:+.4f}"
         name = f"{r['model_b']} - {r['model_a']}".replace("_lightgbm_emotion", "").replace("_lightgbm", "").replace("_sbert_emotion", "").replace("_sbert", "")
         lines.append(f"  {name[:30]:30s}{r['part']:>6s}{r['mean_diff']:+10.4f}{ci:>22s}{r['dz']:+8.3f}{'yes' if r['significant_holm'] else 'no':>7s}")
+    return lines + control_lines(tables)
+
+
+def control_lines(tables):
+    t = _read(tables / "m5_controls_valid.csv")
+    fresh = _read(tables / "m5_fresh_items.csv")
+    if t is None or fresh is None:
+        return []
+    lines = ["", "  item-identity controls, gain vs M4 at the same hyperparameters, valid, mean of 3 seeds:"]
+    gains = t.groupby("model")["gain_vs_m4_same"].mean()
+    lines += [f"    {m:28s}{g:+.4f}" for m, g in gains.sort_values(ascending=False).items() if g != 0]
+    lines += ["", f"  {'M5 - M4 AUC by candidate':30s}{'part':>6s}{'% cands':>9s}{'diff':>10s}{'95% CI':>22s}"]
+    for _, r in fresh.iterrows():
+        ci = f"{r['ci_low']:+.4f} to {r['ci_high']:+.4f}"
+        lines.append(f"  {r['subset']:30s}{r['part']:>6s}{r['pct_candidates']:9.1f}{r['mean_diff']:+10.4f}{ci:>22s}")
     return lines
 
 

@@ -93,3 +93,11 @@ dot are 95% confidence intervals: if a bar stays clear of zero, the difference i
   intervals overlap. There is no group score for disgust, because disgust is part of the anger group.
 - **Read with care:** the data are headlines from 2007, so this tests the title scoring, not the abstracts. Surprise is weak for every source.
 
+# Diagnostics
+
+## What M5 uses (`results/figures/diagnostics/m5_feature_importance.png`)
+- **Shows:** how much each feature moves the M5 score on valid, coloured by family. It is in diagnostics because the results folder is limited to 6 charts.
+- **Why it matters:** content and popularity carry most of the model.
+- **Read with care:** a high bar for an item-level emotion feature does not mean emotion drives clicks. Those features can act as an item ID (see `docs/methodology_notes.md`, section 9), so this chart
+  overstates what emotion contributes, and valid is the day where that identity pays off.
+

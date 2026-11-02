@@ -1,0 +1,24 @@
+{
+  "config": {
+    "num_leaves": 31,
+    "learning_rate": 0.05,
+    "min_child_samples": 50,
+    "best_iteration": 149,
+    "seed": 42,
+    "n_features": 9,
+    "model_sha256": "eb3fda80d9bc20f5a5a20c2ef95a13a7f63cdd2d9246b0954fe5c6c5ced8be28"
+  },
+  "model_file": "M4_lightgbm.txt",
+  "metrics": {
+    "auc": 0.6739,
+    "mrr": 0.3245,
+    "ndcg@5": 0.3569,
+    "p@5": 0.1278,
+    "r@5": 0.4983,
+    "hr@5": 0.5769,
+    "ndcg@10": 0.4182,
+    "p@10": 0.0899,
+    "r@10": 0.6725,
+    "hr@10": 0.7509
+  }
+}

@@ -143,4 +143,13 @@ Spearman correlation on the same items (items with at least one EmoLex emotion w
   stopping round, so dev is the claim.
 - **Importance:** gain and mean absolute contribution are computed on valid only. Features that carry the same information share credit, so a low rank means little unique use, not that the feature
   has no link to clicks.
+- **Item identity, the main lesson of M5:** continuous item scores can act as an item ID. One emotion feature alone separates almost every item (6,099 distinct values on 6,144 valid items), so
+  trees can learn which items were clicked on fit. That is not leakage, because fit clicks are past data, but it is not emotion either, and M4 has no such ID to compare with. The first shuffled
+  control could not see this, because shuffling within an impression breaks the item-to-score link. The right control keeps identity and removes meaning: each item consistently takes another
+  item's emotion vector (D69). On valid that control kept about half of the gain.
+- **Why valid misled here:** valid is the day after fit, so 70.8% of its candidates were shown on fit days. Dev comes two days after fit, so only 19.4% were. Tuning and early stopping on valid therefore reward
+  memorising items, and the reward disappears on dev. This affects any model with item-level continuous features and matters for M6 and M7. A system retrained daily might keep part of this gain,
+  but that gain would be item popularity, not emotion.
+- **What compares like with like:** on valid the controls are read against M4 at M5's hyperparameters and the same seed. On dev only M4 with its own hyperparameters exists, so the control rows there differ in
+  hyperparameters and stopping round too. The dev comparison is also one seed, and its confidence interval covers impressions, not training variation.
 

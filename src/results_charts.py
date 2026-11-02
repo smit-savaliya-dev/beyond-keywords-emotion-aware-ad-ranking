@@ -105,7 +105,7 @@ def importance_chart(t, path, title, caption):
     ax.set_xlabel("Mean absolute contribution to the score (raw model units)")
     for family, color in colors.items():
         ax.barh([0], [0], color=color, label=family)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.75 / (height - 1.87)), ncol=4, frameon=False, fontsize=8, labelcolor=INK)
+    ax.legend(loc="lower right", frameon=False, fontsize=8, labelcolor=INK)
     _finish(fig, path, title, caption, height)
 
 

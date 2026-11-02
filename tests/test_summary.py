@@ -90,3 +90,14 @@ def test_m5_section(tmp_path):
     text = "\n".join(m5_lines(tmp_path))
     assert "0.6590 to 0.6610" in text and "M5 - M4" in text and "FAIL" not in text
 
+
+def test_control_lines(tmp_path):
+    from src.summary import control_lines
+    assert control_lines(tmp_path) == []
+    pd.DataFrame({"model": ["M4_m5_hyperparameters", "M5_permuted_items", "M5_permuted_items"], "gain_vs_m4_same": [0.0, 0.01, 0.02]}).to_csv(
+        tmp_path / "m5_controls_valid.csv", index=False)
+    pd.DataFrame([{"part": "dev", "subset": "unseen in fit", "pct_candidates": 80.6, "mean_diff": -0.0035, "ci_low": -0.0049, "ci_high": -0.0022}]).to_csv(
+        tmp_path / "m5_fresh_items.csv", index=False)
+    text = "\n".join(control_lines(tmp_path))
+    assert "M5_permuted_items" in text and "+0.0150" in text and "80.6" in text and "M4_m5_hyperparameters" not in text
+

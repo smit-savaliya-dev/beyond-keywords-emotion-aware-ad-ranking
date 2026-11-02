@@ -229,3 +229,7 @@ M0 to M3 are complete. Next, when asked: M4, M5. Spec v3 is current; open: Q12, 
 
 ## 2026-11-02 results-m4m5 step 3b: item-identity controls on valid
 - Swapped emotion vectors keep about half of the M5 gain, so the gain is partly item identity (D70). Controls frozen before any M4 or M5 dev run.
+
+## 2026-11-02 results-m4m5 step 3c: dev runs and RQ5
+- M4, M5, M5_permuted_items and M5_congruence_only each ran on dev once (8 final-dev rows in runs_log). All earlier dev files keep their hashes.
+- M5 - M4 on dev is -0.0030: the production-paradigm question is not supported (D71). The valid gain came from items already seen in fit. Nothing was changed after dev.
