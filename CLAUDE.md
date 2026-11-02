@@ -53,6 +53,8 @@ from the user's recent reading", never "the user's emotional state".
 - Script 47 reads dev for RQ5 and is not a pipeline step (like --final-dev); script 53 reads saved dev result files for the ladder, also by hand.
 - M4/M5 (scripts 48-52, src/ltr.py): click-derived features use days strictly before the row's day (D64); training samples 4 non-clicks per click, scoring uses all candidates.
   M5-all never runs on dev (D65). Boosters live in data/processed/ltr_models/; their sha256 is in the frozen config.
+  M4 frozen: 31 leaves, rate 0.05, min child 50; M5: 63, 0.05, 200 (D69). M5 - M4 on dev is negative (D71). Item-level continuous scores act as an item ID and valid shares 70.8% of
+  candidates with fit (dev 19.4%), so read any gain with the item-swap control and fresh-item split (scripts 50, 51; Q15).
 
 ## Engineering rules
 - Decisions: docs/decisions.md (every non-trivial choice, with evidence part). Progress: docs/progress.md.

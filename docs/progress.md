@@ -233,3 +233,11 @@ M0 to M3 are complete. Next, when asked: M4, M5. Spec v3 is current; open: Q12, 
 ## 2026-11-02 results-m4m5 step 3c: dev runs and RQ5
 - M4, M5, M5_permuted_items and M5_congruence_only each ran on dev once (8 final-dev rows in runs_log). All earlier dev files keep their hashes.
 - M5 - M4 on dev is -0.0030: the production-paradigm question is not supported (D71). The valid gain came from items already seen in fit. Nothing was changed after dev.
+
+## 2026-11-02 results-m4m5 step 4: wrap-up
+- `--rebuild`: exit 0, GPU steps held, every LightGBM run retrained. 5 of 5 boosters byte-identical, frozen hashes unchanged, M2 to M5 valid results identical, 16 of 16 dev hashes match, 8 final-dev rows.
+- Snapshot 75 of 76; `summary.csv` differs only by new rows, and its 4 original rows differ by 0 (same reading as D60). 219 tests pass.
+- Reports: `docs/reports/m4m5_report.md`, `results/reports/week7_report_draft.md`.
+
+## Resume here
+M0 to M5 are complete. M4 is the best model on dev. Next, when asked: M6, M7. Spec v4 is current; open: Q14, Q15.
