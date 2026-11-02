@@ -1,0 +1,47 @@
+{
+  "model": "M5_congruence_only",
+  "config": {
+    "num_leaves": 63,
+    "learning_rate": 0.05,
+    "min_child_samples": 200,
+    "best_iteration": 29,
+    "seed": 42,
+    "n_features": 13,
+    "model_sha256": "1a9b167a332757b7b9f3c1b34630da3216730eacd623c0b6f71e0222e5966138"
+  },
+  "config_hash": "9d1cc6c192",
+  "chosen_on": "valid",
+  "evidence": {
+    "selection": "none: M5's hyperparameters, a pre-declared control (D69)",
+    "features": [
+      "pop_ctr",
+      "m1_score",
+      "m2_score",
+      "category",
+      "subcategory",
+      "user_cat_affinity",
+      "history_len",
+      "title_len",
+      "imp_size",
+      "cong_pct_cos",
+      "cong_pct_cos_personal",
+      "cong_six_negkl_personal",
+      "cong_valence_absdist_personal"
+    ]
+  },
+  "frozen_utc": "2026-11-02T19:02:34+00:00",
+  "run_info": {
+    "timestamp_utc": "2026-11-02T19:02:34+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "9d62099",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

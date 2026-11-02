@@ -1,0 +1,33 @@
+{
+  "rule": "D69",
+  "params": {
+    "num_leaves": 63,
+    "learning_rate": 0.05,
+    "min_child_samples": 200
+  },
+  "seed_means": {
+    "M4_m5_hyperparameters": 0.0,
+    "M5_congruence_only": 0.0020830376593116893,
+    "M5_item_only": 0.01299987987323544,
+    "M5_lightgbm_emotion": 0.014059423023676132,
+    "M5_permuted_items": 0.007562054744620461
+  },
+  "frozen": {
+    "M5_permuted_items": "a40f2c6846",
+    "M5_congruence_only": "9d1cc6c192"
+  },
+  "run_info": {
+    "timestamp_utc": "2026-11-02T19:02:34+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "9d62099",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

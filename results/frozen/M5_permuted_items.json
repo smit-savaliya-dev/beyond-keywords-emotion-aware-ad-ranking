@@ -1,0 +1,60 @@
+{
+  "model": "M5_permuted_items",
+  "config": {
+    "num_leaves": 63,
+    "learning_rate": 0.05,
+    "min_child_samples": 200,
+    "best_iteration": 132,
+    "seed": 42,
+    "n_features": 26,
+    "model_sha256": "cb615db41d5aacafd51f6f38637e4ff0fc7e5c44314c106878a0bf732f35d091"
+  },
+  "config_hash": "a40f2c6846",
+  "chosen_on": "valid",
+  "evidence": {
+    "selection": "none: M5's hyperparameters, a pre-declared control (D69)",
+    "features": [
+      "pop_ctr",
+      "m1_score",
+      "m2_score",
+      "category",
+      "subcategory",
+      "user_cat_affinity",
+      "history_len",
+      "title_len",
+      "imp_size",
+      "go_pct_excitement",
+      "go_pct_joy",
+      "go_pct_optimism",
+      "go_pct_nervousness",
+      "go_pct_annoyance",
+      "go_pct_fear",
+      "go_vad_valence",
+      "go_vad_dominance",
+      "vad_valence",
+      "nrc_trust",
+      "go_dist_optimism",
+      "go_dist_nervousness",
+      "go_dist_fear",
+      "cong_pct_cos",
+      "cong_pct_cos_personal",
+      "cong_six_negkl_personal",
+      "cong_valence_absdist_personal"
+    ]
+  },
+  "frozen_utc": "2026-11-02T19:02:34+00:00",
+  "run_info": {
+    "timestamp_utc": "2026-11-02T19:02:34+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "git_commit": "9d62099",
+    "git_dirty": true,
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "25.0.1",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.18.0"
+  }
+}

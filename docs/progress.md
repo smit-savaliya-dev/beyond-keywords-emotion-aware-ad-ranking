@@ -226,3 +226,6 @@ M0 to M3 are complete. Next, when asked: M4, M5. Spec v3 is current; open: Q12, 
 ## 2026-11-02 results-m4m5 step 3a: M4 and M5 tuned on valid
 - 24 grid fits, 6 seed fits, 1 shuffled control, about 45 minutes. M4 valid AUC 0.6745, M5 0.6887; D67 checks pass; M4 is below the leakage limit.
 - The gain looked too large. Item emotion scores nearly identify an item and 70.8% of valid candidates were shown on fit days, so added controls were pre-declared before any dev run (D69).
+
+## 2026-11-02 results-m4m5 step 3b: item-identity controls on valid
+- Swapped emotion vectors keep about half of the M5 gain, so the gain is partly item identity (D70). Controls frozen before any M4 or M5 dev run.
