@@ -1,6 +1,6 @@
 """The results charts for the supervisor (results/figures/results/), from saved tables only. Reads no impression data.
 
-  python scripts/53_results_charts.py
+  python scripts/54_results_charts.py
 """
 import _bootstrap  # noqa: F401
 from src.config import RESULTS_FIGS, TABLES

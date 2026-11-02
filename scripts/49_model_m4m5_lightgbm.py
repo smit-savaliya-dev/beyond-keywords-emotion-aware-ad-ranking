@@ -15,20 +15,14 @@ import pandas as pd
 import _bootstrap  # noqa: F401
 from src.config import (LEAKAGE_AUC_WARN, LTR_FEATURE_FILE, LTR_SEEDS, M4_NAME, M5_ALL_NAME, M5_FAIR_NAME, M5_NAME, PROCESSED, RESULTS,
                         SEED, SELECTION_METRIC, SIGNAL_ALPHA, TABLES)
-from src.evaluate import evaluate, load_truth, save_results
+from src.evaluate import load_truth, save_results
 from src.experiments import append_run, check_final_dev, frozen_marker, pick_best, save_frozen
 from src.ltr import (build_features, check_saved_scores, emotion_columns, file_sha, fit_or_load, grid_configs, load_model, model_features, model_path,
-                     save_model_copy, shuffle_within_impressions)
+                     save_model_copy, score_frame as score, shuffle_within_impressions)
 from src.provenance import run_info
 from src.stats import paired_test
 
 MODELS = [M4_NAME, M5_NAME, M5_ALL_NAME]
-
-
-def score(booster, frame, features, truth):
-    out = frame[["imp_key", "news_id"]].assign(score=booster.predict(frame[features]))
-    per, summary = evaluate(truth, out)
-    return out, per, summary
 
 
 def tune(processed, resume):

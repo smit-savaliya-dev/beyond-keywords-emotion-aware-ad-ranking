@@ -50,8 +50,8 @@ from the user's recent reading", never "the user's emotional state".
 - True recency (script 35) uses earlier log clicks for analysis only; M2-M7 use the history column only (Q09 decided, D45).
 - M5-all is a pre-declared robustness variant with all 19 item candidates (D37).
 - M2 frozen: title, mean (D57). M3 frozen: personal, alpha 0.8 (D58). Dev scores are saved in results/scores/; never rerun them.
-- Script 47 reads dev for RQ5 and is not a pipeline step (like --final-dev); script 52 reads saved dev result files for the ladder, also by hand.
-- M4/M5 (scripts 48-51, src/ltr.py): click-derived features use days strictly before the row's day (D64); training samples 4 non-clicks per click, scoring uses all candidates.
+- Script 47 reads dev for RQ5 and is not a pipeline step (like --final-dev); script 53 reads saved dev result files for the ladder, also by hand.
+- M4/M5 (scripts 48-52, src/ltr.py): click-derived features use days strictly before the row's day (D64); training samples 4 non-clicks per click, scoring uses all candidates.
   M5-all never runs on dev (D65). Boosters live in data/processed/ltr_models/; their sha256 is in the frozen config.
 
 ## Engineering rules

@@ -207,3 +207,45 @@ def test_importance_table_ranks_the_real_signal_first():
     s = ltr.family_shares(t.assign(family=["content", "emotion", "emotion"]))
     assert s["emotion"]["n_features"] == 2 and s["content"]["contrib_share"] + s["emotion"]["contrib_share"] == pytest.approx(1)
 
+
+def fake_emotion_tables(path, ids):
+    from src.config import GO_FEATURES
+    from src.emotion import GOEMOTIONS_LABELS
+    items, _ = spec_features()
+    columns = list(dict.fromkeys([*items, *M5_ROBUSTNESS_ITEM_FEATURES, *[f"go_pct_{e}" for e in GO_FEATURES], "go_vad_valence"]))
+    rng = np.random.default_rng(0)
+    f = pd.DataFrame({c: rng.random(len(ids)) for c in columns}).assign(news_id=ids)
+    f.to_parquet(path / "news_emotion_features_v2.parquet")
+    pd.DataFrame({c: rng.random(len(ids)) for c in GOEMOTIONS_LABELS}).assign(news_id=ids).to_parquet(path / "news_emotion_raw28_v2.parquet")
+    return f
+
+
+def test_item_swap_keeps_identity_and_values_but_moves_them_to_other_items(tmp_path):
+    ids = [f"n{i}" for i in range(6)]
+    f = fake_emotion_tables(tmp_path, ids)
+    groups, item_idx = np.array([0, 0, 0, 1, 1, 1]), np.array([0, 1, 2, 0, 3, 4])
+    hist = [np.array([5]), np.array([1, 2])]
+    plain = ltr.emotion_block(groups, item_idx, hist, ids, tmp_path)
+    assert plain["go_vad_dominance"] == pytest.approx(f["go_vad_dominance"].to_numpy()[item_idx])
+    perm = np.array([1, 2, 3, 4, 5, 0])
+    swapped = ltr.emotion_block(groups, item_idx, hist, ids, tmp_path, perm)
+    for c in model_features(M5_NAME)[len(M4_FEATURES):len(M4_FEATURES) + 13]:
+        assert swapped[c] == pytest.approx(f[c].to_numpy()[perm][item_idx])          # item 0 carries item 1's vector, in every row
+    assert swapped["go_vad_dominance"][0] == swapped["go_vad_dominance"][3]          # same item, same fingerprint: identity survives
+    assert not np.allclose(plain["cong_pct_cos"], swapped["cong_pct_cos"])           # congruence uses the swapped vectors too
+
+
+def test_impression_aucs_nan_for_one_class():
+    out = ltr.impression_aucs(np.array([0, 0, 1, 1]), np.array([1, 0, 1, 1]), np.array([0.9, 0.1, 0.5, 0.2]))
+    assert out[0] == 1.0 and np.isnan(out[1])
+
+
+def test_fresh_split_scores_only_inside_each_subset():
+    from src.results_tables import fresh_split
+    truth = pd.DataFrame({"imp_key": ["a"] * 4 + ["b"] * 4, "news_id": ["old1", "old2", "new1", "new2"] * 2, "label": [1, 0, 1, 0] * 2})
+    a = truth[["imp_key", "news_id"]].assign(score=[0.9, 0.1, 0.1, 0.9] * 2)       # right on old items, wrong on new ones
+    b = truth[["imp_key", "news_id"]].assign(score=[0.9, 0.1, 0.9, 0.1] * 2)       # right on both
+    t = fresh_split(truth, a, b, {"old1", "old2"}, "valid").set_index("subset")
+    assert t.loc["unseen in fit", "mean_diff"] == 1.0 and t.loc["seen in fit", "mean_diff"] == 0.0
+    assert t.loc["unseen in fit", "pct_candidates"] == 50 and t.loc["seen in fit", "impressions"] == 2
+

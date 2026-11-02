@@ -68,17 +68,18 @@ modules it imports), the config constants it uses, its arguments or its outputs 
 | 46 | `46_model_compare_m2m3.py --part valid` | valid | paired M2 vs M1 and M3 vs M2, user-level check |
 | 48 | `48_model_ltr_features.py` | fit + valid | M4 and M5 feature tables, time-safe popularity, checks against M0-M2 |
 | 49 | `49_model_m4m5_lightgbm.py --tune` | valid | M4, M5, M5-all grids, seeds, shuffled control, frozen settings |
-| 50 | `50_results_compare_m4m5.py --part valid` | valid | paired M5 vs M4, M5 vs M3, M4 vs M2, M5-all vs M5, fairness check |
-| 51 | `51_results_feature_importance.py` | valid | gain and mean absolute contribution for M5 |
-| 53 | `53_results_charts.py` | saved tables | the 6 charts in `results/figures/results/` |
+| 50 | `50_results_m5_controls.py --tune` | valid | item-identity controls for M5 (D69) |
+| 51 | `51_results_compare_m4m5.py --part valid` | valid | paired M5 vs M4, M5 vs M3, M4 vs M2, M5-all vs M5, fairness check, controls, fresh-item split |
+| 52 | `52_results_feature_importance.py` | valid | gain and mean absolute contribution for M5 |
+| 54 | `54_results_charts.py` | saved tables | the 6 charts in `results/figures/results/` |
 | - | `show_results.py` | saved tables | terminal summary (last step) |
 
 **Final test (never run by the pipeline, once per model, after its settings are frozen and recorded in `docs/decisions.md`):**
 `python scripts/40_model_m0_popularity.py --final-dev`, `python scripts/41_model_m1_tfidf.py --final-dev`, then
 `python scripts/42_model_compare_baselines.py --part dev`. For M2 and M3: `44_model_m2_sbert.py --final-dev`, `45_model_m3_fusion.py --final-dev`,
 `46_model_compare_m2m3.py --part dev`, then `47_model_m3_where_it_helps.py` (descriptive, reads dev, so never a pipeline step).
-For M4 and M5: `49_model_m4m5_lightgbm.py --final-dev --model M4_lightgbm`, the same with `--model M5_lightgbm_emotion`, `50_results_compare_m4m5.py --part dev`,
-`47_model_m3_where_it_helps.py --base M4_lightgbm --model M5_lightgbm_emotion --out m5_where_it_helps --compact`, then `52_results_model_ladder.py`, which reads the saved dev
+For M4 and M5: `49_model_m4m5_lightgbm.py --final-dev --model M4_lightgbm`, the same with `--model M5_lightgbm_emotion`, `50_results_m5_controls.py --final-dev --model M5_permuted_items`, the same with `--model M5_congruence_only`, `51_results_compare_m4m5.py --part dev`,
+`47_model_m3_where_it_helps.py --base M4_lightgbm --model M5_lightgbm_emotion --out m5_where_it_helps --compact`, then `53_results_model_ladder.py`, which reads the saved dev
 results for the ladder chart. M5-all never runs on dev (D65).
 A second dev run needs `--rerun-dev "<reason>"`.
 

@@ -1,6 +1,6 @@
 """Where do emotion features rank inside M5? LightGBM gain importance and mean |pred_contrib| on seeded valid impressions (D68). Dev is never read.
 
-  python scripts/51_results_feature_importance.py
+  python scripts/52_results_feature_importance.py
 """
 import json
 

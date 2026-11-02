@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 from .config import METRIC_COLUMNS, MODEL_LADDER, PROCESSED
+from .ltr import impression_aucs
 from .stats import compare_models, paired_test
 
 
@@ -51,4 +52,22 @@ def compare_pairs(per_dir, pairs, part, processed=PROCESSED):
         u = m.groupby(m["imp_key"].astype(str).map(users))[["auc_a", "auc_b"]].mean()
         rows.append({"part": part, "model_a": a, "model_b": b, "users": len(u), **paired_test(u["auc_a"], u["auc_b"])})
     return comp, pd.DataFrame(rows)
+
+
+def fresh_split(truth, scores_a, scores_b, seen_ids, part):
+    """B - A AUC inside each impression, on candidates never shown in fit and, separately, on those shown (D69). Impressions need both classes in the subset."""
+    t = truth[["imp_key", "news_id", "label"]].copy()
+    for name, s in (("a", scores_a), ("b", scores_b)):
+        t = t.merge(s.rename(columns={"score": name}), on=["imp_key", "news_id"], validate="one_to_one")
+    seen = t["news_id"].isin(seen_ids).to_numpy()
+    rows = []
+    for subset, mask in (("unseen in fit", ~seen), ("seen in fit", seen)):
+        s = t[mask]
+        groups = pd.factorize(s["imp_key"])[0]
+        a = impression_aucs(groups, s["label"], s["a"])
+        b = impression_aucs(groups, s["label"], s["b"])
+        r = paired_test(a, b)
+        rows.append({"part": part, "subset": subset, "pct_candidates": 100 * float(mask.mean()), "impressions": r["n"], "auc_a": r["mean_a"], "auc_b": r["mean_b"],
+                     "mean_diff": r["mean_diff"], "ci_low": r["ci_low"], "ci_high": r["ci_high"], "dz": r["dz"], "p": r["p"]})
+    return pd.DataFrame(rows)
 

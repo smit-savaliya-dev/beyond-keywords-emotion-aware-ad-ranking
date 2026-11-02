@@ -219,7 +219,7 @@ M0 to M3 are complete. Next, when asked: M4, M5. Spec v3 is current; open: Q12, 
 - Spec v4 written (D62): only the fusion score changes. Q12 and Q13 decided.
 
 ## 2026-11-02 results-m4m5 step 2: results charts; step 3 pre-declared
-- Six charts in `results/figures/results/`, captions computed from saved tables (`scripts/53_results_charts.py`, `src/results_charts.py`). The alpha curve and the SemEval chart moved there from diagnostics, so one copy exists. `model_ladder.csv` comes from `scripts/52_results_model_ladder.py`, by hand, because it reads dev result files.
+- Six charts in `results/figures/results/`, captions computed from saved tables (`scripts/54_results_charts.py`, `src/results_charts.py`). The alpha curve and the SemEval chart moved there from diagnostics, so one copy exists. `model_ladder.csv` comes from `scripts/53_results_model_ladder.py`, by hand, because it reads dev result files.
 - MY ERROR corrected: sadness Spearman is 0.5946, so 0.59. The Week 6 draft and the base-v4 report said 0.60, a double rounding from 0.595.
 - D63-D68 committed before any M4 or M5 feature build or training.
 

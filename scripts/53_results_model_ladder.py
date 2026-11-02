@@ -1,7 +1,7 @@
 """Mean dev AUC with a 95% CI per model, from the saved per-impression results. Reads no impressions and scores nothing.
 Run by hand after a --final-dev run; it is not a pipeline step, because it reads dev result files.
 
-  python scripts/52_results_model_ladder.py
+  python scripts/53_results_model_ladder.py
 """
 import pandas as pd
 

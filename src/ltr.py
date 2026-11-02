@@ -10,7 +10,7 @@ import pandas as pd
 
 from .baselines import cosine_scores, fit_tfidf, item_ctr, load_part, popularity_scores, profile_weights, train_news_ids
 from .click_signal import permute_within_groups
-from .config import (LTR_CHECK_TOLERANCE, LTR_CONGRUENCE_MEASURES, LTR_DAY1_PRIOR, LTR_GRID, LTR_MAX_ROUNDS, LTR_MODEL_DIR, LTR_RUN_DIR, LTR_NEG_PER_CLICK, LTR_PATIENCE, LTR_STATS_PARTS, LTR_THREADS,
+from .config import (LTR_CHECK_TOLERANCE, LTR_CONGRUENCE_MEASURES, LTR_DAY1_PRIOR, LTR_GRID, LTR_MAX_ROUNDS, LTR_MODEL_DIR, LTR_PERMUTATION_SEED, LTR_RUN_DIR, LTR_NEG_PER_CLICK, LTR_PATIENCE, LTR_STATS_PARTS, LTR_THREADS,
                      M0_NAME, M1_NAME, M2_NAME, M4_CATEGORICAL, M4_FEATURES, M4_NAME, M5_ALL_NAME, M5_NAME, M5_ROBUSTNESS_ITEM_FEATURES,
                      PROCESSED, RESULTS, TFIDF_MIN_DF, TFIDF_STOP_WORDS)
 from .congruence import congruence_features, history_index_lists, user_profiles
@@ -91,15 +91,22 @@ def group_sizes(keys):
     return np.diff(np.r_[starts, len(keys)])
 
 
-def mean_impression_auc(groups, labels, scores):
-    """Mean per-impression AUC, ties count one half; same value as the harness, fast enough to run every boosting round."""
+def impression_aucs(groups, labels, scores):
+    """AUC per group, ties count one half, NaN for a group with one class. Groups are 0..n-1."""
     groups, labels = np.asarray(groups), np.asarray(labels, dtype=np.float64)
     ranks = pd.Series(np.asarray(scores, dtype=np.float64)).groupby(groups).rank(method="average").to_numpy()
     n = np.bincount(groups).astype(np.float64)
     pos = np.bincount(groups, weights=labels)
     rank_sum = np.bincount(groups, weights=ranks * labels)
+    out = np.full(len(n), np.nan)
     ok = (pos > 0) & (pos < n)
-    return float(((rank_sum[ok] - pos[ok] * (pos[ok] + 1) / 2) / (pos[ok] * (n[ok] - pos[ok]))).mean())
+    out[ok] = (rank_sum[ok] - pos[ok] * (pos[ok] + 1) / 2) / (pos[ok] * (n[ok] - pos[ok]))
+    return out
+
+
+def mean_impression_auc(groups, labels, scores):
+    """Mean per-impression AUC: same value as the harness, fast enough to run every boosting round."""
+    return float(np.nanmean(impression_aucs(groups, labels, scores)))
 
 
 def shuffle_within_impressions(frame, columns, seed):
@@ -246,21 +253,46 @@ def build_features(part, processed=PROCESSED):
     out["title_len"] = news["title"].str.split().str.len().to_numpy(dtype=np.float32)[item_idx]
     out["imp_size"] = impression_sizes(keys).astype(np.float32)
 
+    for c, values in emotion_block(groups, item_idx, hist_rows, news["news_id"], processed).items():
+        out[c] = values
+    return out
+
+
+def emotion_block(groups, item_idx, hist_rows, news_ids, processed=PROCESSED, perm=None):
+    """Emotion columns per candidate. perm: item i takes the emotion vector of item perm[i], in item features and in the vectors behind
+    congruence, which keeps item identity and destroys meaning (D69). -> {column: float32 array}."""
     items, cong_names = spec_features()
     columns = list(dict.fromkeys([*items, *M5_ROBUSTNESS_ITEM_FEATURES]))
     pct = [f"go_pct_{e}" for e in GO_EMOTIONS]
     feats = pd.read_parquet(processed / "news_emotion_features_v2.parquet", columns=["news_id", *dict.fromkeys([*columns, *pct, "go_vad_valence"])])
     raw = pd.read_parquet(processed / "news_emotion_raw28_v2.parquet", columns=["news_id", *GOEMOTIONS_LABELS])
-    if feats["news_id"].tolist() != news["news_id"].tolist() or raw["news_id"].tolist() != news["news_id"].tolist():
+    if feats["news_id"].tolist() != list(news_ids) or raw["news_id"].tolist() != list(news_ids):
         raise ValueError("emotion tables are not aligned with news.parquet")
-    vectors = {"pct": feats[pct].to_numpy(np.float64), "six": collapse(raw[GOEMOTIONS_LABELS].to_numpy()),
-               "valence": feats["go_vad_valence"].to_numpy(np.float64)}
+    order = np.arange(len(feats)) if perm is None else np.asarray(perm)
+    vectors = {"pct": feats[pct].to_numpy(np.float64)[order], "six": collapse(raw[GOEMOTIONS_LABELS].to_numpy())[order],
+               "valence": feats["go_vad_valence"].to_numpy(np.float64)[order]}
     cong, _ = congruence_features(groups, item_idx, hist_rows, vectors, LTR_CONGRUENCE_MEASURES)
-    for c in columns:
-        out[c] = feats[c].to_numpy(np.float32)[item_idx]
-    for c in cong_names:
-        out[c] = cong[c]
+    out = {c: feats[c].to_numpy(np.float32)[order][item_idx] for c in columns}
+    out.update({c: cong[c] for c in cong_names})
     return out
+
+
+def permuted_emotion(part, processed=PROCESSED, seed=LTR_PERMUTATION_SEED):
+    """Emotion columns of a part with every item carrying another item's vector, in harness order. The same seed gives the same swap on all parts."""
+    truth, groups, histories, _ = load_part(part, processed)
+    ids = pd.read_parquet(processed / "news.parquet", columns=["news_id"])["news_id"]
+    index = pd.Index(ids)
+    perm = np.random.default_rng(seed).permutation(len(ids))
+    block = emotion_block(groups, index.get_indexer(truth["news_id"]), history_index_lists(histories, index), ids, processed, perm)
+    return pd.DataFrame(block)
+
+
+def score_frame(booster, frame, features, truth):
+    """Score every candidate through the harness. -> (scores, per impression, summary)."""
+    from .evaluate import evaluate
+    out = frame[["imp_key", "news_id"]].assign(score=booster.predict(frame[features]))
+    per, summary = evaluate(truth, out)
+    return out, per, summary
 
 
 def feature_family(name):

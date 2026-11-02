@@ -79,7 +79,7 @@ def test_build_charts_makes_every_chart_with_real_numbers_in_captions(tmp_path):
 def test_results_charts_read_no_impression_or_behavior_data():
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]
-    for f in ("src/results_charts.py", "scripts/53_results_charts.py"):
+    for f in ("src/results_charts.py", "scripts/54_results_charts.py"):
         text = (root / f).read_text(encoding="utf-8")
         assert "impressions.parquet" not in text and "behaviors.parquet" not in text and "per_impression" not in text
 

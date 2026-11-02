@@ -137,6 +137,8 @@ M3_K_OTHER = 10
 GO_PCT_COLUMNS = [f"go_pct_{e}" for e in GO_FEATURES]    # spec v3 emotion vector
 M4_NAME, M5_NAME, M5_ALL_NAME = "M4_lightgbm", "M5_lightgbm_emotion", "M5_all_lightgbm"
 M5_FAIR_NAME = "M5_m4_hyperparameters"                   # fairness check, valid only (D66)
+M5_PERM_NAME, M5_CONG_NAME, M5_ITEM_NAME = "M5_permuted_items", "M5_congruence_only", "M5_item_only"  # item-identity controls (D69)
+M4_SAME_NAME = "M4_m5_hyperparameters"                   # M4 at M5's hyperparameters, valid only: the reference for the controls
 M4_FEATURES = ["pop_ctr", "m1_score", "m2_score", "category", "subcategory", "user_cat_affinity", "history_len", "title_len", "imp_size"]  # D63
 M4_CATEGORICAL = ["category", "subcategory"]
 LTR_DAY1_PRIOR = 0.04                                    # fixed constant for rows with no earlier data, never computed from fit (D64)
@@ -149,6 +151,7 @@ LTR_SEEDS = [42, 43, 44]                                 # first = the final mod
 LTR_THREADS = 8                                          # fixed, part of deterministic training
 LTR_CONGRUENCE_MEASURES = [("pct", "cos", "main"), ("six", "negkl", "variant"), ("valence", "absdist", "variant")]
 LTR_FEATURE_FILE = "ltr_features_{part}.parquet"
+LTR_PERMUTATION_SEED = 42                                # the item swap of the identity control (D69), fixed across seeds and parts
 LTR_RUN_DIR = PROCESSED / "ltr_runs"                     # one booster per run, for --resume
 LTR_MODEL_DIR = PROCESSED / "ltr_models"                 # the chosen boosters, git-ignored; their sha256 is in the frozen config
 LTR_CHECK_TOLERANCE = 1e-6                               # float32 features against the saved float64 scores (D67b)
