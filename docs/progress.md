@@ -241,3 +241,8 @@ M0 to M3 are complete. Next, when asked: M4, M5. Spec v3 is current; open: Q12, 
 
 ## Resume here
 M0 to M5 are complete. M4 is the best model on dev. Next, when asked: M6, M7. Spec v4 is current; open: Q14, Q15.
+
+## 2026-11-04 tidy-for-review step 0: safety snapshot
+- Branch `tidy-for-review` from `results-m4m5` (clean tree, previous task finished). 219 tests pass before any change.
+- `scripts/snapshot_results.py` gained `--tag`: tag `tidy` stores 123 tolerance-compared files (tables, frozen, processed) and 70 byte-compared files (16 dev score and per-impression files, 25 figures, 5 boosters, the rest valid scores) in `results/archive/tidy_snapshot.json` and `tidy_hashes.json`.
+- `scripts/check_logic_unchanged.py` (logic in `src/logic_check.py`): baseline of 112 `.py` files = base commit 3a9d39f plus a hash of each normalised syntax tree (docstrings dropped, renamed modules and scripts mapped). `--check` on the unchanged tree: 0 problems.
