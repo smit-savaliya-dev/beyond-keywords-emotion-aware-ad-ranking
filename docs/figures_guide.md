@@ -60,16 +60,17 @@ All six are in `results/figures/results/`. Every caption is computed from the sa
 dot are 95% confidence intervals: if a bar stays clear of zero, the difference is unlikely to be chance. Dev is the final test, run once per model.
 
 ## 1. Model ladder (`1_model_ladder.png`)
-- **Shows:** final test AUC for each model, with or without emotion. AUC is the chance that a clicked item is ranked above an unclicked one in the same
-  list; 0.5 is random.
-- **Why it matters:** this is the whole project on one chart. New models appear on it automatically.
-- **Read with care:** each model's bar shows the uncertainty of that model alone. To compare two models use the paired tests, which are far more precise.
+- **Shows:** final test AUC for each model, with or without emotion, with 95% intervals. AUC is the chance that a clicked item is ranked above an unclicked one in the same
+  list; 0.5 is random. The two brackets on the right give the paired gain from emotion: M3 - M2 and M5 - M4.
+- **Why it matters:** this is the whole project on one chart. M3 - M2 is +0.0029 (small, positive); M5 - M4 is -0.0030 (negative). New models appear on it automatically.
+- **Read with care:** each model's bar shows the uncertainty of that model alone. To compare two models use the paired difference in the bracket, which is far more precise.
 
 ## 2. Gain from emotion per metric (`2_m3_gain_by_metric.png`)
-- **Shows:** M3 minus M2 on all 10 metrics, on valid and on dev. A hollow marker means not significant after Holm correction.
-- **Why it matters:** AUC measures the whole list, while the other metrics measure the top of it. Emotion improves the first, and on dev not clearly the second.
+- **Shows:** left panel M3 minus M2, right panel M5 minus M4, on all 10 metrics, on valid and on dev. A hollow marker means not significant after Holm correction.
+- **Why it matters:** AUC measures the whole list, while the other metrics measure the top of it. In the left panel emotion improves AUC, and on dev not clearly the other metrics. In the
+  right panel valid looks positive but dev is negative: the valid gain came from items already seen in fit (D69 to D71).
 - **Read with care:** a hollow marker can have a bar that clears zero, because Holm is stricter than a single interval: it allows for testing 10 metrics at once. Valid is
-  the set that chose M3, so it is expected to look better than dev.
+  the set that chose the models, so it is expected to look better than dev. The two panels use different x scales.
 
 ## 3. Alpha curve (`3_alpha_ablation.png`)
 - **Shows:** valid AUC as the blend moves from emotion alone (alpha 0) to M2 alone (alpha 1), one line per emotion score. The dashed line is M2.

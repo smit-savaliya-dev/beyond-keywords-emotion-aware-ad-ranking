@@ -1,11 +1,12 @@
 """The results charts for the supervisor: built from saved tables only, captions computed from the same numbers. Max 6 charts."""
 import json
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from .config import M2_NAME, M3_NAME, METRIC_COLUMNS, RESULT_CHARTS
-from .story_charts import INK, INK_2, LINE_COLORS, PART_STYLE, SURFACE, _finish, _frame, _new, alpha_curve, semeval_correlations
+from .config import M2_NAME, M3_NAME, M4_NAME, M5_NAME, METRIC_COLUMNS, RESULT_CHARTS
+from .story_charts import INK, INK_2, LINE_COLORS, PART_STYLE, SURFACE, _finish, _frame, _new, _style, alpha_curve, semeval_correlations
 
 METRIC_LABELS = {"auc": "AUC", "mrr": "MRR", "ndcg@5": "nDCG@5", "ndcg@10": "nDCG@10", "p@5": "P@5", "p@10": "P@10", "r@5": "R@5",
                  "r@10": "R@10", "hr@5": "HR@5", "hr@10": "HR@10"}
@@ -16,8 +17,9 @@ def _errors(t):
     return [t["mean_diff"] - t["ci_low"], t["ci_high"] - t["mean_diff"]]
 
 
-def model_ladder(t, path, title, caption):
-    """t: label, emotion, auc, ci_low, ci_high, in ladder order (top first). Colour and marker show with or without emotion."""
+def model_ladder(t, path, title, caption, pairs=()):
+    """t: model, label, emotion, auc, ci_low, ci_high, in ladder order (top first). Colour and marker show with or without emotion.
+    pairs: (model_a, model_b, text) drawn as a bracket that carries the paired difference."""
     height = 2.5 + 0.48 * len(t)
     fig, ax = _new(8, height, left=0.25, top=0.62, bottom=1.25)
     _frame(ax, "x")
@@ -33,33 +35,48 @@ def model_ladder(t, path, title, caption):
         ax.text(r["ci_high"] + 0.04 * span, yi, f"{r['auc']:.4f}", va="center", ha="left", fontsize=8.5, color=INK)
     ax.set_yticks(y, t["label"], color=INK)
     ax.set_ylim(-0.6, len(t) - 0.4)
-    ax.set_xlim(t["ci_low"].min() - 0.08 * span, t["ci_high"].max() + 0.2 * span)
+    ax.set_xlim(t["ci_low"].min() - 0.08 * span, t["ci_high"].max() + (0.2 + 0.4 * bool(pairs)) * span)
+    x_bracket = t["ci_high"].max() + 0.27 * span
+    rows = dict(zip(t["model"], y))
+    for a, b, text in pairs:
+        ax.plot([x_bracket - 0.015 * span, x_bracket, x_bracket, x_bracket - 0.015 * span], [rows[a], rows[a], rows[b], rows[b]],
+                color=INK_2, linewidth=1)
+        ax.text(x_bracket + 0.02 * span, (rows[a] + rows[b]) / 2, text, va="center", ha="left", fontsize=8, color=INK)
     ax.set_xlabel("Mean AUC per impression (0.5 = random)")
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1 * 6 / height), ncol=2, frameon=False, fontsize=8, labelcolor=INK)
     _finish(fig, path, title, caption, height)
 
 
-def gain_forest(c, path, title, caption):
-    """c: part, metric, mean_diff, ci_low, ci_high, significant_holm. Per metric, valid and dev; hollow = not significant after Holm."""
+def gain_forest(panels, path, title, caption):
+    """panels: (panel title, x label, c) with c = part, metric, mean_diff, ci_low, ci_high, significant_holm.
+    Per metric, valid and dev; hollow = not significant after Holm."""
     metrics = METRIC_COLUMNS[::-1]
-    fig, ax = _new(8, 6.6, left=0.13, top=0.62, bottom=1.3)
-    _frame(ax, "x")
+    _style()
+    fig, axes = plt.subplots(1, len(panels), figsize=(5.2 * len(panels) + 0.6, 7.1), sharey=True, squeeze=False)
+    fig.subplots_adjust(top=1 - 0.62 / 7.1, bottom=2.0 / 7.1, left=0.1, right=0.97, wspace=0.08)
+    axes = axes[0]
     base = {m: i for i, m in enumerate(metrics)}
-    for j, part in enumerate(("valid", "dev")):
-        color, marker, label = PART_STYLE["valid"] if part == "valid" else (LINE_COLORS[2], "^", "dev (15 Nov, final test)")
-        s = c[c["part"] == part]
-        ys = np.array([base[m] for m in s["metric"]]) + (0.17 if part == "dev" else -0.17)
-        ax.errorbar(s["mean_diff"], ys, xerr=_errors(s), fmt="none", ecolor=color, elinewidth=1.4)
-        solid = s["significant_holm"].to_numpy()
-        ax.scatter(s["mean_diff"][solid], ys[solid], marker=marker, s=44, color=color, edgecolor=SURFACE, linewidth=0.7, zorder=3, label=label)
-        ax.scatter(s["mean_diff"][~solid], ys[~solid], marker=marker, s=44, facecolor=SURFACE, edgecolor=color, linewidth=1.3, zorder=3)
-    ax.scatter([], [], marker="o", s=44, facecolor=SURFACE, edgecolor=INK_2, linewidth=1.3, label="Hollow: not significant after Holm")
-    ax.axvline(0, color=INK_2, linewidth=0.8)
+    for ax, (name, xlabel, c) in zip(axes, panels):
+        _frame(ax, "x")
+        for part in ("valid", "dev"):
+            color, marker, label = PART_STYLE["valid"] if part == "valid" else (LINE_COLORS[2], "^", "dev (15 Nov, final test)")
+            s = c[c["part"] == part]
+            ys = np.array([base[m] for m in s["metric"]]) + (0.17 if part == "dev" else -0.17)
+            ax.errorbar(s["mean_diff"], ys, xerr=_errors(s), fmt="none", ecolor=color, elinewidth=1.4)
+            solid = s["significant_holm"].to_numpy()
+            ax.scatter(s["mean_diff"][solid], ys[solid], marker=marker, s=44, color=color, edgecolor=SURFACE, linewidth=0.7, zorder=3, label=label)
+            ax.scatter(s["mean_diff"][~solid], ys[~solid], marker=marker, s=44, facecolor=SURFACE, edgecolor=color, linewidth=1.3, zorder=3)
+        ax.axvline(0, color=INK_2, linewidth=0.8)
+        ax.set_title(name, loc="left", fontsize=9.5, color=INK)
+        ax.set_xlabel(xlabel)
+    ax = axes[0]
     ax.set_yticks(list(base.values()), [METRIC_LABELS[m] for m in base], color=INK)
     ax.set_ylim(-0.7, len(metrics) - 0.3)
-    ax.set_xlabel("M3 minus M2, difference in the metric (positive = emotion helps)")
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1), ncol=3, frameon=False, fontsize=8, labelcolor=INK)
-    _finish(fig, path, title, caption, 6.6)
+    handles, labels = ax.get_legend_handles_labels()
+    handles.append(ax.scatter([], [], marker="o", s=44, facecolor=SURFACE, edgecolor=INK_2, linewidth=1.3))
+    labels.append("Hollow: not significant after Holm")
+    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 0.95 / 7.1), ncol=3, frameon=False, fontsize=8, labelcolor=INK)
+    _finish(fig, path, title, caption, 7.1)
 
 
 def category_forest(t, path, title, caption, xlabel):
@@ -122,17 +139,30 @@ def build_charts(tables, out_dir):
     ladder = pd.read_csv(tables / "model_ladder.csv")
     best = ladder.loc[ladder["auc"].idxmax()]
     named = ", ".join(f"{r['label'].split()[0]} {r['auc']:.3f}" for _, r in ladder.iterrows())
-    caps["1_model_ladder"] = (f"Dev AUC with 95% confidence intervals over {int(ladder['n'].iloc[0]):,} impressions: {named}; "
-                              f"{best['label']} is the highest so far.")
-    model_ladder(ladder, paths["1_model_ladder"], "Final test AUC by model", caps["1_model_ladder"])
-
     comp = _pair(pd.read_csv(tables / "m2m3_comparison.csv"), M2_NAME, M3_NAME)
     dev, valid = comp[comp["part"] == "dev"], comp[comp["part"] == "valid"]
     auc = dev[dev["metric"] == "auc"].iloc[0]
-    caps["2_m3_gain_by_metric"] = (f"M3 minus M2 with 95% confidence intervals: dev AUC gain {auc['mean_diff']:+.4f} ({auc['ci_low']:.4f} to "
-                                   f"{auc['ci_high']:.4f}), and {int(dev['significant_holm'].sum())} of {len(dev)} metrics stay significant "
-                                   f"after Holm on dev, {int(valid['significant_holm'].sum())} of {len(valid)} on valid.")
-    gain_forest(comp, paths["2_m3_gain_by_metric"], "Gain from adding emotion to Sentence-BERT, per metric", caps["2_m3_gain_by_metric"])
+    comp45 = _pair(pd.read_csv(tables / "m4m5_comparison.csv"), M4_NAME, M5_NAME)
+    dev45, valid45 = comp45[comp45["part"] == "dev"], comp45[comp45["part"] == "valid"]
+    auc45 = dev45[dev45["metric"] == "auc"].iloc[0]
+
+    def bracket(row, a, b, name):
+        return a, b, f"{name}\n{row['mean_diff']:+.4f}\n({row['ci_low']:+.4f} to {row['ci_high']:+.4f})"
+    pairs = [bracket(auc, M2_NAME, M3_NAME, "M3 - M2"), bracket(auc45, M4_NAME, M5_NAME, "M5 - M4")]
+    pairs = [p for p in pairs if {p[0], p[1]} <= set(ladder["model"])]
+    caps["1_model_ladder"] = (f"Dev AUC with 95% confidence intervals over {int(ladder['n'].iloc[0]):,} impressions: {named}; "
+                              f"{best['label']} is the highest so far, and the paired emotion gain is {auc['mean_diff']:+.4f} for M3 - M2 "
+                              f"but {auc45['mean_diff']:+.4f} for M5 - M4.")
+    model_ladder(ladder, paths["1_model_ladder"], "Final test AUC by model", caps["1_model_ladder"], pairs)
+
+    caps["2_m3_gain_by_metric"] = (f"With 95% confidence intervals, dev AUC changes {auc['mean_diff']:+.4f} ({auc['ci_low']:.4f} to {auc['ci_high']:.4f}) for "
+                                   f"M3 - M2 and {auc45['mean_diff']:+.4f} ({auc45['ci_low']:.4f} to {auc45['ci_high']:.4f}) for M5 - M4; metrics with a "
+                                   f"significant difference after Holm, M3 - M2 and M5 - M4: {int(dev['significant_holm'].sum())} and "
+                                   f"{int(dev45['significant_holm'].sum())} of {len(dev)} on dev, {int(valid['significant_holm'].sum())} and "
+                                   f"{int(valid45['significant_holm'].sum())} on valid.")
+    xlabel = "Difference in the metric (positive = emotion helps)"
+    gain_forest([("M3 minus M2 (Sentence-BERT)", xlabel, comp), ("M5 minus M4 (LightGBM)", xlabel, comp45)],
+                paths["2_m3_gain_by_metric"], "Gain from adding emotion, per metric", caps["2_m3_gain_by_metric"])
 
     grid = pd.read_csv(tables / "m3_fusion_grid_valid.csv")
     meta = json.loads((tables / "m3_fusion_meta.json").read_text(encoding="utf-8"))

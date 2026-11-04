@@ -207,7 +207,7 @@ def build_steps(skip_official_check):
              outputs=[T / "m5_feature_importance.csv", T / "m5_feature_importance_meta.json", DIAGNOSTICS / "m5_feature_importance.png"],
              note="valid only"),
         Step("54_results_charts", [S / "54_results_charts.py"], script=S / "54_results_charts.py",
-             inputs=[T / f for f in ("model_ladder.csv", "m2m3_comparison.csv", "m3_fusion_grid_valid.csv", "m3_fusion_meta.json",
+             inputs=[T / f for f in ("model_ladder.csv", "m2m3_comparison.csv", "m4m5_comparison.csv", "m3_fusion_grid_valid.csv", "m3_fusion_meta.json",
                                      "m3_where_it_helps_dev.csv", "semeval2007_validation.csv")],
              outputs=[RESULTS_FIGS / f"{n}.png" for n in RESULT_CHARTS] + [T / "results_chart_captions.json"], note="saved tables only"),
         Step("90_show_results", [S / "show_results.py"], always=True, adoptable=False),

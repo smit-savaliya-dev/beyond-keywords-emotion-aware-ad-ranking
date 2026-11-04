@@ -246,3 +246,8 @@ M0 to M5 are complete. M4 is the best model on dev. Next, when asked: M6, M7. Sp
 - Branch `tidy-for-review` from `results-m4m5` (clean tree, previous task finished). 219 tests pass before any change.
 - `scripts/snapshot_results.py` gained `--tag`: tag `tidy` stores 123 tolerance-compared files (tables, frozen, processed) and 70 byte-compared files (16 dev score and per-impression files, 25 figures, 5 boosters, the rest valid scores) in `results/archive/tidy_snapshot.json` and `tidy_hashes.json`.
 - `scripts/check_logic_unchanged.py` (logic in `src/logic_check.py`): baseline of 112 `.py` files = base commit 3a9d39f plus a hash of each normalised syntax tree (docstrings dropped, renamed modules and scripts mapped). `--check` on the unchanged tree: 0 problems.
+
+## 2026-11-04 tidy-for-review step 1: results charts
+- All six charts already existed in `results/figures/results/`, read from saved tables. Missing piece: M5 - M4. Chart 1 now shows paired-difference brackets (M3 - M2 +0.0029, M5 - M4 -0.0030) and chart 2 has a second panel, M5 minus M4, valid and dev side by side with Holm marking. Both read `m4m5_comparison.csv` (added as an input of the pipeline step). Max 6 charts unchanged.
+- Diff against the step 0 snapshot: only `1_model_ladder.png`, `2_m3_gain_by_metric.png` and `results_chart_captions.json` differ; the other four charts regenerate byte-identical. `docs/figures_guide.md` updated. 224 tests pass.
+- Step 0 baselines kept as `*_step0` / tag `tidy`; a second baseline (tag `tidy_charts`, new AST baseline) is taken on this commit so steps 2 to 5 are proven against it.

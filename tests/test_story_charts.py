@@ -45,8 +45,13 @@ def test_semeval_correlations_chart_renders(tmp_path):
 def fake_result_tables(t):
     import json
     from src.config import METRIC_COLUMNS
-    pd.DataFrame({"model": ["M0_popularity", "M3_sbert_emotion"], "label": ["M0 popularity", "M3 = M2 + emotion"], "emotion": [False, True], "part": "dev",
-                  "n": 100, "auc": [0.59, 0.63], "ci_low": [0.58, 0.62], "ci_high": [0.60, 0.64]}).to_csv(t / "model_ladder.csv", index=False)
+    pd.DataFrame({"model": ["M0_popularity", "M2_sbert", "M3_sbert_emotion", "M4_lightgbm", "M5_lightgbm_emotion"],
+                  "label": ["M0 popularity", "M2 Sentence-BERT", "M3 = M2 + emotion", "M4 LightGBM", "M5 = M4 + emotion"],
+                  "emotion": [False, False, True, False, True], "part": "dev", "n": 100, "auc": [0.59, 0.62, 0.63, 0.68, 0.67],
+                  "ci_low": [0.58, 0.61, 0.62, 0.67, 0.66], "ci_high": [0.60, 0.63, 0.64, 0.69, 0.68]}).to_csv(t / "model_ladder.csv", index=False)
+    rows45 = [{"model_a": "M4_lightgbm", "model_b": "M5_lightgbm_emotion", "part": p, "metric": m, "mean_diff": -0.003, "ci_low": -0.004, "ci_high": -0.002,
+               "significant_holm": m == "auc"} for p in ("valid", "dev") for m in METRIC_COLUMNS]
+    pd.DataFrame(rows45).to_csv(t / "m4m5_comparison.csv", index=False)
     rows = [{"model_a": "M2_sbert", "model_b": "M3_sbert_emotion", "part": p, "metric": m, "mean_diff": 0.002, "ci_low": 0.001, "ci_high": 0.003,
              "significant_holm": m == "auc"} for p in ("valid", "dev") for m in METRIC_COLUMNS]
     pd.DataFrame(rows).to_csv(t / "m2m3_comparison.csv", index=False)
@@ -73,6 +78,7 @@ def test_build_charts_makes_every_chart_with_real_numbers_in_captions(tmp_path):
     assert list(caps) == RESULT_CHARTS and len(RESULT_CHARTS) <= 6
     assert all((out / f"{n}.png").stat().st_size > 1000 for n in RESULT_CHARTS)
     assert "1 of 10" in caps["2_m3_gain_by_metric"] and "M3 0.630" in caps["1_model_ladder"]
+    assert "-0.0030 (-0.0040 to -0.0020) for M5 - M4" in caps["2_m3_gain_by_metric"] and "-0.0030 for M5 - M4" in caps["1_model_ladder"]
     assert "Descriptive" in caps["4_m3_gain_by_category"] and "+0.0100 (news)" in caps["4_m3_gain_by_category"]
 
 
