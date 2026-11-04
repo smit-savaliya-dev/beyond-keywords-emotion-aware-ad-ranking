@@ -1,6 +1,6 @@
 # Cleanup plan v2 (tidy-for-review)
 
-Rule: no logic and no result changes. Proof: `scripts/check_logic_unchanged.py` (normalised syntax trees identical, old names mapped to new), `scripts/snapshot_results.py --check` (tables within 1e-9; scores, per-impression files, boosters and figures byte for byte), and the full test suite.
+Rule: no logic and no result changes (the one deliberate change: results charts 1 and 2 now also show M5 - M4, step 1). Proof: `scripts/check_logic_unchanged.py` (normalised syntax trees identical, old names mapped to new), `scripts/snapshot_results.py --check` (tables within 1e-9; scores, per-impression files, boosters and figures byte for byte), and the full test suite.
 
 ## What the audit found
 - Dead code: none. Every function in `src/` is called from a script or another module; `spec_hash`, `validate_spec` and `evaluate_model` are used by tests only and are kept on purpose (hash lock for the specs, contract for future models; D44).
@@ -71,7 +71,7 @@ Names are `<stage>_<number>_<what>`: 01 data, 02 emotion, 03 analysis, 04 models
 | `tests/test_stats_experiments_baselines.py` | `tests/test_stats_run_registry_baselines.py` |
 | `tests/test_run_base.py` | `tests/test_run_pipeline.py` |
 
-Totals: 49 renamed, 0 files deleted, 3 files added (the proof tooling), 220 kept as they are.
+Totals: 49 renamed, 0 files deleted, 13 files added (proof tooling and records, the guide and the report), 220 kept as they are.
 
 ## Every file
 | File | Action | New name | Reason |
@@ -239,58 +239,58 @@ Totals: 49 renamed, 0 files deleted, 3 files added (the proof tooling), 220 kept
 | `results/tables/true_recency_residual_by_category.csv` | keep |  | Saved result table (read by charts, summary or reports) |
 | `results/tables/true_recency_signal.csv` | keep |  | Saved result table (read by charts, summary or reports) |
 | `scripts/10_data_download.py` | rename | `scripts/01_01_download_mind.py` | Pipeline step or tool; Download and unzip MIND-small into data/raw/ (skips what is already there). |
-| `scripts/11_data_prepare.py` | rename | `scripts/01_02_prepare_mind.py` | Pipeline step or tool; Parse MIND-small into data/processed/*.parquet and verify it. |
+| `scripts/11_data_prepare.py` | rename | `scripts/01_02_prepare_mind.py` | Pipeline step or tool; Parse MIND-small into parquet tables and verify the counts and ids. |
 | `scripts/12_data_harness_check.py` | rename | `scripts/01_03_harness_check.py` | Pipeline step or tool; Prove the evaluation harness on real data with fake models whose results are known in advance. |
-| `scripts/13_data_eda.py` | rename | `scripts/01_04_eda.py` | Pipeline step or tool; EDA figures: six individual PNGs + overview in results/figures/diagnostics/. |
-| `scripts/14_data_semeval_download.py` | rename | `scripts/01_05_download_semeval.py` | Pipeline step or tool; Download SemEval-2007 Task 14 Affective Text (Strapparava & Mihalcea, 2007) into data/external/semeval2007/ an |
-| `scripts/20_emotion_label_combined.py` | rename | `scripts/02_01_label_combined.py` | Pipeline step or tool; Label every news item with emotion vectors. Resumable: re-run to continue after an interruption. |
-| `scripts/21_emotion_score_fields.py` | rename | `scripts/02_02_score_fields.py` | Pipeline step or tool; Score titles and abstracts separately with GoEmotions, combine with the field weights, build go_* features. |
-| `scripts/22_emotion_lexicon_features.py` | rename | `scripts/02_03_lexicon_features.py` | Pipeline step or tool; NRC EmoLex + VAD features (title/abstract weighted) and classifier-derived go_vad_* features. CPU, about a min |
-| `scripts/23_emotion_merge_features.py` | rename | `scripts/02_04_merge_features.py` | Pipeline step or tool; Merge all item-level emotion features into data/processed/news_emotion_features.parquet (+ metadata JSON). |
-| `scripts/24_emotion_diagnostics.py` | rename | `scripts/02_05_diagnostics.py` | Pipeline step or tool; Item-level diagnostics of news_emotion_features.parquet: distributions, cross-source and title-vs-abstract |
+| `scripts/13_data_eda.py` | rename | `scripts/01_04_eda.py` | Pipeline step or tool; EDA figures for MIND-small. |
+| `scripts/14_data_semeval_download.py` | rename | `scripts/01_05_download_semeval.py` | Pipeline step or tool; Download SemEval-2007 Task 14 Affective Text (Strapparava & Mihalcea, 2007) and verify its checksum. |
+| `scripts/20_emotion_label_combined.py` | rename | `scripts/02_01_label_combined.py` | Pipeline step or tool; Baseline emotion labels: GoEmotions on title + abstract as one text. Resumable (re-run to continue). |
+| `scripts/21_emotion_score_fields.py` | rename | `scripts/02_02_score_fields.py` | Pipeline step or tool; Score titles and abstracts separately with GoEmotions, combine them with the field weights, build go_* feature |
+| `scripts/22_emotion_lexicon_features.py` | rename | `scripts/02_03_lexicon_features.py` | Pipeline step or tool; NRC EmoLex and VAD features (title and abstract weighted) and the classifier-derived go_vad_* features. |
+| `scripts/23_emotion_merge_features.py` | rename | `scripts/02_04_merge_features.py` | Pipeline step or tool; Merge all item-level emotion features into one table. Uses saved outputs only; no model re-run. |
+| `scripts/24_emotion_diagnostics.py` | rename | `scripts/02_05_diagnostics.py` | Pipeline step or tool; Item-level diagnostics of the emotion features: distributions, cross-source and title-vs-abstract correlations |
 | `scripts/25_emotion_thresholds.py` | rename | `scripts/02_06_thresholds.py` | Pipeline step or tool; Item-level threshold sensitivity (no labels, no clicks): class shares on the full corpus for every pre-declare |
-| `scripts/26_emotion_v2_grid.py` | rename | `scripts/02_07_v2_grid.py` | Pipeline step or tool; Step 1 of base-v2: title-weight / threshold grid on the SAVED raw 28 scores (no GPU), selection rule D30. |
-| `scripts/27_emotion_v2_features.py` | rename | `scripts/02_08_v2_features.py` | Pipeline step or tool; Build the v2 emotion tables for the setting chosen by D30 (emotion_v2_choice.json). New files only; v1 is unto |
-| `scripts/28_emotion_label_variants.py` | rename | `scripts/02_09_label_variants.py` | Pipeline step or tool; Stance-excluded labelling variants (D38): v2b ignores approval and disapproval, v2c also ignores realization,  |
-| `scripts/29_emotion_semeval_score.py` | rename | `scripts/02_10_semeval_score.py` | Pipeline step or tool; Score the SemEval-2007 headlines with GoEmotions (same model, max_length 128). Small GPU job on new data only; |
-| `scripts/30_analysis_click_signal.py` | rename | `scripts/03_01_click_signal.py` | Pipeline step or tool; Does emotion relate to clicks? Descriptive signal analysis on part == "fit" ONLY (valid and dev never loaded). |
-| `scripts/31_analysis_congruence.py` | rename | `scripts/03_02_congruence.py` | Pipeline step or tool; Congruence signal on part == "fit" ONLY: is a candidate's emotional similarity to the user's HISTORY profile |
-| `scripts/32_analysis_spec_v1_replication.py` | rename | `scripts/03_03_spec_v1_replication.py` | Pipeline step or tool; Valid-set replication of the emotion spec candidates (D27). Same statistics as Phase 5 (per-impression |
-| `scripts/33_analysis_spec_v2_replication.py` | rename | `scripts/03_04_spec_v2_replication.py` | Pipeline step or tool; D32: re-apply the D27 replication rule on the v2 features (fit, then valid; dev is never read). |
-| `scripts/34_analysis_context_windows.py` | rename | `scripts/03_05_context_windows.py` | Pipeline step or tool; Step 2 of base-v2 (D31): which window of the user's reading history carries the emotional context? |
-| `scripts/35_analysis_true_recency.py` | rename | `scripts/03_06_true_recency.py` | Pipeline step or tool; True recency test (D39), analysis only, fit and valid (dev is never read). Short-term context = the user's cli |
-| `scripts/36_analysis_percentile_robustness.py` | rename | `scripts/03_07_percentile_robustness.py` | Pipeline step or tool; Q03 / D40: do the results change if go_pct_* percentiles are fitted on train-split items only (data/raw/train/ |
-| `scripts/37_analysis_story_charts.py` | rename | `scripts/03_08_story_charts.py` | Pipeline step or tool; Step 3 of base-v2: the eight story charts in results/figures/story/ (and the data behind them in results/table |
-| `scripts/38_analysis_semeval_validation.py` | rename | `scripts/03_09_semeval_validation.py` | Pipeline step or tool; External validation on SemEval-2007 Task 14 Affective Text (Strapparava & Mihalcea, 2007). Pre-declared in D46 |
-| `scripts/40_model_m0_popularity.py` | rename | `scripts/04_01_m0_popularity.py` | Pipeline step or tool; M0 popularity: Beta-smoothed item CTR (clicks + a*p) / (shown + a) toward the global CTR p; unseen items get p |
-| `scripts/41_model_m1_tfidf.py` | rename | `scripts/04_02_m1_tfidf.py` | Pipeline step or tool; M1 TF-IDF: vectorizer fitted on TRAIN-split news only (label-free); user vector = mean or decay-weighted mean  |
-| `scripts/42_model_compare_baselines.py` | rename | `scripts/04_03_compare_baselines.py` | Pipeline step or tool; Paired comparison M1 vs M0 on per-impression metrics (paired t-test, 95% CI, dz, Holm across metrics; Wilcoxon |
+| `scripts/26_emotion_v2_grid.py` | rename | `scripts/02_07_v2_grid.py` | Pipeline step or tool; Title-weight and threshold grid on the saved raw 28 scores (no GPU), with selection rule D30. |
+| `scripts/27_emotion_v2_features.py` | rename | `scripts/02_08_v2_features.py` | Pipeline step or tool; Build the v2 emotion tables for the setting chosen by D30. New files only; v1 is untouched. |
+| `scripts/28_emotion_label_variants.py` | rename | `scripts/02_09_label_variants.py` | Pipeline step or tool; Stance-excluded labelling variants (D38): v2b ignores approval and disapproval, v2c also realization. |
+| `scripts/29_emotion_semeval_score.py` | rename | `scripts/02_10_semeval_score.py` | Pipeline step or tool; Score the SemEval-2007 headlines with GoEmotions (same model and max_length as MIND). Resumable; MIND is not t |
+| `scripts/30_analysis_click_signal.py` | rename | `scripts/03_01_click_signal.py` | Pipeline step or tool; Does emotion relate to clicks? Descriptive signal analysis on the fit part only (valid and dev are never loade |
+| `scripts/31_analysis_congruence.py` | rename | `scripts/03_02_congruence.py` | Pipeline step or tool; Congruence signal on the fit part only: is a candidate closer to the user's history profile when clicked (dz > |
+| `scripts/32_analysis_spec_v1_replication.py` | rename | `scripts/03_03_spec_v1_replication.py` | Pipeline step or tool; Valid-set replication of the spec v1 candidates (D27), on the valid part only (dev is never read). |
+| `scripts/33_analysis_spec_v2_replication.py` | rename | `scripts/03_04_spec_v2_replication.py` | Pipeline step or tool; Re-apply the D27 replication rule on the v2 features (fit, then valid; dev is never read), per D32. |
+| `scripts/34_analysis_context_windows.py` | rename | `scripts/03_05_context_windows.py` | Pipeline step or tool; Which window of the user's reading history carries the emotional context? (D31) |
+| `scripts/35_analysis_true_recency.py` | rename | `scripts/03_06_true_recency.py` | Pipeline step or tool; True recency test (D39), analysis only, fit and valid (dev is never read). |
+| `scripts/36_analysis_percentile_robustness.py` | rename | `scripts/03_07_percentile_robustness.py` | Pipeline step or tool; Do the results change if go_pct_* percentiles are fitted on train-split items only? (Q03, D40) |
+| `scripts/37_analysis_story_charts.py` | rename | `scripts/03_08_story_charts.py` | Pipeline step or tool; The eight story charts on the data and emotion layer, and the data behind them. |
+| `scripts/38_analysis_semeval_validation.py` | rename | `scripts/03_09_semeval_validation.py` | Pipeline step or tool; External validation on SemEval-2007 Task 14 Affective Text. Pre-declared in D46-D48. |
+| `scripts/40_model_m0_popularity.py` | rename | `scripts/04_01_m0_popularity.py` | Pipeline step or tool; M0 popularity: Beta-smoothed item CTR (clicks + a*p) / (shown + a) towards the global CTR p; unseen items get  |
+| `scripts/41_model_m1_tfidf.py` | rename | `scripts/04_02_m1_tfidf.py` | Pipeline step or tool; M1 TF-IDF: vectoriser fitted on train-split news only (label-free); user vector = mean or decay-weighted mean  |
+| `scripts/42_model_compare_baselines.py` | rename | `scripts/04_03_compare_baselines.py` | Pipeline step or tool; Paired comparison of M1 against M0 on per-impression metrics (paired t-test, 95% CI, dz, Holm across metrics). |
 | `scripts/43_model_m2_encode.py` | rename | `scripts/04_04_m2_encode.py` | Pipeline step or tool; Encode every news item with all-mpnet-base-v2, one cache per text variant (D50). GPU, resumable, no labels inv |
-| `scripts/44_model_m2_sbert.py` | rename | `scripts/04_05_m2_sbert.py` | Pipeline step or tool; M2 Sentence-BERT, no emotion: user vector = mean or decay-weighted mean of the last 50 HISTORY embeddings; |
-| `scripts/45_model_m3_fusion.py` | rename | `scripts/04_06_m3_fusion.py` | Pipeline step or tool; M3 = M2 + emotion, late fusion (spec v3): final = alpha * norm(M2) + (1 - alpha) * norm(emotion), min-max per  |
-| `scripts/46_model_compare_m2m3.py` | rename | `scripts/04_07_compare_m2m3.py` | Pipeline step or tool; Paired comparisons for M2 and M3 (D51, D55): per-impression metrics with Holm, 95% CI and dz; user-level AUC a |
-| `scripts/47_model_m3_where_it_helps.py` | rename | `scripts/04_08_where_it_helps.py` | Pipeline step or tool; RQ5, descriptive (D56, D68): per-impression AUC difference on dev, by category, profile emotion and history le |
-| `scripts/48_model_ltr_features.py` | rename | `scripts/04_09_ltr_features.py` | Pipeline step or tool; Feature tables for M4 and M5 on fit and valid (D63-D65), with check D67b: valid features must equal the saved  |
-| `scripts/49_model_m4m5_lightgbm.py` | rename | `scripts/04_10_m4m5_lightgbm.py` | Pipeline step or tool; M4 LightGBM (no emotion), M5 = M4 + emotion (spec v4), M5-all (robustness, valid only). D63-D67. |
-| `scripts/50_results_m5_controls.py` | rename | `scripts/05_01_m5_controls.py` | Pipeline step or tool; Item-identity controls for M5 (D69). Does the M5 gain come from what emotion means, or from emotion scores act |
-| `scripts/51_results_compare_m4m5.py` | rename | `scripts/05_02_compare_m4m5.py` | Pipeline step or tool; Paired comparisons for M4 and M5 (D68): per-impression metrics with Holm, 95% CI and dz; user-level AUC as a r |
-| `scripts/52_results_feature_importance.py` | rename | `scripts/05_03_feature_importance.py` | Pipeline step or tool; Where do emotion features rank inside M5? LightGBM gain importance and mean |pred_contrib| on seeded valid imp |
-| `scripts/53_results_model_ladder.py` | rename | `scripts/05_04_model_ladder.py` | Pipeline step or tool; Mean dev AUC with a 95% CI per model, from the saved per-impression results. Reads no impressions and scores n |
-| `scripts/54_results_charts.py` | rename | `scripts/05_05_results_charts.py` | Pipeline step or tool; The results charts for the supervisor (results/figures/results/), from saved tables only. Reads no impression  |
-| `scripts/_bootstrap.py` | keep |  | Pipeline step or tool; thin script |
-| `scripts/check_goemotions.py` | keep |  | Pipeline step or tool; Optional in-domain check: the classifier + 28->6 mapping on the GoEmotions test split. |
+| `scripts/44_model_m2_sbert.py` | rename | `scripts/04_05_m2_sbert.py` | Pipeline step or tool; M2 Sentence-BERT, no emotion: user vector = mean or decay-weighted mean of the last 50 history embeddings; |
+| `scripts/45_model_m3_fusion.py` | rename | `scripts/04_06_m3_fusion.py` | Pipeline step or tool; M3 = M2 + emotion by late fusion (spec v3 and v4): final = alpha * norm(M2) + (1 - alpha) * norm(emotion), min |
+| `scripts/46_model_compare_m2m3.py` | rename | `scripts/04_07_compare_m2m3.py` | Pipeline step or tool; Paired comparisons of M2 and M3 (D51, D55): per-impression metrics with Holm, 95% CI and dz; user-level AUC as |
+| `scripts/47_model_m3_where_it_helps.py` | rename | `scripts/04_08_where_it_helps.py` | Pipeline step or tool; RQ5, descriptive (D56, D68): where does one model beat another on dev? Per-impression AUC difference by clicke |
+| `scripts/48_model_ltr_features.py` | rename | `scripts/04_09_ltr_features.py` | Pipeline step or tool; Feature tables for M4 and M5 on fit and valid (D63-D65), with check D67b: the valid features must equal the sa |
+| `scripts/49_model_m4m5_lightgbm.py` | rename | `scripts/04_10_m4m5_lightgbm.py` | Pipeline step or tool; M4 LightGBM (no emotion), M5 = M4 + emotion (spec v4), and M5-all (robustness, valid only). D63-D67. |
+| `scripts/50_results_m5_controls.py` | rename | `scripts/05_01_m5_controls.py` | Pipeline step or tool; Item-identity controls for M5 (D69): does the M5 gain come from what emotion means, or from emotion scores act |
+| `scripts/51_results_compare_m4m5.py` | rename | `scripts/05_02_compare_m4m5.py` | Pipeline step or tool; Paired comparisons of M4, M5 and the controls (D68): per-impression metrics with Holm, 95% CI and dz; user-lev |
+| `scripts/52_results_feature_importance.py` | rename | `scripts/05_03_feature_importance.py` | Pipeline step or tool; Where do the emotion features rank inside M5? LightGBM gain importance and mean |pred_contrib| on seeded valid |
+| `scripts/53_results_model_ladder.py` | rename | `scripts/05_04_model_ladder.py` | Pipeline step or tool; Mean dev AUC with a 95% CI for every model that has run, from the saved per-impression results. |
+| `scripts/54_results_charts.py` | rename | `scripts/05_05_results_charts.py` | Pipeline step or tool; The results charts for the supervisor, from saved tables only. Reads no impression data. |
+| `scripts/_bootstrap.py` | keep |  | Pipeline step or tool; Put the project root on sys.path so scripts can import src, however they are started. |
+| `scripts/check_goemotions.py` | keep |  | Pipeline step or tool; Optional in-domain check: the GoEmotions classifier plus the 28 -> 6 mapping on the GoEmotions test split. |
 | `scripts/check_logic_unchanged.py` | keep |  | Pipeline step or tool; Prove the tidy-up changed no logic: every .py file has the same normalised syntax tree as at the base commit. |
 | `scripts/check_sbert_encoder.py` | keep |  | Pipeline step or tool; Correctness check of D50: saved transformers-based embeddings vs the sentence-transformers package, on random  |
 | `scripts/run_base.py` | rename | `scripts/run_pipeline.py` | Pipeline step or tool; Whole pipeline in order, rerunning only what is out of date. Stops at the first failure. |
 | `scripts/show_results.py` | keep |  | Pipeline step or tool; Print a short summary of the results from saved tables. Reads no impression data, so dev is never loaded. |
 | `scripts/snapshot_results.py` | keep |  | Pipeline step or tool; Prove that a change did not alter results: --take stores a manifest and copies, --check compares (floats withi |
 | `src/__init__.py` | keep |  | Used; library module |
-| `src/agreement.py` | keep |  | Used; Agreement statistics between emotion labels: kappa with a bootstrap CI, accuracy, macro-F1. |
+| `src/agreement.py` | keep |  | Used; Agreement between emotion labels: Cohen's kappa with a bootstrap interval, accuracy and macro-F1. |
 | `src/baselines.py` | keep |  | Used; M0 popularity (smoothed CTR) and M1 TF-IDF (history profile cosine). No emotion. |
 | `src/click_signal.py` | keep |  | Used; Descriptive click-signal tests: within-impression clicked-minus-unclicked feature differences. |
-| `src/config.py` | keep |  | Used; library module |
+| `src/config.py` | keep |  | Used; Every constant of the project in one place: paths, seeds, model grids, emotion settings, chart lists. |
 | `src/congruence.py` | keep |  | Used; User emotion profiles from click HISTORY only, and item-profile congruence (cosine, negative KL). |
-| `src/data.py` | keep |  | Used; library module |
+| `src/data.py` | keep |  | Used; MIND-small loading and preparation: news, behaviours, one row per candidate (impression) and the integrity che |
 | `src/diagnostics.py` | keep |  | Used; Item-level diagnostics of the emotion feature table: distributions and cross-source correlations. |
 | `src/eda.py` | keep |  | Used; EDA figures for MIND-small: six individual captioned PNGs plus one combined overview. |
 | `src/emotion.py` | keep |  | Used; GoEmotions (28 labels) -> 6 emotion classes, plus resumable corpus labelling. |
@@ -305,18 +305,18 @@ Totals: 49 renamed, 0 files deleted, 3 files added (the proof tooling), 220 kept
 | `src/ltr.py` | rename | `src/lightgbm_ranker.py` | Used; M4 and M5: LightGBM ranker features, the time-safe popularity feature, negative sampling and training (D63-D67 |
 | `src/metrics.py` | keep |  | Used; Per-impression ranking metrics (official MIND definitions). |
 | `src/pipeline.py` | keep |  | Used; Make-style step runner: a step reruns only when its inputs, code, arguments or outputs changed. |
-| `src/provenance.py` | keep |  | Used; library module |
-| `src/recency.py` | keep |  | Used; True recency (D39): emotional context from the user's clicks in EARLIER impressions of the log, strictly befor |
-| `src/results_charts.py` | keep |  | Used; The results charts for the supervisor: built from saved tables only, captions computed from the same numbers.  |
+| `src/provenance.py` | keep |  | Used; Provenance helpers: file hashes and the run information (time, versions, git commit) stored with results. |
+| `src/recency.py` | keep |  | Used; True recency (D39): emotional context from the user's clicks in EARLIER impressions of the log. |
+| `src/results_charts.py` | keep |  | Used; The results charts for the supervisor, built from saved tables only, with captions computed from the same numb |
 | `src/results_tables.py` | keep |  | Used; Summary tables built from saved per-impression results. |
 | `src/sbert.py` | keep |  | Used; M2 Sentence-BERT: resumable corpus encoding and history-profile cosine scores. Encoder pretrained, never fitte |
 | `src/semeval.py` | keep |  | Used; External validation on SemEval-2007 Task 14 Affective Text (Strapparava & Mihalcea, 2007): loading, gold class |
-| `src/snapshot.py` | keep |  | Used; Results snapshot: copy tables and emotion outputs, then prove a later rebuild reproduces them (floats within 1 |
+| `src/snapshot.py` | keep |  | Used; Results snapshot: copy tables and emotion outputs, then prove a later rebuild reproduces them. |
 | `src/stats.py` | keep |  | Used; Paired model comparison on per-impression metrics, and Holm correction. |
-| `src/story_charts.py` | keep |  | Used; The eight story charts of base-v2, in one academic style. Static PNGs: every chart has a title, labelled axes  |
-| `src/summary.py` | rename | `src/terminal_summary.py` | Used; Terminal summary of the project, built only from saved result tables. Impression data, including dev, is never |
+| `src/story_charts.py` | keep |  | Used; The eight story charts on the data and emotion layer, in one academic style. |
+| `src/summary.py` | rename | `src/terminal_summary.py` | Used; Terminal summary of the project, built only from saved result tables. |
 | `src/validation.py` | rename | `src/label_thresholds.py` | Used; Threshold views of the emotion labels on the full corpus (item-level, no labels, no clicks). |
-| `src/where_it_helps.py` | keep |  | Used; RQ5, descriptive: where M3 differs from M2 on dev (D56). Nothing here selects or changes a model. |
+| `src/where_it_helps.py` | keep |  | Used; RQ5, descriptive: where one model differs from another on dev (D56, D68). Nothing here selects or changes a mo |
 | `tests/__init__.py` | keep |  | Tests the module of the same name |
 | `tests/conftest.py` | keep |  | Tests the module of the same name |
 | `tests/test_agreement.py` | keep |  | Tests the module of the same name |
@@ -348,3 +348,13 @@ Totals: 49 renamed, 0 files deleted, 3 files added (the proof tooling), 220 kept
 | `scripts/check_logic_unchanged.py` | new | | Proof that tidy-up changed no logic |
 | `src/logic_check.py` | new | | Logic of that proof |
 | `tests/test_logic_check.py` | new | | Tests for it |
+| `results/archive/tidy_ast_baseline.json` | new | | Syntax-tree baseline taken after the chart step (base commit and a hash per file) |
+| `results/archive/tidy_ast_baseline_step0.json` | new | | Syntax-tree baseline taken before any change |
+| `results/archive/tidy_renames.json` | new | | Rename table and the reviewed exceptions used by the logic check |
+| `results/archive/tidy_snapshot.json` | new | | Results snapshot before any change (tables, frozen settings, processed data) |
+| `results/archive/tidy_hashes.json` | new | | Byte hashes before any change: scores, per-impression files, boosters, figures |
+| `results/archive/tidy_charts_snapshot.json` | new | | Results snapshot after the chart step |
+| `results/archive/tidy_charts_hashes.json` | new | | Byte hashes after the chart step |
+| `docs/cleanup_plan_v2.md` | new | | This file |
+| `docs/CODE_WALKTHROUGH.md` | new | | Guide for the reviewer |
+| `docs/reports/tidy_report.md` | new | | Report of this tidy-up |

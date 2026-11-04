@@ -1,5 +1,8 @@
-"""Results snapshot: copy tables and emotion outputs, then prove a later rebuild reproduces them (floats within 1e-9).
-Volatile metadata (run info, timestamps) is ignored; everything else must match."""
+"""Results snapshot: copy tables and emotion outputs, then prove a later rebuild reproduces them.
+
+Inputs: result folders. Outputs: a manifest with hashes and key numbers. Tables must match within 1e-9; scores, boosters and
+figures are compared byte for byte. Volatile metadata (run info, timestamps) is ignored.
+"""
 import json
 import shutil
 

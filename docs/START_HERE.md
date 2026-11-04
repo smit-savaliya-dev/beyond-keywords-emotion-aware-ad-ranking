@@ -1,5 +1,7 @@
 # Start here
 
+**Reviewing the project? Open [CODE_WALKTHROUGH.md](CODE_WALKTHROUGH.md): it has the folder map, the run order, what to read first and where each result lives.**
+
 ## What this project is
 MSc Data Analytics practicum (National College of Ireland). Recommenders match content context (words and meaning). This project
 tests whether emotional context also helps: does the match between a news item and the emotional context inferred from the user's
@@ -14,39 +16,41 @@ python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt
 python scripts/run_pipeline.py --dry-run     # what would run and why; runs nothing
 python scripts/run_pipeline.py               # run whatever is out of date, then print the summary
-python scripts/show_results.py           # only the summary, from saved tables
+python scripts/show_results.py               # only the summary, from saved tables
 python scripts/run_pipeline.py --rebuild     # rerun everything except GPU scoring; dev runs are never in the pipeline
+python -m pytest -q                          # tests
 ```
 Put MIND-small in `data/raw/train/` and `data/raw/dev/`, and the NRC lexicons in `data/external/nrc/` (never commit them).
-Step 14 downloads SemEval-2007 into `data/external/semeval2007/` (git-ignored, needs `curl`).
+Step `01_05_download_semeval` downloads SemEval-2007 into `data/external/semeval2007/` (git-ignored, needs `curl`).
 
 ## Where things live
 | Path | What |
 |---|---|
-| `scripts/1x_data_*` | download, prepare, harness check, EDA, SemEval-2007 download |
-| `scripts/2x_emotion_*` | emotion scoring and features, SemEval headline scoring |
-| `scripts/3x_analysis_*` | click signal, congruence, context, charts, SemEval validation |
-| `scripts/4x_model_*` | M0 to M5: `--tune` is in the pipeline; `--final-dev`, dev comparisons and script 47 are run once by hand |
-| `scripts/5x_results_*` | comparisons, feature importance, model ladder and the results charts |
-| `scripts/` (unnumbered) | `run_pipeline.py`, `show_results.py`, `snapshot_results.py`, `check_goemotions.py` and `check_sbert_encoder.py` (optional) |
+| `scripts/01_*` | data: download, prepare, harness check, EDA, SemEval-2007 download |
+| `scripts/02_*` | emotion: scoring, features, thresholds, v2 layer, SemEval headline scoring |
+| `scripts/03_*` | analysis: click signal, congruence, context, true recency, story charts, SemEval validation |
+| `scripts/04_*` | models M0 to M5: `--tune` is in the pipeline; `--final-dev`, dev comparisons and `04_08` are run once by hand |
+| `scripts/05_*` | results: M5 controls, comparisons, feature importance, model ladder, the results charts |
+| `scripts/` (unnumbered) | `run_pipeline.py`, `show_results.py`, `snapshot_results.py`, `check_logic_unchanged.py`, `check_goemotions.py`, `check_sbert_encoder.py` |
 | `src/` | all logic; `src/config.py` holds every constant |
+| `tests/` | one test file per module (small fakes only) |
 | `config/` | frozen emotion specifications (hash-locked by a test) |
 | `results/tables/` | every result table; `summary.csv` holds model metrics, `runs_log.csv` every run |
 | `results/figures/results/` | the 6 results charts for the supervisor |
 | `results/figures/story/` | the 8 key charts on the data and emotion layer |
 | `results/figures/diagnostics/` | EDA and diagnostic figures |
 | `results/frozen/` | frozen model settings |
-| `results/archive/` | superseded results; `annotation/` holds the cancelled hand-label sheet and tool |
+| `results/archive/` | superseded results and proof records; `annotation/` holds the cancelled hand-label sheet and tool |
 | `data/processed/` | parquet tables (git-ignored) |
 
 ## Reading order
-1. This file.
+1. [CODE_WALKTHROUGH.md](CODE_WALKTHROUGH.md): the guide for a reviewer.
 2. `docs/reports/m4m5_report.md`: the latest results in simple language.
 3. `docs/figures_guide.md`: every chart explained.
 4. `docs/methodology_notes.md`: why the method is what it is.
 5. `docs/decisions.md`: every decision, with alternatives and evidence.
 6. `docs/open_questions.md`: what still needs a decision.
-7. `docs/progress.md`: what was done and which issues were fixed. `docs/cleanup_plan.md`: old-to-new script names.
+7. `docs/progress.md`: what was done and which issues were fixed. `docs/cleanup_plan_v2.md`: old-to-new script names and what the last tidy-up removed.
 
 ## Rules that protect the results
 - fit trains and analyses, valid chooses settings, dev is the final test: once per model, with settings frozen first.

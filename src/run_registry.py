@@ -1,4 +1,7 @@
-"""Run log, frozen model settings and the once-only dev guard shared by every model script."""
+"""Run log, frozen model settings and the once-only dev guard shared by every model script.
+
+Inputs: a model name and its config. Outputs: rows in results/tables/runs_log.csv and frozen settings in results/frozen/.
+"""
 import hashlib
 import json
 from datetime import datetime, timezone
@@ -10,6 +13,7 @@ from .provenance import run_info
 
 
 def config_hash(config):
+    """Short hash of a config dict (key order does not matter)."""
     return hashlib.sha256(json.dumps(config, sort_keys=True).encode("utf-8")).hexdigest()[:10]
 
 
@@ -34,6 +38,7 @@ def append_run(model, part, mode, config, metrics, note="", path=RUNS_LOG):
 
 
 def save_frozen(model, config, evidence, frozen_dir=FROZEN_DIR):
+    """Write the settings chosen on valid, with their evidence, to results/frozen/<model>.json (atomic)."""
     frozen_dir.mkdir(parents=True, exist_ok=True)
     doc = {"model": model, "config": config, "config_hash": config_hash(config), "chosen_on": "valid",
            "evidence": evidence, "frozen_utc": _now(), "run_info": run_info()}
@@ -45,6 +50,7 @@ def save_frozen(model, config, evidence, frozen_dir=FROZEN_DIR):
 
 
 def load_frozen(model, frozen_dir=FROZEN_DIR):
+    """Load a model's frozen settings; stops with a message if --tune has not run."""
     path = frozen_dir / f"{model}.json"
     if not path.exists():
         raise SystemExit(f"no frozen settings for {model}: run the script with --tune first")
@@ -57,6 +63,7 @@ def frozen_marker(model, cfg_hash):
 
 
 def dev_already_run(model, results=RESULTS, runs_log=RUNS_LOG):
+    """True if the model already has a dev row in the summary or the run log (dev runs once)."""
     summary = results / "tables" / "summary.csv"
     if summary.exists():
         s = pd.read_csv(summary)

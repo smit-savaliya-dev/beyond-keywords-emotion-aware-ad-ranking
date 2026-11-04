@@ -1,4 +1,8 @@
-"""NRC EmoLex and NRC VAD loaders plus the tokeniser used for lexicon matching."""
+"""NRC EmoLex and NRC VAD loaders plus the tokeniser used for lexicon matching.
+
+Inputs: the NRC files in data/external/nrc/ (research-only licence, never committed). Outputs: lexicon feature tables and the
+NRC-to-six-class mapping used for validation.
+"""
 import re
 
 import numpy as np

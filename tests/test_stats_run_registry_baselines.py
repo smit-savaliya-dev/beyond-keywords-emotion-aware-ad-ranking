@@ -1,3 +1,4 @@
+"""Tests for src/stats.py, src/run_registry.py and src/baselines.py, with small fakes: no internet, GPU or real lexicons."""
 import json
 
 import numpy as np

@@ -1,7 +1,12 @@
-"""M3 = M2 + emotion, late fusion (spec v3): final = alpha * norm(M2) + (1 - alpha) * norm(emotion), min-max per impression. D52-D54.
+"""M3 = M2 + emotion by late fusion (spec v3 and v4): final = alpha * norm(M2) + (1 - alpha) * norm(emotion), min-max within each
+impression. D52-D54.
 
-  python scripts/04_06_m3_fusion.py --tune         # valid only: 4 variants x 11 alphas, checks, title-only reported
-  python scripts/04_06_m3_fusion.py --final-dev    # once, frozen settings
+Reads:  impressions, behaviors, news_emotion_features_v2.parquet, news_emotion_features.parquet, M2 frozen settings and valid scores.
+Writes: --tune: results/frozen/M3_sbert_emotion.json, m3_fusion_grid_valid.csv, m3_shuffled_control_valid.csv, m3_fusion_meta.json,
+        valid scores and per-impression files. Stops if a D54 check fails.
+        --final-dev: dev files, a summary.csv row and a runs_log.csv row.
+Run:    python scripts/04_06_m3_fusion.py --tune         # valid only: 4 variants x 11 alphas, checks
+        python scripts/04_06_m3_fusion.py --final-dev    # once, by hand, frozen settings
 """
 import argparse
 import json
@@ -55,6 +60,7 @@ def title_only_score(processed, ctx):
 
 
 def tune(processed):
+    """Score every variant and alpha on valid, run the D54 checks, then freeze the best setting."""
     alphas = load_spec()["fusion"]["alpha_grid"]
     truth, imps, base, scores, ctx = load_inputs("valid", processed, need_other=True)
     per_m2 = pd.read_parquet(RESULTS / "per_impression" / f"{M2_NAME}__valid.parquet")
@@ -114,6 +120,7 @@ def tune(processed):
 
 
 def final_dev(processed, reason):
+    """Score dev once with the frozen setting (refuses to run twice)."""
     frozen = check_final_dev(M3_NAME, reason)
     cfg = frozen["config"]
     if cfg["m2_config_hash"] != load_frozen(M2_NAME)["config_hash"]:
@@ -129,6 +136,7 @@ def final_dev(processed, reason):
 
 
 def main():
+    """Run --tune (valid) or --final-dev (dev, once)."""
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--tune", action="store_true")

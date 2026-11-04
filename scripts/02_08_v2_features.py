@@ -1,7 +1,10 @@
-"""Build the v2 emotion tables for the setting chosen by D30 (emotion_v2_choice.json). New files only; v1 is untouched.
-No GPU: uses the saved title/abstract raw scores. Labels are for reporting and validation, never model features.
+"""Build the v2 emotion tables for the setting chosen by D30. New files only; v1 is untouched.
 
-  python scripts/02_08_v2_features.py
+Reads:  news.parquet, the saved title and abstract raw scores, emotion_v2_choice.json, the NRC lexicons and the archived sheet ids.
+Writes: news_emotion_raw28_v2.parquet, news_emotion_labels_v2.parquet, news_emotion_features_v2.parquet,
+        results/tables/emotion_examples_v2.csv and emotion_v2_meta.json.
+Labels are for reporting and validation only, never model features.
+Run:    python scripts/02_08_v2_features.py
 """
 import argparse
 import json
@@ -18,6 +21,7 @@ from src.provenance import run_info
 
 
 def main():
+    """Build the v2 raw scores, labels and features and write them with their metadata."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

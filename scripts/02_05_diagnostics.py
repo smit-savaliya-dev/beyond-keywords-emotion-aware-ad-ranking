@@ -1,7 +1,9 @@
-"""Item-level diagnostics of news_emotion_features.parquet: distributions, cross-source and title-vs-abstract
-correlations, one heatmap. No click data.
+"""Item-level diagnostics of the emotion features: distributions, cross-source and title-vs-abstract correlations. No clicks.
 
-  python scripts/02_05_diagnostics.py
+Reads:  data/processed/news_emotion_features.parquet.
+Writes: results/tables/emotion_feature_distributions.csv, emotion_cross_source_correlations.csv, emotion_cross_source_spearman.csv,
+        emotion_title_vs_abstract.csv, emotion_low_mass.json, and one heatmap in results/figures/diagnostics/.
+Run:    python scripts/02_05_diagnostics.py
 """
 import argparse
 import json
@@ -16,6 +18,7 @@ from src.emotion_features import GO_EMOTIONS
 
 
 def main():
+    """Compute the diagnostic tables and draw the heatmap."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

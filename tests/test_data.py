@@ -1,3 +1,4 @@
+"""Tests for src/data.py (parsing, parts, integrity checks), with small fakes: no internet, GPU or real lexicons."""
 import pytest
 
 from src.data import build_all, check_official_counts, integrity_problems

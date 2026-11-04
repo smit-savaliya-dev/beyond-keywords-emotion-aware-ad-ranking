@@ -32,6 +32,7 @@ EDA_FIGS = ["01_part_sizes", "02_candidates_per_impression", "03_clicks_per_impr
 
 
 def build_steps(skip_official_check):
+    """The ordered list of pipeline steps with their inputs, outputs and flags."""
     extra = ["--skip-official-check"] if skip_official_check else []
     code_and_tests = sorted([*(ROOT / "src").glob("*.py"), *(ROOT / "tests").glob("*.py"), ROOT / "pytest.ini"])
     return [
@@ -226,6 +227,7 @@ def resolve(names, steps):
 
 
 def main():
+    """Parse the options, choose which steps to run and report what ran."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dry-run", action="store_true", help="show the plan, run nothing")
     ap.add_argument("--force", action="store_true", help="rerun every step (create-only steps still keep their files)")

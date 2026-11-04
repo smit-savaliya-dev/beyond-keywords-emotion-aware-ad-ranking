@@ -1,3 +1,4 @@
+"""Tests for src/agreement.py (kappa bands, bootstrap agreement), with small fakes: no internet, GPU or real lexicons."""
 import pytest
 
 from src.agreement import agreement, compare_sources, kappa_band

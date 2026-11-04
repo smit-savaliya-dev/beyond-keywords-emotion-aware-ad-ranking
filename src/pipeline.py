@@ -18,6 +18,7 @@ from typing import Callable, Optional
 
 @dataclass
 class Step:
+    """One pipeline step: command, data inputs and outputs, the script whose imports count as code, and run flags."""
     name: str
     cmd: list                                     # arguments after the Python executable
     inputs: list = field(default_factory=list)    # data files the step reads
@@ -33,6 +34,7 @@ class Step:
 
 
 class StepFailed(RuntimeError):
+    """Raised when a step fails; carries the report of the steps run so far."""
     def __init__(self, message, report):
         super().__init__(message)
         self.report = report
@@ -98,6 +100,7 @@ def held_gpu_steps(steps, explicit=()):
 
 
 class HashCache:
+    """File hashes cached by size and modification time, so unchanged files are never re-hashed."""
     def __init__(self, path):
         self.path = Path(path)
         try:
@@ -106,6 +109,7 @@ class HashCache:
             self.data = {}
 
     def sha(self, path):
+        """SHA-256 of a file (None if it is missing), from the cache when size and mtime are unchanged."""
         path = Path(path)
         if not path.is_file():
             return None
@@ -122,6 +126,7 @@ class HashCache:
         return self.data[key][2]
 
     def save(self):
+        """Write the cache to disk (atomic)."""
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_name(self.path.name + ".tmp")
         tmp.write_text(json.dumps(self.data), encoding="utf-8")
@@ -129,6 +134,7 @@ class HashCache:
 
 
 class Pipeline:
+    """Runs steps in order and skips those whose inputs, code, arguments and outputs are unchanged since the last good run."""
     def __init__(self, steps, root, state_dir, log=print):
         self.steps, self.root, self.state = steps, Path(root), Path(state_dir)
         self.cache = HashCache(self.state / "hash_cache.json")

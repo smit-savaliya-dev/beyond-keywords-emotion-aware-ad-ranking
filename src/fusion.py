@@ -1,4 +1,7 @@
-"""M3 late fusion: emotion score variants, per-impression min-max and the checks of D54."""
+"""M3 late fusion: emotion score variants, per-impression min-max and the checks of D54.
+
+Inputs: M2 scores, user histories and emotion vectors. Outputs: fused scores for a grid of variants and alphas.
+"""
 import numpy as np
 import pandas as pd
 
@@ -18,6 +21,7 @@ def minmax_within(groups, x):
 
 
 def fuse(base_norm, emotion_norm, alpha):
+    """alpha * base + (1 - alpha) * emotion, both already min-max scaled within the impression."""
     return alpha * base_norm + (1.0 - alpha) * emotion_norm
 
 

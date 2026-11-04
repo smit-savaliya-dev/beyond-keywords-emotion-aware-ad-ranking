@@ -1,7 +1,8 @@
-"""Step 3 of base-v2: the eight story charts in results/figures/story/ (and the data behind them in results/tables/).
-Reads saved tables only: item-level emotion files and fit/valid results. No clicks are loaded and dev is never read.
+"""The eight story charts on the data and emotion layer, and the data behind them.
 
-  python scripts/03_08_story_charts.py
+Reads:  saved item-level emotion files and fit/valid result tables. No clicks are loaded and dev is never read.
+Writes: results/figures/story/*.png and results/tables/story_*.csv.
+Run:    python scripts/03_08_story_charts.py
 """
 import argparse
 import json
@@ -34,6 +35,7 @@ def part_rows(t, names):
 
 
 def main():
+    """Build the chart tables from saved files and draw the eight charts."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

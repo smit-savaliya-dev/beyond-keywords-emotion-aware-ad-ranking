@@ -1,4 +1,9 @@
-"""Parse MIND-small into data/processed/*.parquet and verify it."""
+"""Parse MIND-small into parquet tables and verify the counts and ids.
+
+Reads:  data/raw/{train,dev}/news.tsv and behaviors.tsv.
+Writes: data/processed/news.parquet, behaviors.parquet, impressions.parquet, data_summary.json.
+Run:    python scripts/01_02_prepare_mind.py [--skip-official-check]
+"""
 import argparse
 import json
 import sys
@@ -10,6 +15,7 @@ from src.data import build_all, check_official_counts, integrity_problems, save_
 
 
 def main():
+    """Build and save the processed tables; stop if an integrity or official-count check fails."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--raw", type=Path, default=RAW)
     ap.add_argument("--out", type=Path, default=PROCESSED)

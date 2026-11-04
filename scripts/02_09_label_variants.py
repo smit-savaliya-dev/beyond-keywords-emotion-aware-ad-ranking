@@ -1,8 +1,9 @@
-"""Stance-excluded labelling variants (D38): v2b ignores approval and disapproval, v2c also ignores realization, for both the
-presence decision and the dominant class. Same weight as v2, same t grid. Reporting labels only: soft model features do not
-change, and the final choice between variants is made later by hand-label kappa. No GPU: uses the saved v2 raw scores.
+"""Stance-excluded labelling variants (D38): v2b ignores approval and disapproval, v2c also realization.
 
-  python scripts/02_09_label_variants.py
+Reads:  news_emotion_raw28_v2.parquet and emotion_v2_choice.json (no GPU).
+Writes: news_emotion_labels_variants.parquet, results/tables/emotion_label_variants_grid.csv and its meta file.
+Reporting labels only: soft model features do not change. The variant is chosen on the SemEval trial split (D47).
+Run:    python scripts/02_09_label_variants.py
 """
 import argparse
 import json
@@ -17,6 +18,7 @@ from src.provenance import run_info
 
 
 def main():
+    """Label the corpus under each variant and tabulate the shares."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

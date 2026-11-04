@@ -1,3 +1,4 @@
+"""Tests for src/congruence.py (user profiles and congruence measures), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

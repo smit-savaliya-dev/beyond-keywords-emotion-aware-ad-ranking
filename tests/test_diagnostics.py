@@ -1,3 +1,4 @@
+"""Tests for src/diagnostics.py (item-level emotion diagnostics), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

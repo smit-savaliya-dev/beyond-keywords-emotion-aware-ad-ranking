@@ -1,3 +1,4 @@
+"""Tests for src/evaluate.py (score contract and evaluation path), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

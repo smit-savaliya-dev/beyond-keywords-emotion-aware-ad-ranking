@@ -1,5 +1,7 @@
-"""The eight story charts of base-v2, in one academic style. Static PNGs: every chart has a title, labelled axes with
-units and a one-sentence caption. Palette validated with the dataviz checker; hollow marker = not significant at both levels.
+"""The eight story charts on the data and emotion layer, in one academic style.
+
+Inputs: saved item-level files and result tables. Outputs: static PNGs, each with a title, labelled axes with units and a
+one-sentence caption. A hollow marker means not significant at both levels.
 """
 import textwrap
 

@@ -1,9 +1,13 @@
-"""Per-impression ranking metrics (official MIND definitions)."""
+"""Per-impression ranking metrics (official MIND definitions).
+
+Inputs: labels and scores of one impression. Outputs: AUC, MRR, nDCG, precision, recall and hit rate at 5 and 10.
+"""
 import numpy as np
 from scipy.stats import rankdata
 
 
 def auc(labels, scores):
+    """Area under the ROC curve of one impression (average ranks for ties); NaN if one label class is missing."""
     labels = np.asarray(labels, dtype=float)
     pos = labels == 1
     n_pos, n_neg = int(pos.sum()), int((~pos).sum())
@@ -22,6 +26,7 @@ def ranked_labels(labels, scores, rng=None):
 
 
 def impression_metrics(labels, scores, ks=(5, 10), rng=None):
+    """All ranking metrics of one impression; tied scores are ordered by `rng`, never by log order."""
     labels = np.asarray(labels, dtype=float)
     y = ranked_labels(labels, scores, rng)
     n_click = y.sum()

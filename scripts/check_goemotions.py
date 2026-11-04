@@ -1,4 +1,9 @@
-"""Optional in-domain check: the classifier + 28->6 mapping on the GoEmotions test split."""
+"""Optional in-domain check: the GoEmotions classifier plus the 28 -> 6 mapping on the GoEmotions test split.
+
+Reads:  the GoEmotions dataset (internet, needs the datasets package) and the classifier.
+Writes: results/tables/emotion_in_domain.json (accuracy and macro-F1 of the six-class mapping). Not a pipeline step.
+Run:    python scripts/check_goemotions.py
+"""
 import json
 
 from sklearn.metrics import accuracy_score, classification_report, f1_score
@@ -9,6 +14,7 @@ from src.emotion import SIX_CLASSES, collapse, load_classifier, pick_device, sco
 
 
 def main():
+    """Score the GoEmotions test split and report the six-class results."""
     from datasets import load_dataset
     ds = load_dataset("google-research-datasets/go_emotions", "simplified", split="test")
     idx, gold = single_label_gold(ds["labels"], ds.features["labels"].feature.names)

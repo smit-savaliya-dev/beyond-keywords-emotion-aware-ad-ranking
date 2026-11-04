@@ -1,7 +1,9 @@
-"""Label every news item with emotion vectors. Resumable: re-run to continue after an interruption.
+"""Baseline emotion labels: GoEmotions on title + abstract as one text. Resumable (re-run to continue).
 
-  python scripts/02_01_label_combined.py --smoke    # 12 headlines, writes nothing: check the model works
-  python scripts/02_01_label_combined.py            # full run (GPU used automatically if available)
+Reads:  data/processed/news.parquet.
+Writes: news_emotion_raw28.parquet, news_emotion.parquet, news_emotion_meta.json (chunks in emotion_chunks/). Never overwritten.
+Run:    python scripts/02_01_label_combined.py --smoke    # 12 headlines, writes nothing
+        python scripts/02_01_label_combined.py            # full run (GPU used automatically)
 """
 import argparse
 import json
@@ -18,6 +20,7 @@ from src.provenance import run_info
 
 
 def main():
+    """Label the corpus in chunks, or run the 12-headline smoke test."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     ap.add_argument("--model", default=EMOTION_MODEL)

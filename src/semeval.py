@@ -38,6 +38,7 @@ def download_archive(dest):
 
 
 def split_files(root, split):
+    """Paths of the headline XML and the two gold files of a SemEval split."""
     folder = root / f"AffectiveText.{split}"
     stem = f"affectivetext_{split}"
     return folder / f"{stem}.xml", folder / f"{stem}.emotions.gold", folder / f"{stem}.valence.gold"
@@ -54,6 +55,7 @@ def _gold(path, columns):
 
 
 def load_split(root, split):
+    """Headlines and gold ratings of one split as one table; checks ids, ranges and empty headlines."""
     xml, emotions, valence = split_files(root, split)
     t = parse_headlines(xml).merge(_gold(emotions, GOLD_EMOTIONS), on="id", validate="one_to_one", how="outer", indicator="a")
     t = t.merge(_gold(valence, ["valence"]), on="id", validate="one_to_one", how="outer", indicator="b")
@@ -68,6 +70,7 @@ def load_split(root, split):
 
 
 def load_semeval(root, sizes=SEMEVAL_SPLITS):
+    """Trial and test splits together, with the expected sizes checked."""
     frames = []
     for split, n in sizes.items():
         t = load_split(root, split)

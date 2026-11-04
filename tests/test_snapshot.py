@@ -1,3 +1,4 @@
+"""Tests for src/snapshot.py (tolerance and byte-for-byte comparison), with small fakes: no internet, GPU or real lexicons."""
 import json
 
 import numpy as np

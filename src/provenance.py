@@ -1,3 +1,7 @@
+"""Provenance helpers: file hashes and the run information (time, versions, git commit) stored with results.
+
+Inputs: a file path, or nothing. Outputs: a SHA-256 string, or a dict that is saved next to results and ignored when comparing them.
+"""
 import hashlib
 import platform
 import subprocess
@@ -10,6 +14,7 @@ PACKAGES = ("pandas", "numpy", "scipy", "scikit-learn", "pyarrow", "torch", "tra
 
 
 def sha256_file(path, block=1 << 20):
+    """SHA-256 of a file, read in blocks."""
     h = hashlib.sha256()
     with open(path, "rb") as f:
         while chunk := f.read(block):
@@ -26,6 +31,7 @@ def _git(*args):
 
 
 def run_info():
+    """Time, Python and package versions, platform and git state of this run."""
     info = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "python": platform.python_version(),

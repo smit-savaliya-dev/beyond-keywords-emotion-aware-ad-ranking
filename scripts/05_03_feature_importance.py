@@ -1,6 +1,9 @@
-"""Where do emotion features rank inside M5? LightGBM gain importance and mean |pred_contrib| on seeded valid impressions (D68). Dev is never read.
+"""Where do the emotion features rank inside M5? LightGBM gain importance and mean |pred_contrib| on seeded valid impressions (D68).
+Dev is never read.
 
-  python scripts/05_03_feature_importance.py
+Reads:  data/processed/ltr_features_valid.parquet and the frozen M5 booster.
+Writes: results/tables/m5_feature_importance.csv, m5_feature_importance_meta.json, results/figures/diagnostics/m5_feature_importance.png.
+Run:    python scripts/05_03_feature_importance.py
 """
 import json
 
@@ -15,6 +18,7 @@ from src.results_charts import importance_chart
 
 
 def main():
+    """Compute the importances on valid and draw the chart."""
     booster = load_model(M5_NAME, load_frozen(M5_NAME)["config"]["model_sha256"])
     frame = pd.read_parquet(PROCESSED / LTR_FEATURE_FILE.format(part="valid"))
     t = importance_table(booster, frame, model_features(M5_NAME), LTR_IMPORTANCE_IMPRESSIONS, SEED)

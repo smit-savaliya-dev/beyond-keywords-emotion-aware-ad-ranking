@@ -1,9 +1,11 @@
-"""Valid-set replication of the emotion spec candidates (D27). Same statistics as Phase 5 (per-impression
-clicked-minus-unclicked dz, t-test, Holm, user level, shuffled-label null), on part == "valid" only; dev is never read.
-Rule (pre-declared): keep a candidate if it is significant at both levels on fit AND on valid has the same sign with an
-impression-level 95% CI that excludes 0.
+"""Valid-set replication of the spec v1 candidates (D27), on the valid part only (dev is never read).
 
-  python scripts/03_03_spec_v1_replication.py
+Same statistics as the fit analysis. Rule (pre-declared): keep a candidate if it is significant at both levels on fit AND on valid
+has the same sign with an impression-level 95% CI that excludes 0.
+
+Reads:  impressions, behaviors, news_emotion_features.parquet, news_emotion_weighted.parquet, the fit signal tables.
+Writes: results/tables/emotion_spec_selection.csv, emotion_signal_valid.csv, emotion_spec_selection_meta.json.
+Run:    python scripts/03_03_spec_v1_replication.py
 """
 import argparse
 import json
@@ -24,6 +26,7 @@ from src.provenance import run_info
 
 
 def main():
+    """Replicate on valid, apply the rule and write the selection."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

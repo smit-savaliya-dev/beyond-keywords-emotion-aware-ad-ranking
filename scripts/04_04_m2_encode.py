@@ -1,6 +1,8 @@
 """Encode every news item with all-mpnet-base-v2, one cache per text variant (D50). GPU, resumable, no labels involved.
 
-  python scripts/04_04_m2_encode.py
+Reads:  data/processed/news.parquet.
+Writes: sbert_title.npy, sbert_text.npy with their id tables, and sbert_meta.json (chunks in sbert_chunks_*/).
+Run:    python scripts/04_04_m2_encode.py
 """
 import argparse
 import json
@@ -17,6 +19,7 @@ from src.sbert import embedding_paths, encode_corpus, load_encoder
 
 
 def main():
+    """Encode the corpus in chunks for each text variant."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     ap.add_argument("--device", default="auto", help="auto, -1 (CPU) or 0 (first GPU)")

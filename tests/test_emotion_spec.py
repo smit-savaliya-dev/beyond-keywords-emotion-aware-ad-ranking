@@ -1,3 +1,4 @@
+"""Tests for src/emotion_spec.py (spec loading, hash lock, replication rule), with small fakes: no internet, GPU or real lexicons."""
 import json
 import re
 

@@ -1,7 +1,11 @@
-"""Feature tables for M4 and M5 on fit and valid (D63-D65), with check D67b: valid features must equal the saved M0, M1 and M2 scores.
-Dev features are built only inside --final-dev of script 49.
+"""Feature tables for M4 and M5 on fit and valid (D63-D65), with check D67b: the valid features must equal the saved M0, M1, M2 scores.
+Dev features are built only inside --final-dev of 04_10.
 
-  python scripts/04_09_ltr_features.py
+Reads:  impressions, behaviors, news, data/raw/train/news.tsv, news_emotion_features_v2.parquet, news_emotion_raw28_v2.parquet,
+        the SBERT embeddings, the frozen M0 to M2 settings and valid scores.
+Writes: data/processed/ltr_features_fit.parquet, ltr_features_valid.parquet, results/tables/ltr_features_meta.json.
+Click statistics use only days strictly before the row's day (D64).
+Run:    python scripts/04_09_ltr_features.py
 """
 import json
 from pathlib import Path
@@ -13,6 +17,7 @@ from src.provenance import run_info
 
 
 def main():
+    """Build the fit and valid feature tables and check them against the saved scores."""
     p = PROCESSED
     frames = {}
     for part in ("fit", "valid"):

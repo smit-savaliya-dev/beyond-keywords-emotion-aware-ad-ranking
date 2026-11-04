@@ -1,3 +1,4 @@
+"""Tests for src/semeval.py (loading, gold classes, rules, verdict), with small fakes: no internet, GPU or real lexicons."""
 import io
 import tarfile
 

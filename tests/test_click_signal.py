@@ -1,3 +1,4 @@
+"""Tests for src/click_signal.py (within-impression differences, signal tests, Holm families), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

@@ -1,8 +1,10 @@
-"""Paired comparisons for M2 and M3 (D51, D55): per-impression metrics with Holm, 95% CI and dz; user-level AUC as a robustness check.
-Reads saved per-impression results only; it never scores a model.
+"""Paired comparisons of M2 and M3 (D51, D55): per-impression metrics with Holm, 95% CI and dz; user-level AUC as a robustness check.
+Never scores a model.
 
-  python scripts/04_07_compare_m2m3.py --part valid
-  python scripts/04_07_compare_m2m3.py --part dev       # by hand, after both --final-dev runs
+Reads:  results/per_impression/{M1,M2,M3}__<part>.parquet, behaviors, data_summary.json.
+Writes: results/tables/m2m3_comparison.csv and m2m3_user_level.csv (the part is a column).
+Run:    python scripts/04_07_compare_m2m3.py --part valid
+        python scripts/04_07_compare_m2m3.py --part dev       # by hand, after both --final-dev runs
 """
 import argparse
 
@@ -17,6 +19,7 @@ PAIRS = {"valid": [(M1_NAME, M2_NAME), (M2_NAME, M3_NAME)],
 
 
 def main():
+    """Compare the models on the chosen part and merge the rows into the tables."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--part", choices=["valid", "dev"], default="valid")
     args = ap.parse_args()

@@ -1,13 +1,13 @@
-"""Congruence signal on part == "fit" ONLY: is a candidate's emotional similarity to the user's HISTORY profile
-higher (congruence-seeking, dz > 0) or lower (mood repair, dz < 0) for clicked items? Descriptive, no model.
+"""Congruence signal on the fit part only: is a candidate closer to the user's history profile when clicked (dz > 0)
+or further away (dz < 0, mood repair)? Descriptive, no model.
 
-Profile = recency-weighted mean (decay 0.9, newest weight 1, last 50) of history item vectors; cold start = corpus mean.
-Measures (CONGRUENCE_MEASURES in config): cosine on go_pct_* (main) and on the weighted 6-class vector,
--KL on the 6-class vector, valence distance -|profile - item| on go_vad_valence; -KL on go_pct_* is exploratory.
-Each also against a generic profile (corpus mean, same for every user); personal = raw - generic isolates the
-user-specific part from the item's own emotion effect. Shared code: src.congruence.congruence_features.
+Profile = recency-weighted mean (decay 0.9, last 50) of the history item vectors; cold start = corpus mean. Each measure is also
+taken against a generic profile (corpus mean) and a random other user's profile: personal = raw - generic. Shared code:
+src.congruence.congruence_features.
 
-  python scripts/03_02_congruence.py
+Reads:  impressions, behaviors, news, news_emotion_features.parquet, news_emotion_weighted.parquet.
+Writes: results/tables/congruence_signal_fit.csv, congruence_signal_by_category_fit.csv, and a meta file.
+Run:    python scripts/03_02_congruence.py
 """
 import argparse
 import json
@@ -30,12 +30,14 @@ VERSIONS = {"pct": "go_pct_* (8 emotions, percentile)", "six": "weighted 6-class
 
 
 def direction(t):
+    """Label each row congruence-seeking, mood repair or no clear signal from its sign and significance."""
     return np.select([t["significant_both"] & (t["dz"] > 0), t["significant_both"] & (t["dz"] < 0)],
                      ["congruence-seeking (clicked more similar)", "mood repair (clicked less similar)"],
                      "no clear signal")
 
 
 def describe(t):
+    """Add measure and role columns that explain each feature name."""
     base = t["feature"].str.replace(r"_(generic|personal|otheruser|userspecific)$", "", regex=True)
     status = {f"cong_{v}_{m}": s for v, m, s in CONGRUENCE_MEASURES}
     t.insert(1, "measure", base)
@@ -49,6 +51,7 @@ def describe(t):
 
 
 def main():
+    """Compute the congruence signals on fit and write the tables."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

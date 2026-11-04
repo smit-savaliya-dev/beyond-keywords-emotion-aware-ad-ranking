@@ -1,3 +1,4 @@
+"""Tests for src/logic_check.py (normalised syntax-tree comparison), with small fakes: no internet, GPU or real lexicons."""
 from src.logic_check import differences, digest, normalised_statements
 
 OLD = '''"""Header."""

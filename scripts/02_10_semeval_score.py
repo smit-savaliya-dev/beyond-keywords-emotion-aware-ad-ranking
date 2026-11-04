@@ -1,7 +1,9 @@
-"""Score the SemEval-2007 headlines with GoEmotions (same model, max_length 128). Small GPU job on new data only; MIND is not touched.
-Headlines only, so this validates the title part of the MIND scoring. Resumable, with the usual settings guard.
+"""Score the SemEval-2007 headlines with GoEmotions (same model and max_length as MIND). Resumable; MIND is not touched.
 
-  python scripts/02_10_semeval_score.py
+Reads:  data/external/semeval2007/ (trial and test headlines).
+Writes: data/processed/semeval_raw28.parquet and semeval_raw28_meta.json (chunks in emotion_chunks_semeval/).
+Headlines only, so this validates the title part of the MIND scoring.
+Run:    python scripts/02_10_semeval_score.py
 """
 import argparse
 import json
@@ -15,6 +17,7 @@ from src.semeval import load_semeval
 
 
 def main():
+    """Score the headlines in chunks and write the raw scores."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     ap.add_argument("--device", default="auto", help="auto, -1 (CPU) or 0 (first GPU)")

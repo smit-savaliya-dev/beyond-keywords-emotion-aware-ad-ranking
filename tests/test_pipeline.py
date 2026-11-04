@@ -1,3 +1,4 @@
+"""Tests for src/pipeline.py (step runner, stamps, hash cache), with small fakes: no internet, GPU or real lexicons."""
 import json
 
 import pytest

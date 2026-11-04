@@ -1,11 +1,13 @@
-"""Step 2 of base-v2 (D31): which window of the user's reading history carries the emotional context?
-Windows: long-term (last 50, decay 0.9) vs short-term (last 1, 3, 5, no decay), on the v2 go_pct_* vector; cosine raw,
-personal, user-specific; fit then valid (dev is never read). Control: last 5 vs the 5 items before them, same size,
-on users with >= 10 history items, because small windows are noisier.
-Limitation: MIND history is one list per user from before the log period, so "last 1" is not the click just before the
-impression; it is the emotional context inferred from the user's most recent reading in that list.
+"""Which window of the user's reading history carries the emotional context? (D31)
 
-  python scripts/03_05_context_windows.py
+Long-term (last 50, decay 0.9) against short-term (last 1, 3, 5, no decay) on the v2 go_pct_* vector; fit then valid.
+Control: last 5 against the 5 items before them, same size, on users with at least 10 history items.
+Limitation: the history list is from before the log period, so "last 1" is the most recent item in that list, not the click
+just before the impression.
+
+Reads:  impressions, behaviors, news_emotion_features_v2.parquet.
+Writes: results/tables/context_windows_signal.csv, context_windows_comparison.csv, context_windows_meta.json.
+Run:    python scripts/03_05_context_windows.py
 """
 import argparse
 import json
@@ -35,6 +37,7 @@ def window_values(ctx, vectors, windows):
 
 
 def tidy(table, part, sample):
+    """Split feature names into window and role columns and add the part and sample."""
     t = table.copy()
     split = t["feature"].str.extract(r"^(?P<window>[a-z]+_\d+)(?P<suffix>.*)$")
     t.insert(0, "window", split["window"])
@@ -45,6 +48,7 @@ def tidy(table, part, sample):
 
 
 def compare(ctx, values, pairs, mask, part, sample):
+    """Paired comparison of two windows on the same impressions."""
     rows = []
     groups, labels = ctx.groups[mask], ctx.labels[mask]
     for a, b in pairs:
@@ -55,6 +59,7 @@ def compare(ctx, values, pairs, mask, part, sample):
 
 
 def main():
+    """Run every window on fit and valid and write the tables."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

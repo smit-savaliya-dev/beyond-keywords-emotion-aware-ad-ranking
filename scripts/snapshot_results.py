@@ -29,6 +29,7 @@ def paths_for(tag):
 
 
 def main():
+    """Take a snapshot (--take) or check the results against one (--check)."""
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--take", action="store_true")

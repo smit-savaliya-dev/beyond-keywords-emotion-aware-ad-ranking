@@ -1,7 +1,9 @@
-"""Mean dev AUC with a 95% CI per model, from the saved per-impression results. Reads no impressions and scores nothing.
-Run by hand after a --final-dev run; it is not a pipeline step, because it reads dev result files.
+"""Mean dev AUC with a 95% CI for every model that has run, from the saved per-impression results.
 
-  python scripts/05_04_model_ladder.py
+Reads:  results/per_impression/*__dev.parquet. Scores nothing and reads no impressions.
+Writes: results/tables/model_ladder.csv.
+Run by hand after a --final-dev run; it is not a pipeline step, because it reads dev result files.
+Run:    python scripts/05_04_model_ladder.py
 """
 import pandas as pd
 
@@ -11,6 +13,7 @@ from src.results_tables import ladder_table
 
 
 def main():
+    """Build the ladder table from the saved dev results."""
     t = ladder_table(RESULTS / "per_impression")
     t.to_csv(TABLES / "model_ladder.csv", index=False)
     pd.set_option("display.width", 150)

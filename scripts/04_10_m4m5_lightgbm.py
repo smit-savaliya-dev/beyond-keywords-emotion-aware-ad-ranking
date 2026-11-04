@@ -1,8 +1,12 @@
-"""M4 LightGBM (no emotion), M5 = M4 + emotion (spec v4), M5-all (robustness, valid only). D63-D67.
+"""M4 LightGBM (no emotion), M5 = M4 + emotion (spec v4), and M5-all (robustness, valid only). D63-D67.
 
-  python scripts/04_10_m4m5_lightgbm.py --tune             # valid only: 8 configs per model, seeds, shuffled control, checks
-  python scripts/04_10_m4m5_lightgbm.py --tune --resume    # reuse finished runs after an interruption
-  python scripts/04_10_m4m5_lightgbm.py --final-dev --model M4_lightgbm    # once, frozen booster, no retraining
+Reads:  impressions and the feature tables from 04_09.
+Writes: --tune: frozen settings of M4, M5 and M5-all, results/tables/m4m5_tuning_valid.csv, m4m5_seed_variability_valid.csv,
+        m4m5_meta.json, boosters in data/processed/ltr_models/, valid scores and per-impression files. Stops if a D67 check fails.
+        --final-dev: dev files for M4 or M5, a summary.csv row and a runs_log.csv row; the frozen booster is loaded, never retrained.
+Run:    python scripts/04_10_m4m5_lightgbm.py --tune             # valid only: 8 configs per model, seeds, shuffled control, checks
+        python scripts/04_10_m4m5_lightgbm.py --tune --resume    # reuse finished runs after an interruption
+        python scripts/04_10_m4m5_lightgbm.py --final-dev --model M4_lightgbm    # once, by hand
 """
 import argparse
 import json
@@ -26,6 +30,7 @@ MODELS = [M4_NAME, M5_NAME, M5_ALL_NAME]
 
 
 def tune(processed, resume):
+    """Tune the three models on valid (grid, seeds, shuffled control), run the D67 checks and freeze the settings."""
     fit_path, valid_path = (processed / LTR_FEATURE_FILE.format(part=p) for p in ("fit", "valid"))
     fit, valid = pd.read_parquet(fit_path), pd.read_parquet(valid_path)
     truth = load_truth("valid", processed)
@@ -128,6 +133,7 @@ def tune(processed, resume):
 
 
 def final_dev(model, processed, reason):
+    """Score dev once with the frozen booster of M4 or M5 (refuses to run twice)."""
     if model not in (M4_NAME, M5_NAME):
         raise SystemExit("only M4 and M5 run on dev; M5-all is valid only (D65)")
     frozen = check_final_dev(model, reason)
@@ -143,6 +149,7 @@ def final_dev(model, processed, reason):
 
 
 def main():
+    """Run --tune (valid) or --final-dev (dev, once)."""
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--tune", action="store_true")

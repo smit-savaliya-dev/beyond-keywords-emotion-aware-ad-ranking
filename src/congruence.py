@@ -1,4 +1,8 @@
-"""User emotion profiles from click HISTORY only, and item-profile congruence (cosine, negative KL)."""
+"""User emotion profiles from click HISTORY only, and item-profile congruence (cosine, negative KL).
+
+Inputs: user histories and item emotion vectors. Outputs: one congruence value per candidate row, as raw, generic, personal and
+other-user variants. Shared by the analyses (03_xx) and by M3 and M5.
+"""
 import numpy as np
 
 from .config import CONGRUENCE_DECAY, CONGRUENCE_EPS, CONGRUENCE_MAX_HISTORY, CONGRUENCE_ROLES, V2_MAIN_MEASURE
@@ -31,6 +35,7 @@ def user_profiles(histories, vectors, fallback, decay=CONGRUENCE_DECAY, max_item
 
 
 def cosine_rows(a, b):
+    """Row-wise cosine similarity of two matrices; a zero-length row gives 0."""
     a, b = np.asarray(a, dtype=np.float64), np.asarray(b, dtype=np.float64)
     na, nb = np.linalg.norm(a, axis=1), np.linalg.norm(b, axis=1)
     denom = na * nb

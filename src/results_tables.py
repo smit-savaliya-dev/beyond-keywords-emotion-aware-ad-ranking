@@ -1,4 +1,7 @@
-"""Summary tables built from saved per-impression results."""
+"""Summary tables built from saved per-impression results.
+
+Inputs: results/per_impression/*.parquet. Outputs: the model ladder, paired comparison tables and the fresh-item split.
+"""
 import json
 
 import numpy as np

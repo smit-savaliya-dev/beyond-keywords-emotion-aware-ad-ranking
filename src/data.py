@@ -1,3 +1,8 @@
+"""MIND-small loading and preparation: news, behaviours, one row per candidate (impression) and the integrity checks.
+
+Inputs: data/raw/{train,dev}/news.tsv and behaviors.tsv. Outputs: data/processed/news.parquet, behaviors.parquet,
+impressions.parquet and data_summary.json. Parts: fit is the train split without its last day, valid is that last day, dev is the dev split.
+"""
 import csv
 import json
 
@@ -12,6 +17,7 @@ PARTS = ("fit", "valid", "dev")
 
 
 def find_split_dir(split, raw=RAW):
+    """Folder of one MIND split (the one that holds behaviors.tsv); raises if the download is missing."""
     hits = sorted((raw / split).rglob("behaviors.tsv"))
     if not hits:
         raise FileNotFoundError(f"No behaviors.tsv under {raw / split}. Run scripts/01_01_download_mind.py first.")
@@ -20,11 +26,13 @@ def find_split_dir(split, raw=RAW):
 
 def read_tsv(path, cols):
     # QUOTE_NONE: titles contain stray quotes. keep_default_na=False: "" and "NA" stay text.
+    """Read a MIND tab-separated file as text with the given column names."""
     return pd.read_csv(path, sep="\t", header=None, names=cols, dtype=str,
                        quoting=csv.QUOTE_NONE, keep_default_na=False, encoding="utf-8")
 
 
 def load_news(raw=RAW):
+    """News table of both splits, deduplicated, with a text column (title + '. ' + abstract; title only if no abstract)."""
     frames = [read_tsv(find_split_dir(s, raw) / "news.tsv", NEWS_COLS) for s in SPLITS]
     news = pd.concat(frames, ignore_index=True).drop_duplicates("news_id", keep="first")
     news = news.drop(columns=["url", "title_entities", "abstract_entities"])
@@ -45,6 +53,7 @@ def assign_parts(beh):
 
 
 def load_behaviors(raw=RAW):
+    """Behaviour log of both splits with parsed times, a split name and a globally unique imp_key."""
     frames = []
     for split in SPLITS:
         b = read_tsv(find_split_dir(split, raw) / "behaviors.tsv", BEHAVIOR_COLS)
@@ -80,6 +89,7 @@ def explode_impressions(beh):
 
 
 def summarise(news, beh, imps):
+    """Counts and integrity numbers of the prepared tables, per part, as a JSON-ready dict."""
     known = news["news_id"]
     history_ids = pd.Series(sorted({i for h in beh["history"] for i in h}), dtype=object)
     summary = {
@@ -119,6 +129,7 @@ def summarise(news, beh, imps):
 
 
 def integrity_problems(summary):
+    """List of integrity problems found in a summary (empty list = the data is consistent)."""
     problems = []
     if summary["missing_candidate_ids"]:
         problems.append("some candidate ids are not in the news table")
@@ -131,6 +142,7 @@ def integrity_problems(summary):
 
 
 def check_official_counts(summary, official=OFFICIAL_COUNTS):
+    """Differences between the summary and the official MIND-small counts (empty list = they match)."""
     parts = summary["parts"]
     got = {
         "news_items": summary["news_items"],
@@ -141,6 +153,7 @@ def check_official_counts(summary, official=OFFICIAL_COUNTS):
 
 
 def build_all(raw=RAW):
+    """Load and prepare everything: news, behaviours, impressions and the summary with hashes and run info."""
     news = load_news(raw)
     beh = load_behaviors(raw)
     imps = explode_impressions(beh)
@@ -152,6 +165,7 @@ def build_all(raw=RAW):
 
 
 def save_all(news, beh, imps, summary, out=PROCESSED):
+    """Write the prepared tables and data_summary.json to the processed folder."""
     out.mkdir(parents=True, exist_ok=True)
     news.to_parquet(out / "news.parquet", index=False)
     beh.drop(columns="impressions").to_parquet(out / "behaviors.parquet", index=False)

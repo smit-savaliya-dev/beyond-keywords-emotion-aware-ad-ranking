@@ -1,3 +1,4 @@
+"""Tests for src/sbert.py (pooling, resumable encoding, profile cosine), with small fakes: no internet, GPU or real lexicons."""
 import json
 
 import numpy as np

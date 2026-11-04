@@ -1,6 +1,9 @@
-"""NRC EmoLex + VAD features (title/abstract weighted) and classifier-derived go_vad_* features. CPU, about a minute.
+"""NRC EmoLex and VAD features (title and abstract weighted) and the classifier-derived go_vad_* features.
 
-  python scripts/02_03_lexicon_features.py
+Reads:  news.parquet, news_emotion_raw28_weighted.parquet, the NRC lexicons in data/external/nrc/.
+Writes: news_emotion_nrc_features.parquet, news_emotion_go_vad.parquet, news_emotion_lexicon_meta.json,
+        results/tables/lexicon_coverage.json and lexicon_top_words.csv.
+Run:    python scripts/02_03_lexicon_features.py    # CPU, about a minute
 """
 import argparse
 import json
@@ -18,6 +21,7 @@ from src.provenance import run_info
 
 
 def field_coverage(feats, mask):
+    """Share of texts without lexicon hits and mean coverage, for the texts selected by `mask`."""
     f = feats[mask]
     return {"n_texts": int(mask.sum()),
             "pct_zero_emolex_emotion_hits": round(100 * float((f["nrc_has_hits"] == 0).mean()), 2),
@@ -27,6 +31,7 @@ def field_coverage(feats, mask):
 
 
 def main():
+    """Build the lexicon features and the coverage report."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

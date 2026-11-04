@@ -1,10 +1,13 @@
-"""True recency test (D39), analysis only, fit and valid (dev is never read). Short-term context = the user's clicks in earlier
-impressions of the log (strictly earlier time, last 1, 3, 5, no decay); long-term = the history profile (last 50, decay 0.9).
-Sample: impressions with >= 1 earlier log click; candidates the user already clicked earlier are removed.
-Does recent context add anything beyond long-term? Residual test: short-term congruence minus what long-term explains inside the
-impression (slope estimated on fit, applied to valid). Control: last k vs previous k log clicks, same size.
+"""True recency test (D39), analysis only, fit and valid (dev is never read).
 
-  python scripts/03_06_true_recency.py
+Short-term context = the user's clicks in earlier impressions of the log (strictly earlier time; last 1, 3, 5; no decay);
+long-term = the history profile. Sample: impressions with at least one earlier log click, candidates already clicked removed.
+Residual test: short-term congruence minus what the long-term profile explains inside the impression (slope from fit, applied to
+valid). Control: last k against the previous k log clicks.
+
+Reads:  impressions, behaviors, news, news_emotion_features_v2.parquet.
+Writes: results/tables/true_recency_signal.csv, true_recency_comparison.csv, true_recency_residual_by_category.csv, a meta file.
+Run:    python scripts/03_06_true_recency.py
 """
 import argparse
 import json
@@ -37,6 +40,7 @@ def sample(ctx, keep_group, drop_row):
 
 
 def tidy(table, part, sample_name):
+    """Add window, role, part and sample columns to a signal table."""
     t = table.copy()
     t["window"] = t["feature"].str.replace(r"(_personal|_userspecific)$", "", regex=True)
     t["role"] = np.select([t["feature"].str.endswith("_personal"), t["feature"].str.endswith(USER),
@@ -47,6 +51,7 @@ def tidy(table, part, sample_name):
 
 
 def main():
+    """Run the recency tests on fit and valid and write the tables."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

@@ -1,4 +1,7 @@
-"""Threshold views of the emotion labels on the full corpus (item-level, no labels, no clicks)."""
+"""Threshold views of the emotion labels on the full corpus (item-level, no labels, no clicks).
+
+Inputs: raw 28 scores and go_pct_* features. Outputs: label shares per threshold.
+"""
 import numpy as np
 import pandas as pd
 

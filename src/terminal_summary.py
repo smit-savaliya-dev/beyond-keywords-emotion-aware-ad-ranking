@@ -1,5 +1,8 @@
-"""Terminal summary of the project, built only from saved result tables. Impression data, including dev, is never read:
-dev metrics come from results/tables/summary.csv, written once by the --final-dev runs."""
+"""Terminal summary of the project, built only from saved result tables.
+
+Inputs: results/tables/*.csv and data_summary.json. Impression data, including dev, is never read: dev metrics come from
+summary.csv, written once by the --final-dev runs. Output: the text printed by scripts/show_results.py.
+"""
 import json
 
 import pandas as pd
@@ -21,6 +24,7 @@ def _read(path):
 
 
 def data_lines(processed):
+    """Summary lines on the data."""
     s = _read(processed / "data_summary.json")
     if s is None:
         return ["  not available"]
@@ -31,6 +35,7 @@ def data_lines(processed):
 
 
 def neutral_lines(tables):
+    """Summary lines on the neutral share and emotion mix."""
     mix = _read(tables / "story_emotion_mix.csv")
     if mix is None:
         return ["  not available"]
@@ -41,6 +46,7 @@ def neutral_lines(tables):
 
 
 def stable_signal_lines(tables, n=6):
+    """Summary lines on the click signals that hold on fit and valid."""
     t = _read(tables / "emotion_spec_v2_selection.csv")
     if t is None:
         return ["  not available"]
@@ -56,6 +62,7 @@ def stable_signal_lines(tables, n=6):
 
 
 def congruence_lines(tables):
+    """Summary lines on the congruence effects."""
     t = _read(tables / "emotion_signal_v2.csv")
     if t is None:
         return ["  not available"]
@@ -68,6 +75,7 @@ def congruence_lines(tables):
 
 
 def window_lines(tables):
+    """Summary lines on which context window matters."""
     lines = ["  history column (user-specific dz):"]
     t = _read(tables / "context_windows_signal.csv")
     if t is None:
@@ -91,6 +99,7 @@ def window_lines(tables):
 
 
 def baseline_lines(tables):
+    """Summary lines with every model's metrics."""
     t = _read(tables / "summary.csv")
     if t is None:
         return ["  not available"]
@@ -101,6 +110,7 @@ def baseline_lines(tables):
 
 
 def semeval_lines(tables):
+    """Summary lines on the SemEval-2007 validation."""
     t = _read(tables / "semeval2007_validation.csv")
     m = _read(tables / "semeval2007_validation_meta.json")
     if t is None or m is None:
@@ -125,6 +135,7 @@ def semeval_lines(tables):
 
 
 def m3_lines(tables):
+    """Summary lines on M3 against M2."""
     m = _read(tables / "m3_fusion_meta.json")
     c = _read(tables / "m2m3_comparison.csv")
     if m is None or c is None:
@@ -143,6 +154,7 @@ def m3_lines(tables):
 
 
 def m5_lines(tables):
+    """Summary lines on M4 and M5."""
     m = _read(tables / "m4m5_meta.json")
     c = _read(tables / "m4m5_comparison.csv")
     s = _read(tables / "m4m5_seed_variability_valid.csv")
@@ -163,6 +175,7 @@ def m5_lines(tables):
 
 
 def control_lines(tables):
+    """Summary lines on the item-identity controls."""
     t = _read(tables / "m5_controls_valid.csv")
     fresh = _read(tables / "m5_fresh_items.csv")
     if t is None or fresh is None:
@@ -178,6 +191,7 @@ def control_lines(tables):
 
 
 def build_summary(tables, processed):
+    """The full summary text."""
     lines = ["=" * WIDTH, "BEYOND KEYWORDS: RESULTS SUMMARY", "=" * WIDTH]
     for title, body in (("Data", data_lines(processed)), ("Neutral share and emotion mix (% of items)", neutral_lines(tables)),
                         ("Most stable click signals (clicked vs not, same list)", stable_signal_lines(tables)),

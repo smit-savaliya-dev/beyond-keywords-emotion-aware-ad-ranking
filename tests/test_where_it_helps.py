@@ -1,3 +1,4 @@
+"""Tests for src/where_it_helps.py (RQ5 breakdowns), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 

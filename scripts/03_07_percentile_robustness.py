@@ -1,8 +1,11 @@
-"""Q03 / D40: do the results change if go_pct_* percentiles are fitted on train-split items only (data/raw/train/news.tsv)?
-Reruns the 8 go_pct_* click signals and cong_pct_cos on fit and valid (dev is never read) and compares dz with the current
-features. Current features stay in use; this is a robustness check.
+"""Do the results change if go_pct_* percentiles are fitted on train-split items only? (Q03, D40)
 
-  python scripts/03_07_percentile_robustness.py
+Reruns the 8 go_pct_* click signals and cong_pct_cos on fit and valid (dev is never read) and compares dz with the current
+features. The current features stay in use; this is a robustness check.
+
+Reads:  impressions, behaviors, news_emotion_features_v2.parquet, emotion_signal_v2.csv, data/raw/train/news.tsv.
+Writes: results/tables/percentile_robustness.csv and percentile_robustness_meta.json.
+Run:    python scripts/03_07_percentile_robustness.py
 """
 import argparse
 import json
@@ -24,6 +27,7 @@ ROLES = ("", "_personal", "_otheruser", "_userspecific")
 
 
 def main():
+    """Recompute the signals with train-only percentiles and compare dz."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

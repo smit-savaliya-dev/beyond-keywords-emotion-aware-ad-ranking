@@ -1,7 +1,8 @@
-"""Merge all item-level emotion features into data/processed/news_emotion_features.parquet (+ metadata JSON).
-Uses only saved outputs of the scoring and lexicon steps; no model re-run.
+"""Merge all item-level emotion features into one table. Uses saved outputs only; no model re-run.
 
-  python scripts/02_04_merge_features.py
+Reads:  the go, go_vad and nrc feature files and their meta files, and the raw28 title, abstract and weighted files.
+Writes: data/processed/news_emotion_features.parquet and news_emotion_features_meta.json.
+Run:    python scripts/02_04_merge_features.py
 """
 import argparse
 import json
@@ -20,6 +21,7 @@ INPUTS = ["news.parquet", "news_emotion_go_features.parquet", "news_emotion_raw2
 
 
 def main():
+    """Merge the feature tables and write them with their metadata."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

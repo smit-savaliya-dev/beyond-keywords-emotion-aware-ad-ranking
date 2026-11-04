@@ -1,6 +1,8 @@
 """Print a short summary of the results from saved tables. Reads no impression data, so dev is never loaded.
 
-  python scripts/show_results.py
+Reads:  results/tables/*.csv and data/processed/data_summary.json.
+Writes: nothing (prints to the terminal).
+Run:    python scripts/show_results.py
 """
 import sys
 

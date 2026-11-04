@@ -1,4 +1,7 @@
-"""M0 popularity (smoothed CTR) and M1 TF-IDF (history profile cosine). No emotion."""
+"""M0 popularity (smoothed CTR) and M1 TF-IDF (history profile cosine). No emotion.
+
+Inputs: click statistics, news texts and user histories. Outputs: one score per candidate row.
+"""
 import numpy as np
 import pandas as pd
 from scipy import sparse
@@ -26,6 +29,7 @@ def popularity_scores(candidates, ctr, p, a):
 
 
 def unseen_share(candidates, ctr):
+    """Share of candidate rows whose item has no click statistics (these get the global CTR)."""
     return float((~candidates["news_id"].astype(str).isin(ctr.index)).mean())
 
 

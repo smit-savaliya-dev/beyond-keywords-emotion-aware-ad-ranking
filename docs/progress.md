@@ -256,3 +256,11 @@ M0 to M5 are complete. M4 is the best model on dev. Next, when asked: M6, M7. Sp
 - `docs/cleanup_plan_v2.md` lists every file (keep, rename, delete) with a reason, generated from git and the rename table. Audit result: no dead functions, no TODOs, no commented-out code, no temporary scripts; 4 unused imports kept so the syntax-tree proof stays strict.
 - Deleted (ignored, nothing depends on them): `__pycache__/` folders, `.pytest_cache/`, the empty `mlruns/` (MLflow is not used). No tracked file was deleted and nothing needed archiving; `data/`, caches, `config/`, annotation archive and `docs/decisions.md` untouched.
 - Rename table (49 files: 40 scripts, 4 modules, 5 tests) is in `results/archive/tidy_renames.json`; it is applied in step 3. Second baselines were taken on the step 1 commit (`tidy_ast_baseline.json`, tag `tidy_charts`).
+
+## 2026-11-04 tidy-for-review step 3: names, headers, docstrings
+- 49 files renamed with `git mv` (40 scripts, `run_base.py` -> `run_pipeline.py`, 4 src modules, 5 tests); table in `docs/cleanup_plan_v2.md` and `results/archive/tidy_renames.json`. Step ids are the file names; `resolve` (and its test) now accept a stage (`04`) or step (`04_06`) prefix: the only logic change, reviewed by hand (D72).
+- Every module has a header (what, inputs, outputs, run line for scripts) and every public function a docstring (about 140 added); stale mentions of cancelled hand labels, `base-v2` phases and old script numbers removed from comments. Code comments were already short.
+- Proof: `scripts/check_logic_unchanged.py --check` 112 files compared, 0 problems; 226 tests pass.
+
+## 2026-11-04 tidy-for-review step 4: reviewer guide
+- `docs/CODE_WALKTHROUGH.md` written; README rewritten with the new step ids and the commands to show; START_HERE and CLAUDE.md point to the new names and the guide.

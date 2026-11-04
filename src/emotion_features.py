@@ -1,4 +1,7 @@
-"""Weighted title/abstract GoEmotions layer: field texts, weighted raw scores, go_* and go_dist_* features."""
+"""Weighted title/abstract GoEmotions layer: field texts, weighted raw scores, go_* and go_dist_* features.
+
+Inputs: news texts and the saved title/abstract raw 28 scores. Outputs: feature tables with go_*, go_dist_*, go_vad_* columns.
+"""
 import numpy as np
 import pandas as pd
 
@@ -24,6 +27,7 @@ def field_texts(news, field):
 
 
 def title_share(w_title=TITLE_WEIGHT, w_abstract=ABSTRACT_WEIGHT):
+    """Title weight as a share of title + abstract weight (0.3 / (0.3 + 0.6) = 1/3 with the configured weights)."""
     if w_title <= 0 or w_abstract <= 0:
         raise ValueError("field weights must be positive")
     return w_title / (w_title + w_abstract)

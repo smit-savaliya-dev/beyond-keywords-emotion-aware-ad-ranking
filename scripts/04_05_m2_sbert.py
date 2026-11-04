@@ -1,8 +1,11 @@
-"""M2 Sentence-BERT, no emotion: user vector = mean or decay-weighted mean of the last 50 HISTORY embeddings;
-score = cosine(user, candidate); cold start -> 0 (ties broken by the harness). D51.
+"""M2 Sentence-BERT, no emotion: user vector = mean or decay-weighted mean of the last 50 history embeddings;
+score = cosine(user, candidate); cold start scores 0 (ties are broken by the harness). D51.
 
-  python scripts/04_05_m2_sbert.py --tune         # valid only: 4 configs (M2_GRID), pick by valid AUC
-  python scripts/04_05_m2_sbert.py --final-dev    # once, frozen settings
+Reads:  impressions, behaviors, news.parquet and the embeddings from 04_04.
+Writes: --tune: results/frozen/M2_sbert.json, results/tables/m2_sbert_tuning_valid.csv, valid scores and per-impression files.
+        --final-dev: dev files, a summary.csv row and a runs_log.csv row.
+Run:    python scripts/04_05_m2_sbert.py --tune         # valid only: 4 configs (M2_GRID), pick by valid AUC
+        python scripts/04_05_m2_sbert.py --final-dev    # once, by hand, frozen settings
 """
 import argparse
 import itertools
@@ -23,6 +26,7 @@ from src.sbert import load_embeddings, profile_cosine
 
 
 def run_configs(part, processed, configs):
+    """Score one part under each config of the grid and return the scores per config."""
     ids = pd.read_parquet(processed / "news.parquet", columns=["news_id"])["news_id"]
     truth, groups, histories, _ = load_part(part, processed)
     index = pd.Index(ids)
@@ -51,11 +55,13 @@ def run_configs(part, processed, configs):
 
 
 def grid_configs():
+    """Every combination of the M2 grid as a list of config dicts."""
     keys = list(M2_GRID)
     return [dict(zip(keys, v)) for v in itertools.product(*(M2_GRID[k] for k in keys))]
 
 
 def main():
+    """Run --tune (valid) or --final-dev (dev, once)."""
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--tune", action="store_true")

@@ -1,4 +1,9 @@
-"""Download and unzip MIND-small into data/raw/ (skips what is already there)."""
+"""Download and unzip MIND-small into data/raw/ (skips what is already there).
+
+Reads:  the MIND-small download links (internet, once).
+Writes: data/raw/train/ and data/raw/dev/ (news.tsv, behaviors.tsv).
+Run:    python scripts/01_01_download_mind.py
+"""
 import urllib.request
 import zipfile
 
@@ -7,6 +12,7 @@ from src.config import MIND_URLS, RAW
 
 
 def main():
+    """Download and unzip each split that is not yet in data/raw/."""
     RAW.mkdir(parents=True, exist_ok=True)
     for split, url in MIND_URLS.items():
         out_dir = RAW / split

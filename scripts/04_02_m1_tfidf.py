@@ -1,8 +1,11 @@
-"""M1 TF-IDF: vectorizer fitted on TRAIN-split news only (label-free); user vector = mean or decay-weighted mean of the
-last 50 HISTORY items; score = cosine(user, candidate); cold start -> 0 (ties broken by the harness).
+"""M1 TF-IDF: vectoriser fitted on train-split news only (label-free); user vector = mean or decay-weighted mean of the last
+50 history items; score = cosine(user, candidate); cold start scores 0 (ties are broken by the harness).
 
-  python scripts/04_02_m1_tfidf.py --tune         # valid only: 8 configs (M1_GRID), pick by valid AUC
-  python scripts/04_02_m1_tfidf.py --final-dev    # once, frozen settings
+Reads:  impressions, behaviors, news.parquet, data/raw/train/news.tsv.
+Writes: --tune: results/frozen/M1_tfidf.json, results/tables/m1_tfidf_tuning_valid.csv, valid scores and per-impression files.
+        --final-dev: dev files, a summary.csv row and a runs_log.csv row.
+Run:    python scripts/04_02_m1_tfidf.py --tune         # valid only: 8 configs (M1_GRID), pick by valid AUC
+        python scripts/04_02_m1_tfidf.py --final-dev    # once, by hand, frozen settings
 """
 import argparse
 import itertools
@@ -23,6 +26,7 @@ from src.run_registry import append_run, check_final_dev, frozen_marker, pick_be
 
 
 def run_configs(part, processed, configs):
+    """Score one part under each config of the grid and return the scores per config."""
     news = pd.read_parquet(processed / "news.parquet", columns=["news_id", "title", "text"])
     train_ids = train_news_ids()
     is_train = news["news_id"].isin(train_ids).to_numpy()
@@ -57,11 +61,13 @@ def run_configs(part, processed, configs):
 
 
 def grid_configs():
+    """Every combination of the M1 grid as a list of config dicts."""
     keys = list(M1_GRID)
     return [dict(zip(keys, v)) for v in itertools.product(*(M1_GRID[k] for k in keys))]
 
 
 def main():
+    """Run --tune (valid) or --final-dev (dev, once)."""
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--tune", action="store_true")

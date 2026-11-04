@@ -1,4 +1,8 @@
-"""EDA figures for MIND-small: six individual captioned PNGs plus one combined overview."""
+"""EDA figures for MIND-small: six individual captioned PNGs plus one combined overview.
+
+Inputs: news, behaviours and impressions of the fit part, and data_summary.json (dev is never read).
+Outputs: PNGs and eda_stats.json in results/figures/diagnostics/.
+"""
 import json
 import textwrap
 
@@ -21,6 +25,7 @@ plt.rcParams.update({
 
 
 def load(processed):
+    """Load the tables the EDA needs (fit part only; part sizes come from the saved summary)."""
     news = pd.read_parquet(processed / "news.parquet")
     # fit only: dev is never read; part sizes come from the saved summary
     beh = pd.read_parquet(processed / "behaviors.parquet", columns=["part", "history_len"], filters=[("part", "==", "fit")])
@@ -31,11 +36,13 @@ def load(processed):
 
 
 def per_impression_counts(imps):
+    """Candidates and clicks per impression."""
     g = imps.groupby(["part", "imp_key"], observed=True)["label"].agg(n="size", clicks="sum")
     return g.reset_index()
 
 
 def panel_part_sizes(ax, summary):
+    """Bar chart of impressions per part."""
     parts = [p for p in PART_ORDER if p in summary["parts"]]
     counts = [summary["parts"][p]["impressions"] for p in parts]
     bars = ax.bar([PART_LABEL[p] for p in parts], counts, color=[PART_COLOR[p] for p in parts],
@@ -47,6 +54,7 @@ def panel_part_sizes(ax, summary):
 
 
 def panel_candidates_hist(ax, counts):
+    """Histogram of candidates per impression (fit)."""
     data = counts.loc[counts["part"].astype(str) == "fit", "n"]
     ax.hist(data.clip(upper=CAND_CLIP), bins=np.arange(0, CAND_CLIP + 5, 4), color="#1f4e79",
             edgecolor="white", linewidth=0.3)
@@ -61,6 +69,7 @@ def panel_candidates_hist(ax, counts):
 
 
 def panel_clicks_bar(ax, counts):
+    """Share of impressions with 1, 2, 3 or 4+ clicks (fit)."""
     data = counts.loc[counts["part"].astype(str) == "fit", "clicks"].clip(upper=4)
     share = data.value_counts(normalize=True).sort_index() * 100
     vals = [share.get(i, 0) for i in range(1, 5)]
@@ -72,12 +81,14 @@ def panel_clicks_bar(ax, counts):
 
 
 def panel_categories(ax, news):
+    """Bar chart of the 10 largest news categories."""
     vc = news["category"].value_counts().sort_values(ascending=True).tail(10)
     ax.barh(vc.index, vc.to_numpy(), color="#1f4e79", edgecolor="white")
     ax.set_xlabel("Number of news items")
 
 
 def panel_history_hist(ax, beh, summary):
+    """Histogram of history length per impression (fit), with the cold-start share."""
     data = beh.loc[beh["part"].astype(str) == "fit", "history_len"]
     ax.hist(data.clip(upper=HIST_CLIP), bins=np.arange(0, HIST_CLIP + 4, 3), color="#1f4e79",
             edgecolor="white", linewidth=0.3)
@@ -90,6 +101,7 @@ def panel_history_hist(ax, beh, summary):
 
 
 def panel_integrity(ax, summary):
+    """Text panel with the integrity numbers of the prepared data."""
     ax.axis("off")
     parts = [p for p in PART_ORDER if p in summary["parts"]]
     invalid = " / ".join(str(summary["parts"][p]["impressions_without_click"]
@@ -139,6 +151,7 @@ DRAW = {
 
 
 def save_individual(name, title, caption, ctx, out_dir):
+    """Save one panel as a captioned PNG and return its path."""
     fig, ax = plt.subplots(figsize=(6.5, 4.5) if name == "06_integrity" else (6.5, 5.6))
     DRAW[name](ax, ctx)
     wrapped = textwrap.wrap(caption, 78)
@@ -153,6 +166,7 @@ def save_individual(name, title, caption, ctx, out_dir):
 
 
 def make_overview(ctx, out_path):
+    """Save all panels in one overview figure."""
     summary = ctx["summary"]
     fig, axes = plt.subplots(2, 3, figsize=(15, 8.5))
     for ax, (name, title, _) in zip(axes.flat, PANELS):
@@ -169,6 +183,7 @@ def make_overview(ctx, out_path):
 
 
 def run(processed, out_dir, log=print):
+    """Make every EDA figure and eda_stats.json from the processed tables."""
     news, beh, imps, summary = load(processed)
     ctx = {"news": news, "beh": beh, "summary": summary, "counts": per_impression_counts(imps)}
     out_dir.mkdir(parents=True, exist_ok=True)

@@ -1,6 +1,10 @@
-"""Paired comparison M1 vs M0 on per-impression metrics (paired t-test, 95% CI, dz, Holm across metrics; Wilcoxon
-robustness only), plus sanity checks: same impression count for every model, each model above random (AUC 0.5).
-Reads saved per-impression results only; it never scores a model.
+"""Paired comparison of M1 against M0 on per-impression metrics (paired t-test, 95% CI, dz, Holm across metrics).
+
+Also sanity checks: the same impression count for every model and every model above random (AUC 0.5). Never scores a model.
+
+Reads:  results/per_impression/{M0,M1}__valid.parquet and data_summary.json.
+Writes: results/tables/baselines_comparison.csv and baselines_sanity.csv.
+Run:    python scripts/04_03_compare_baselines.py --part valid
 """
 import argparse
 import json
@@ -14,6 +18,7 @@ from src.stats import compare_models, paired_test
 
 
 def main():
+    """Compare the two models on the chosen part and write the tables."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--part", choices=["valid", "dev"], default="valid")
     args = ap.parse_args()

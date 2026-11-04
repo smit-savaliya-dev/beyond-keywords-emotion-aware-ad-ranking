@@ -1,8 +1,11 @@
-"""External validation on SemEval-2007 Task 14 Affective Text (Strapparava & Mihalcea, 2007). Pre-declared in D46-D48.
-Trial (250) selects the labelling rule, test (1,000) reports. Threshold-free correlations are primary; label agreement follows.
-Headlines only, so this validates the title part of the scoring. Reads no MIND impressions.
+"""External validation on SemEval-2007 Task 14 Affective Text. Pre-declared in D46-D48.
 
-  python scripts/03_09_semeval_validation.py
+The trial split (250) selects the labelling rule, the test split (1,000) reports. Threshold-free correlations are primary and label
+agreement follows. Headlines only, so this validates the title part of the scoring. Reads no MIND impressions.
+
+Reads:  SemEval files, semeval_raw28.parquet, news_emotion_raw28_title.parquet, emotion_label_variants_grid.csv, NRC lexicons.
+Writes: results/tables/semeval2007_validation.csv, semeval2007_selection_trial.csv, semeval2007_per_class.csv and a meta file.
+Run:    python scripts/03_09_semeval_validation.py
 """
 import argparse
 import json
@@ -19,6 +22,7 @@ from src.semeval import headline_lexicon, load_semeval, rule_labels, run_validat
 
 
 def main():
+    """Select the rule on trial, report on test and write the tables."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--n-boot", type=int, default=1000)
     args = ap.parse_args()

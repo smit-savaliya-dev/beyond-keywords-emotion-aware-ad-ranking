@@ -1,3 +1,4 @@
+"""Tests for src/emotion_features.py (weighted title/abstract features), with small fakes: no internet, GPU or real lexicons."""
 import json
 
 import numpy as np

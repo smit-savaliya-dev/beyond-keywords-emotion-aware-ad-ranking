@@ -23,6 +23,7 @@ class _Rename(ast.NodeTransformer):
         return self.modules.get(name, name)
 
     def visit_ImportFrom(self, node):
+        """Rename modules in 'from x import y' lines."""
         if node.module:
             node.module = self._module(node.module)
         if (node.level and not node.module) or node.module == "src":
@@ -31,11 +32,13 @@ class _Rename(ast.NodeTransformer):
         return node
 
     def visit_Import(self, node):
+        """Rename modules in 'import x' lines."""
         for a in node.names:
             a.name = self._module(a.name)
         return node
 
     def visit_Constant(self, node):
+        """Rename old module and script names inside string constants."""
         if isinstance(node.value, str):
             text = node.value
             for old, new in self.stems.items():
@@ -70,6 +73,7 @@ def normalised_statements(source, modules=None, stems=None):
 
 
 def digest(statements):
+    """SHA-256 of a normalised statement list."""
     return hashlib.sha256(json.dumps(statements).encode("utf-8")).hexdigest()
 
 

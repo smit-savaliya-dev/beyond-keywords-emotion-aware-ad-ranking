@@ -1,3 +1,4 @@
+"""Tests for src/emotion_v2.py (grid, selection rule, labels), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

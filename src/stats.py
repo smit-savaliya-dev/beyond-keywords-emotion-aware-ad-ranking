@@ -1,4 +1,7 @@
-"""Paired model comparison on per-impression metrics, and Holm correction."""
+"""Paired model comparison on per-impression metrics, and Holm correction.
+
+Inputs: per-impression metric tables of two models. Outputs: mean difference, 95% CI, dz, t-test p and Holm-adjusted p per metric.
+"""
 import numpy as np
 import pandas as pd
 from scipy import stats as st

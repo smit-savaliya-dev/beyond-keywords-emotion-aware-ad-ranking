@@ -1,4 +1,7 @@
-"""RQ5, descriptive: where M3 differs from M2 on dev (D56). Nothing here selects or changes a model."""
+"""RQ5, descriptive: where one model differs from another on dev (D56, D68). Nothing here selects or changes a model.
+
+Inputs: per-impression AUC differences, histories and item labels. Outputs: breakdown tables and example impressions.
+"""
 import numpy as np
 import pandas as pd
 
@@ -12,6 +15,7 @@ HISTORY_BINS = [(0, 0, "0"), (1, 5, "1-5"), (6, 20, "6-20"), (21, None, "21+")]
 
 
 def history_bin(n):
+    """History-length bin name for each count."""
     n = np.asarray(n)
     out = np.empty(len(n), dtype=object)
     for low, high, name in HISTORY_BINS:

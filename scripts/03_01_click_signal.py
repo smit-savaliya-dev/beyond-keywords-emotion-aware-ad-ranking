@@ -1,9 +1,11 @@
-"""Does emotion relate to clicks? Descriptive signal analysis on part == "fit" ONLY (valid and dev never loaded).
-Per impression: mean(feature | clicked) - mean(feature | not clicked). Primary test: one-sample t-test
-across impressions, dz = mean / sd, Holm within each family; user-level check on per-user mean differences.
-Wilcoxon is kept only as a robustness column (biased here). No model training.
+"""Does emotion relate to clicks? Descriptive signal analysis on the fit part only (valid and dev are never loaded).
 
-  python scripts/03_01_click_signal.py
+Per impression: mean(feature | clicked) - mean(feature | not clicked). Primary test: one-sample t-test across impressions with
+dz = mean / sd, Holm within each family, plus a user-level check. Wilcoxon is a robustness column only (biased here).
+
+Reads:  impressions, news and news_emotion_features.parquet.
+Writes: results/tables/emotion_signal_fit.csv, emotion_signal_variants_fit.csv, emotion_signal_by_category_fit.csv, and a meta file.
+Run:    python scripts/03_01_click_signal.py
 """
 import argparse
 import json
@@ -24,6 +26,7 @@ PCT_VARIANTS = {"weighted": "go_pct_{}", "title": "go_title_pct_{}", "abstract":
 
 
 def variant_rows(table, patterns, stems, sample):
+    """Rows comparing the title, abstract and weighted variants of each emotion feature."""
     rows = []
     for stem in stems:
         for variant, pat in patterns.items():
@@ -33,6 +36,7 @@ def variant_rows(table, patterns, stems, sample):
 
 
 def main():
+    """Run the signal tests on fit and write the tables."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

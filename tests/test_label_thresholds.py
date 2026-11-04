@@ -1,4 +1,4 @@
-
+"""Tests for src/label_thresholds.py (threshold views of labels), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

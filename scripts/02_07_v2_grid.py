@@ -1,7 +1,8 @@
-"""Step 1 of base-v2: title-weight / threshold grid on the SAVED raw 28 scores (no GPU), selection rule D30.
-Neutral and class shares per (weight, t); personal congruence per weight on fit and valid (dev is never read).
+"""Title-weight and threshold grid on the saved raw 28 scores (no GPU), with selection rule D30.
 
-  python scripts/02_07_v2_grid.py
+Reads:  impressions, behaviors, news_emotion_raw28_title.parquet and _abstract.parquet (fit and valid; dev is never read).
+Writes: results/tables/emotion_v2_grid.csv, emotion_v2_weight_congruence.csv, emotion_v2_choice.json.
+Run:    python scripts/02_07_v2_grid.py
 """
 import argparse
 import json
@@ -23,10 +24,12 @@ NAME = "cong_pct_cos"
 
 
 def pct_vectors(raw):
+    """Percentile-rank go_pct_* vectors of the eight emotions for a raw score table."""
     return go_percentiles(go_features(raw))[[f"go_pct_{e}" for e in GO_EMOTIONS]].to_numpy(np.float64)
 
 
 def congruence_table(ctx, vectors, shuffle=False):
+    """Congruence signal table for one set of vectors; with shuffle=True the labels are permuted within impressions."""
     values, _ = congruence_features(ctx.groups, ctx.item_idx, ctx.histories, {"pct": vectors}, V2_MAIN_MEASURE,
                                     shuffle_seed=SEED)
     labels = permute_within_groups(ctx.groups, ctx.labels, SEED) if shuffle else ctx.labels
@@ -34,6 +37,7 @@ def congruence_table(ctx, vectors, shuffle=False):
 
 
 def main():
+    """Fill the grid, apply the selection rule and write the choice."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

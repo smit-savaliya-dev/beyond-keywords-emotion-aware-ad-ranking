@@ -35,7 +35,7 @@ from the user's recent reading", never "the user's emotional state".
 - Phase 5 test (user-approved): one-sample t-test on per-impression clicked-minus-unclicked differences + user-level
   t-test, Holm. Not Wilcoxon: biased here (93/101 false positives with labels shuffled within impressions).
   No popularity control in Phase 5 (limitation; handled by LightGBM M4 vs M5).
-- Congruence (script 31, shared code src.congruence.congruence_features): profile from behaviors.history only
+- Congruence (03_02, shared code src.congruence.congruence_features): profile from behaviors.history only
   (decay 0.9, last 50, cold start = corpus mean). Always report raw, *_generic, *_personal (raw - corpus-mean profile,
   pre-declared) and the stricter *_otheruser / *_userspecific control (raw - random other user's profile).
 - go_pct_*: percentile rank of each go_* emotion across all items (item-level, no clicks), because label floors differ.
@@ -46,21 +46,22 @@ from the user's recent reading", never "the user's emotional state".
   (news_emotion_features_v2.parquet). Any change to its hashed content = new file v5 + decision entry + test hash (tests/test_emotion_spec.py).
 
 - Reporting labels: v2b at t = 0.05 (no approval/disapproval), chosen on SemEval trial (D47); v2 and v2c stay for reference.
-- SemEval-2007 (scripts 14, 29, 38, src/semeval.py): trial selects, test reports. Headlines only: it validates the title part of the scoring.
-- True recency (script 35) uses earlier log clicks for analysis only; M2-M7 use the history column only (Q09 decided, D45).
+- SemEval-2007 (01_05, 02_10, 03_09, src/semeval.py): trial selects, test reports. Headlines only: it validates the title part of the scoring.
+- True recency (03_06) uses earlier log clicks for analysis only; M2-M7 use the history column only (Q09 decided, D45).
 - M5-all is a pre-declared robustness variant with all 19 item candidates (D37).
 - M2 frozen: title, mean (D57). M3 frozen: personal, alpha 0.8 (D58). Dev scores are saved in results/scores/; never rerun them.
-- Script 47 reads dev for RQ5 and is not a pipeline step (like --final-dev); script 53 reads saved dev result files for the ladder, also by hand.
-- M4/M5 (scripts 48-52, src/lightgbm_ranker.py): click-derived features use days strictly before the row's day (D64); training samples 4 non-clicks per click, scoring uses all candidates.
+- 04_08 reads dev for RQ5 and is not a pipeline step (like --final-dev); 05_04 reads saved dev result files for the ladder, also by hand.
+- M4/M5 (04_09, 04_10, 05_01 to 05_03, src/lightgbm_ranker.py): click-derived features use days strictly before the row's day (D64); training samples 4 non-clicks per click, scoring uses all candidates.
   M5-all never runs on dev (D65). Boosters live in data/processed/ltr_models/; their sha256 is in the frozen config.
   M4 frozen: 31 leaves, rate 0.05, min child 50; M5: 63, 0.05, 200 (D69). M5 - M4 on dev is negative (D71). Item-level continuous scores act as an item ID and valid shares 70.8% of
-  candidates with fit (dev 19.4%), so read any gain with the item-swap control and fresh-item split (scripts 50, 51; Q15).
+  candidates with fit (dev 19.4%), so read any gain with the item-swap control and fresh-item split (05_01, 05_02; Q15).
 
 ## Engineering rules
 - Decisions: docs/decisions.md (every non-trivial choice, with evidence part). Progress: docs/progress.md.
   Open questions: docs/open_questions.md. Data rules: fit trains, valid chooses, dev once per model (--final-dev).
 - Logic in src/, thin scripts in scripts/ (import _bootstrap), all constants in src/config.py, provenance via src/provenance.py.
-  Scripts are numbered by stage: 1x data, 2x emotion, 3x analysis, 4x models, 5x results. Start at docs/START_HERE.md.
+  Scripts are named <stage>_<number>_<what>.py: 01 data, 02 emotion, 03 analysis, 04 models, 05 results. Start at docs/CODE_WALKTHROUGH.md.
+  The old numbers (10 to 54, run_base.py) are translated in docs/cleanup_plan_v2.md.
 - Model labelling is resumable: chunk folders with a settings.json guard and atomic .tmp -> replace writes (label_corpus).
   New runs use new chunk folders and new output files.
 - Do not change src/data.py, src/metrics.py, src/evaluate.py unless needed (explain why).

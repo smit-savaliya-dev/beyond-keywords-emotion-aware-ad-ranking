@@ -1,9 +1,12 @@
-"""Item-identity controls for M5 (D69). Does the M5 gain come from what emotion means, or from emotion scores acting as an item fingerprint?
-All at M5's hyperparameters. Gains are read against M4 at those same hyperparameters and the same seed.
+"""Item-identity controls for M5 (D69): does the M5 gain come from what emotion means, or from emotion scores acting as an item ID?
+All controls use M5's hyperparameters and are compared with M4 at the same hyperparameters and seed.
 
-  python scripts/05_01_m5_controls.py --tune             # valid only: 3 controls x 3 seeds
-  python scripts/05_01_m5_controls.py --tune --resume    # reuse finished runs after an interruption
-  python scripts/05_01_m5_controls.py --final-dev --model M5_permuted_items     # once, frozen booster; also M5_congruence_only
+Reads:  impressions, the feature tables from 04_09, the frozen M5 settings, news_emotion_features_v2.parquet.
+Writes: --tune: frozen settings of M5_permuted_items and M5_congruence_only, results/tables/m5_controls_valid.csv, m5_controls_meta.json,
+        valid per-impression files. --final-dev: dev files for one control, a summary.csv row and a runs_log.csv row.
+Run:    python scripts/05_01_m5_controls.py --tune             # valid only: 3 controls x 3 seeds
+        python scripts/05_01_m5_controls.py --tune --resume    # reuse finished runs after an interruption
+        python scripts/05_01_m5_controls.py --final-dev --model M5_permuted_items     # once; also M5_congruence_only
 """
 import argparse
 import json
@@ -25,11 +28,13 @@ DEV_CONTROLS = (M5_PERM_NAME, M5_CONG_NAME)
 
 
 def control_features():
+    """Feature list of each control: swapped item emotion, congruence only, or item emotion only."""
     items, cong = spec_features()
     return {M5_PERM_NAME: model_features(M5_NAME), M5_CONG_NAME: [*M4_FEATURES, *cong], M5_ITEM_NAME: [*M4_FEATURES, *items]}
 
 
 def with_permuted(frame, part, processed):
+    """Copy of a feature frame whose emotion columns are swapped between items."""
     block = permuted_emotion(part, processed)
     out = frame.copy()
     for c in emotion_columns(M5_NAME):
@@ -38,6 +43,7 @@ def with_permuted(frame, part, processed):
 
 
 def tune(processed, resume):
+    """Train the controls on fit for three seeds, score valid and freeze the two dev controls."""
     fit_path, valid_path = (processed / LTR_FEATURE_FILE.format(part=p) for p in ("fit", "valid"))
     fit, valid = pd.read_parquet(fit_path), pd.read_parquet(valid_path)
     truth = load_truth("valid", processed)
@@ -85,6 +91,7 @@ def tune(processed, resume):
 
 
 def final_dev(model, processed, reason):
+    """Score dev once with the frozen booster of one control (refuses to run twice)."""
     if model not in DEV_CONTROLS:
         raise SystemExit("only the two pre-declared controls run on dev (D69)")
     frozen = check_final_dev(model, reason)
@@ -99,6 +106,7 @@ def final_dev(model, processed, reason):
 
 
 def main():
+    """Run --tune (valid) or --final-dev (dev, once)."""
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--tune", action="store_true")

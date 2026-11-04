@@ -1,5 +1,6 @@
 """Emotion layer v2: title-weight / threshold grid on saved raw scores, selection rule (D30), labels and intensity.
 
+Inputs: saved title and abstract raw 28 scores. Outputs: combined scores, intensity, labels and class shares.
 Labels are for reporting and validation only; model features stay soft (intensity is a continuous feature).
 """
 

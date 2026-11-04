@@ -1,4 +1,7 @@
-"""Item-level diagnostics of the emotion feature table: distributions and cross-source correlations."""
+"""Item-level diagnostics of the emotion feature table: distributions and cross-source correlations.
+
+Inputs: news_emotion_features.parquet (no clicks). Outputs: summary tables and one correlation heatmap.
+"""
 import numpy as np
 import pandas as pd
 
@@ -36,6 +39,7 @@ def correlation_block(df, rows, cols, method="spearman"):
 
 
 def plot_correlation_block(block, path, title, subtitle, highlight=()):
+    """Heatmap of a correlation block with a title and subtitle; cells in `highlight` get a frame."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt

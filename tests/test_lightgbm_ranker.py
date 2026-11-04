@@ -1,3 +1,4 @@
+"""Tests for src/lightgbm_ranker.py (features, leakage rule, training, controls), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

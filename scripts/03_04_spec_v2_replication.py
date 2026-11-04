@@ -1,7 +1,8 @@
-"""D32: re-apply the D27 replication rule on the v2 features (fit, then valid; dev is never read).
-Writes the clicked-vs-not signal table used by the story charts and the candidate selection behind spec v2.
+"""Re-apply the D27 replication rule on the v2 features (fit, then valid; dev is never read), per D32.
 
-  python scripts/03_04_spec_v2_replication.py
+Reads:  impressions, behaviors, news_emotion_features_v2.parquet, news_emotion_raw28_v2.parquet.
+Writes: results/tables/emotion_signal_v2.csv (used by the story charts), emotion_spec_v2_selection.csv and its meta file.
+Run:    python scripts/03_04_spec_v2_replication.py
 """
 import argparse
 import json
@@ -25,6 +26,7 @@ CONTROLS = ["cong_pct_cos_otheruser", "cong_pct_cos_userspecific"]
 
 
 def main():
+    """Compute the v2 signal on fit and valid and write the candidate selection."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

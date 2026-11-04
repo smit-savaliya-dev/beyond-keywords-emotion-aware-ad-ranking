@@ -1,3 +1,4 @@
+"""Tests for src/terminal_summary.py (summary text, no impression data), with small fakes: no internet, GPU or real lexicons."""
 import ast
 import json
 from pathlib import Path

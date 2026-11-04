@@ -1,7 +1,8 @@
-"""Item-level threshold sensitivity (no labels, no clicks): class shares on the full corpus for every pre-declared
-threshold (THRESHOLDS_RAW / THRESHOLDS_PCT in config). Kappa against the hand labels is added by script 06 later.
+"""Item-level threshold sensitivity (no labels, no clicks): class shares on the full corpus for every pre-declared threshold.
 
-  python scripts/02_06_thresholds.py
+Reads:  news_emotion_raw28_weighted.parquet, news_emotion_features.parquet, news_emotion_weighted.parquet.
+Writes: results/tables/emotion_threshold_neutral_share.csv and its meta file.
+Run:    python scripts/02_06_thresholds.py
 """
 import argparse
 import json
@@ -16,6 +17,7 @@ from src.label_thresholds import PCT_GROUP, threshold_corpus_shares
 
 
 def main():
+    """Compute class shares per threshold (THRESHOLDS_RAW and THRESHOLDS_PCT in config)."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     args = ap.parse_args()

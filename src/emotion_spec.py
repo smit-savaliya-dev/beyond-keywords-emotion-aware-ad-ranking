@@ -1,4 +1,7 @@
-"""Versioned emotion specification for M3/M5/M7 (config/emotion_spec_v<N>.json) and the replication rule."""
+"""Versioned emotion specification for M3/M5/M7 (config/emotion_spec_v<N>.json) and the replication rule.
+
+Inputs: a spec file in config/. Outputs: the parsed spec, its hash and the checks that it is complete. Spec files are hash-locked.
+"""
 import hashlib
 import json
 
@@ -11,15 +14,18 @@ UNHASHED = ("status", "confirmation_log")  # may change without a version bump; 
 
 
 def spec_path(version=EMOTION_SPEC_VERSION, spec_dir=EMOTION_SPEC_DIR):
+    """Path of the spec file of a version."""
     return spec_dir / f"emotion_spec_v{version}.json"
 
 
 def spec_hash(spec):
+    """SHA-256 of the spec content without its unhashed fields; a test pins this value."""
     core = {k: v for k, v in spec.items() if k not in UNHASHED}
     return hashlib.sha256(json.dumps(core, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def load_spec(version=EMOTION_SPEC_VERSION, spec_dir=EMOTION_SPEC_DIR):
+    """Load a spec file and check that its declared version matches."""
     spec = json.loads(spec_path(version, spec_dir).read_text(encoding="utf-8"))
     if spec.get("version") != version:
         raise ValueError(f"spec file v{version} declares version {spec.get('version')}")

@@ -1,7 +1,10 @@
-"""M0 popularity: Beta-smoothed item CTR (clicks + a*p) / (shown + a) toward the global CTR p; unseen items get p.
+"""M0 popularity: Beta-smoothed item CTR (clicks + a*p) / (shown + a) towards the global CTR p; unseen items get p.
 
-  python scripts/04_01_m0_popularity.py --tune        # valid only, scored with fit statistics; picks a by valid AUC
-  python scripts/04_01_m0_popularity.py --final-dev   # once, frozen a, scored with fit+valid statistics
+Reads:  impressions (click statistics from fit; fit + valid for the dev run).
+Writes: --tune: results/frozen/M0_popularity.json, results/tables/m0_popularity_tuning_valid.csv, valid scores and per-impression files.
+        --final-dev: dev scores, per-impression file, a summary.csv row and a runs_log.csv row.
+Run:    python scripts/04_01_m0_popularity.py --tune         # valid only: picks a by valid AUC (part of the pipeline)
+        python scripts/04_01_m0_popularity.py --final-dev    # once, by hand, with the frozen a
 """
 import argparse
 import json
@@ -19,6 +22,7 @@ STATS_PARTS = {"valid": ["fit"], "dev": ["fit", "valid"]}  # click statistics on
 
 
 def score(part, processed, a_values):
+    """Popularity scores of one part for each value of the smoothing constant a."""
     stats = load_rows(processed, STATS_PARTS[part], ["news_id", "label"])
     ctr, p = item_ctr(stats)
     truth = load_truth(part, processed)
@@ -35,6 +39,7 @@ def score(part, processed, a_values):
 
 
 def main():
+    """Run --tune (valid) or --final-dev (dev, once)."""
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--tune", action="store_true")

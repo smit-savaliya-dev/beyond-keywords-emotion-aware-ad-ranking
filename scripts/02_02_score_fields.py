@@ -1,10 +1,12 @@
-"""Score titles and abstracts separately with GoEmotions, combine with the field weights, build go_* features.
-Resumable: re-run to continue after an interruption. The combined-text baseline files are never touched.
+"""Score titles and abstracts separately with GoEmotions, combine them with the field weights, build go_* features.
 
-  python scripts/02_02_score_fields.py --measure    # token lengths of titles/abstracts (CPU, writes a small table)
-  python scripts/02_02_score_fields.py --smoke      # 12 items + a GPU memory check, writes nothing
-  python scripts/02_02_score_fields.py              # full run
-  python scripts/02_02_score_fields.py --report     # combined vs weighted summary from saved files
+Reads:  data/processed/news.parquet and the combined baseline files (never touched).
+Writes: news_emotion_raw28_{title,abstract,weighted}.parquet, news_emotion_weighted.parquet, news_emotion_go_features.parquet,
+        news_emotion_weighted_meta.json, results/tables/emotion_weighted_vs_combined.json (chunks in emotion_chunks_title/, _abstract/).
+Run:    python scripts/02_02_score_fields.py --measure    # token lengths (CPU)
+        python scripts/02_02_score_fields.py --smoke      # 12 items and a GPU memory check, writes nothing
+        python scripts/02_02_score_fields.py              # full run, resumable
+        python scripts/02_02_score_fields.py --report     # combined vs weighted summary from saved files
 """
 import argparse
 import json
@@ -24,6 +26,7 @@ from src.provenance import run_info
 
 
 def measure(news, model):
+    """Token lengths of titles and abstracts (truncation report); writes a small table."""
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(model)
     rep = {f: truncation_report(tok, field_texts(news, f)[f]) for f in ("title", "abstract")}
@@ -33,12 +36,14 @@ def measure(news, model):
 
 
 def raw_frame(news_ids, mat):
+    """Table of news_id plus the 28 raw GoEmotions scores."""
     df = pd.DataFrame(mat, columns=GOEMOTIONS_LABELS)
     df.insert(0, "news_id", np.asarray(news_ids))
     return df
 
 
 def smoke(news, clf, args):
+    """Score 12 items and report GPU memory; writes nothing."""
     sample = news.sample(12, random_state=0)
     titles, abstracts = field_texts(sample, "title"), field_texts(sample, "abstract")
     t = raw_frame(titles["news_id"], score_texts(clf, titles["title"].tolist(), args.title_batch_size,
@@ -65,6 +70,7 @@ def smoke(news, clf, args):
 
 
 def report(processed):
+    """Compare the combined and weighted scores from the saved files."""
     out = {}
     for name, table_file, raw_file in [("combined", "news_emotion.parquet", "news_emotion_raw28.parquet"),
                                        ("weighted", "news_emotion_weighted.parquet",
@@ -79,6 +85,7 @@ def report(processed):
 
 
 def main():
+    """Run the chosen mode: measure, smoke, report or the full resumable scoring."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--processed", type=Path, default=PROCESSED)
     ap.add_argument("--model", default=EMOTION_MODEL)

@@ -1,3 +1,4 @@
+"""Tests for scripts/run_pipeline.py (step order, GPU flags, step selection), with small fakes: no internet, GPU or real lexicons."""
 import importlib.util
 import sys
 from pathlib import Path

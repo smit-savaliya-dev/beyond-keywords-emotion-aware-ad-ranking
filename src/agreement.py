@@ -1,4 +1,7 @@
-"""Agreement statistics between emotion labels: kappa with a bootstrap CI, accuracy, macro-F1."""
+"""Agreement between emotion labels: Cohen's kappa with a bootstrap interval, accuracy and macro-F1.
+
+Inputs: two label lists (reference and prediction). Outputs: a dict of agreement numbers, or a table for several sources.
+"""
 import warnings
 
 import numpy as np
@@ -12,6 +15,7 @@ BANDS = [(-1.0, "poor"), (0.0, "slight"), (0.2, "fair"), (0.4, "moderate"), (0.6
 
 
 def kappa_band(k):
+    """Name of the Landis-Koch band (poor, slight, fair, ... almost perfect) that a kappa value falls in."""
     name = BANDS[0][1]
     for threshold, label in BANDS:
         if k >= threshold:
@@ -20,6 +24,7 @@ def kappa_band(k):
 
 
 def agreement(y_true, y_pred, n_boot=1000, seed=SEED):
+    """Kappa with a 95% bootstrap CI, accuracy and macro-F1 of y_pred against y_true (six classes, seeded)."""
     y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
     kappa = cohen_kappa_score(y_true, y_pred, labels=SIX_CLASSES)
     rng = np.random.default_rng(seed)

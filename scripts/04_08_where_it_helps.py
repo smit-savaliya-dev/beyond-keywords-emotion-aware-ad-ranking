@@ -1,8 +1,11 @@
-"""RQ5, descriptive (D56, D68): per-impression AUC difference on dev, by category, profile emotion and history length, plus examples.
-Runs once by hand after the dev runs. It reads dev, so it is not a pipeline step. It selects and changes nothing.
+"""RQ5, descriptive (D56, D68): where does one model beat another on dev? Per-impression AUC difference by clicked category,
+profile emotion and history length, plus example impressions. Selects and changes nothing.
 
-  python scripts/04_08_where_it_helps.py                                     # M3 minus M2, every breakdown and the examples
-  python scripts/04_08_where_it_helps.py --base M4_lightgbm --model M5_lightgbm_emotion --out m5_where_it_helps --compact
+Reads:  dev per-impression files of the two models, dev impressions and histories, fit clicks (top categories), news, v2b labels.
+Writes: results/tables/<out>_dev.csv, <out>_examples_dev.csv, <out>_meta.json (default out: m3_where_it_helps).
+Run once by hand after the dev runs. It reads dev, so it is not a pipeline step.
+Run:    python scripts/04_08_where_it_helps.py                    # M3 minus M2, every breakdown and the examples
+        python scripts/04_08_where_it_helps.py --base M4_lightgbm --model M5_lightgbm_emotion --out m5_where_it_helps --compact
 """
 import argparse
 import json
@@ -20,6 +23,7 @@ from src.where_it_helps import (HISTORY_BINS, breakdown, clicked_category, domin
 
 
 def example_rows(keys, kind, per, truth, histories_of, titles):
+    """Rows for the example impressions: the user's history titles and the clicked and top-ranked titles."""
     rows = []
     for k in keys:
         cand = truth[truth["imp_key"] == k]
@@ -30,6 +34,7 @@ def example_rows(keys, kind, per, truth, histories_of, titles):
 
 
 def main():
+    """Compute the breakdowns and examples for the two models and write the tables."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default=M2_NAME)
     ap.add_argument("--model", default=M3_NAME)

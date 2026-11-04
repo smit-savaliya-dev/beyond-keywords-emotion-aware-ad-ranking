@@ -1,6 +1,7 @@
 """The one evaluation path every model goes through.
 
-Score file contract: columns imp_key, news_id, score for EVERY candidate of the part.
+Inputs: a score file with columns imp_key, news_id, score for EVERY candidate of a part. Outputs: per-impression metrics, a
+summary row in results/tables/summary.csv, and the scores and per-impression files in results/.
 """
 import warnings
 
@@ -14,6 +15,7 @@ KEY = ["imp_key", "news_id"]
 
 
 def load_truth(part, processed=PROCESSED):
+    """Labels of one part in harness order; other parts are never loaded."""
     imps = pd.read_parquet(processed / "impressions.parquet",
                            columns=["imp_key", "part", "news_id", "label", "position"],
                            filters=[("part", "==", part)])  # other parts are never loaded
@@ -26,6 +28,7 @@ def load_truth(part, processed=PROCESSED):
 
 
 def attach_scores(truth, scores):
+    """Join model scores to the truth table; fails on missing columns, duplicates, NaN or any unscored candidate."""
     missing = {"imp_key", "news_id", "score"} - set(scores.columns)
     if missing:
         raise ValueError(f"score file is missing columns: {missing}")
@@ -64,6 +67,7 @@ def evaluate(truth, scores, ks=K_VALUES, seed=SEED):
 
 
 def save_results(model, part, scores, per_imp, summary, results=RESULTS):
+    """Write scores, per-impression metrics and the summary row of one model and part."""
     for sub in ("scores", "per_impression", "tables"):
         (results / sub).mkdir(parents=True, exist_ok=True)
     scores[["imp_key", "news_id", "score"]].to_parquet(results / "scores" / f"{model}__{part}.parquet", index=False)

@@ -1,5 +1,8 @@
-"""True recency (D39): emotional context from the user's clicks in EARLIER impressions of the log, strictly before each impression.
-Analysis only; only fit and valid are ever read. Standard MIND protocol uses the history column alone (see Q09)."""
+"""True recency (D39): emotional context from the user's clicks in EARLIER impressions of the log.
+
+Inputs: the click log of fit and valid (dev is never read). Outputs: per-impression lists of earlier clicks and paired controls.
+Analysis only: models use the history column alone (Q09).
+"""
 import numpy as np
 import pandas as pd
 

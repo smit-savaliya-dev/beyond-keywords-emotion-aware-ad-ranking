@@ -1,3 +1,4 @@
+"""Tests for src/recency.py (earlier-click lists and paired controls), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

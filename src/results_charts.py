@@ -1,4 +1,8 @@
-"""The results charts for the supervisor: built from saved tables only, captions computed from the same numbers. Max 6 charts."""
+"""The results charts for the supervisor, built from saved tables only, with captions computed from the same numbers.
+
+Inputs: tables in results/tables/ (model ladder, comparisons, fusion grid, RQ5 table, SemEval table). Outputs: at most six PNGs
+in results/figures/results/ and results_chart_captions.json. Reads no impression or behaviour data.
+"""
 import json
 
 import matplotlib.pyplot as plt
@@ -18,8 +22,7 @@ def _errors(t):
 
 
 def model_ladder(t, path, title, caption, pairs=()):
-    """t: model, label, emotion, auc, ci_low, ci_high, in ladder order (top first). Colour and marker show with or without emotion.
-    pairs: (model_a, model_b, text) drawn as a bracket that carries the paired difference."""
+    """Dot chart of dev AUC per model with CIs; optional brackets show a paired difference."""
     height = 2.5 + 0.48 * len(t)
     fig, ax = _new(8, height, left=0.25, top=0.62, bottom=1.25)
     _frame(ax, "x")
@@ -48,8 +51,7 @@ def model_ladder(t, path, title, caption, pairs=()):
 
 
 def gain_forest(panels, path, title, caption):
-    """panels: (panel title, x label, c) with c = part, metric, mean_diff, ci_low, ci_high, significant_holm.
-    Per metric, valid and dev; hollow = not significant after Holm."""
+    """Forest chart of the gain per metric, valid and dev, one panel per model pair."""
     metrics = METRIC_COLUMNS[::-1]
     _style()
     fig, axes = plt.subplots(1, len(panels), figsize=(5.2 * len(panels) + 0.6, 7.1), sharey=True, squeeze=False)
@@ -80,7 +82,7 @@ def gain_forest(panels, path, title, caption):
 
 
 def category_forest(t, path, title, caption, xlabel):
-    """t: group, n, mean_diff, ci_low, ci_high, in plot order (top first)."""
+    """Forest chart of a gain by group (for example clicked category)."""
     height = 2.2 + 0.46 * len(t)
     fig, ax = _new(8, height, left=0.2, top=0.62, bottom=0.95)
     _frame(ax, "x")
@@ -95,7 +97,7 @@ def category_forest(t, path, title, caption, xlabel):
 
 
 def history_gain(t, path, title, caption, ylabel):
-    """t: group, n, mean_diff, ci_low, ci_high, in bin order."""
+    """Chart of a gain by history-length bin."""
     fig, ax = _new(8, 4.9, left=0.1, top=0.62, bottom=1.25)
     _frame(ax, "y")
     x = np.arange(len(t))
@@ -110,7 +112,7 @@ def history_gain(t, path, title, caption, ylabel):
 
 
 def importance_chart(t, path, title, caption):
-    """t: feature, family, mean_abs_contrib, sorted strongest first. One thin bar per feature, coloured by family."""
+    """Bar chart of feature importance, coloured by feature family."""
     colors = {"popularity": LINE_COLORS[3], "content": LINE_COLORS[0], "context": "#a3a29b", "emotion": LINE_COLORS[1]}
     height = 2.2 + 0.25 * len(t)
     fig, ax = _new(8, height, left=0.3, top=0.62, bottom=1.25)
@@ -131,7 +133,7 @@ def _pair(comparison, a, b):
 
 
 def build_charts(tables, out_dir):
-    """All result charts from saved tables. -> {chart: caption}."""
+    """Draw every results chart from the saved tables and return {chart name: caption}."""
     out_dir.mkdir(parents=True, exist_ok=True)
     caps = {}
     paths = {n: out_dir / f"{n}.png" for n in RESULT_CHARTS}

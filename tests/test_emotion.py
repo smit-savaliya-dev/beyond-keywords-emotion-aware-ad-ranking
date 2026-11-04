@@ -1,3 +1,4 @@
+"""Tests for src/emotion.py (28 -> 6 mapping, resumable labelling), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pandas as pd
 import pytest

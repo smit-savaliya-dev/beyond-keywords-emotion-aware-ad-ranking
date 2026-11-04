@@ -1,3 +1,4 @@
+"""Tests for src/lexicon.py (NRC loaders, tokeniser, lexicon features), with small fakes: no internet, GPU or real lexicons."""
 import numpy as np
 import pytest
 

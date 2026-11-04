@@ -1,4 +1,8 @@
-"""M4 and M5: LightGBM ranker features, the time-safe popularity feature, negative sampling and training (D63-D67)."""
+"""M4 and M5: LightGBM ranker features, the time-safe popularity feature, negative sampling and training (D63-D67).
+
+Inputs: impressions, histories, item features and the frozen M0-M2 scores. Outputs: feature tables, boosters in
+data/processed/ltr_models/ and per-impression scores.
+"""
 import hashlib
 import itertools
 import json
@@ -28,12 +32,14 @@ def spec_features(spec=None):
 
 
 def model_features(model, spec=None):
+    """Feature names of a model: M4 context features, M5 adds the spec's emotion features, M5-all adds all candidates."""
     items, cong = spec_features(spec)
     return {M4_NAME: list(M4_FEATURES), M5_NAME: [*M4_FEATURES, *items, *cong],
             M5_ALL_NAME: [*M4_FEATURES, *M5_ROBUSTNESS_ITEM_FEATURES, *cong]}[model]
 
 
 def emotion_columns(model, spec=None):
+    """The emotion feature names of a model (its features minus the M4 features)."""
     return [c for c in model_features(model, spec) if c not in M4_FEATURES]
 
 
@@ -119,11 +125,13 @@ def shuffle_within_impressions(frame, columns, seed):
 
 
 def run_id(features, params, seed, tag, data_sha):
+    """Short hash that identifies one training run (features, parameters, seed, tag and data)."""
     text = json.dumps({"features": features, "params": params, "seed": seed, "tag": tag, "data": data_sha}, sort_keys=True)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
 def file_sha(*paths):
+    """SHA-256 of one or more files read in order."""
     h = hashlib.sha256()
     for path in paths:
         with open(path, "rb") as f:
@@ -133,6 +141,7 @@ def file_sha(*paths):
 
 
 def grid_configs():
+    """Every combination of the LightGBM tuning grid (D66) as a list of parameter dicts."""
     keys = list(LTR_GRID)
     return [dict(zip(keys, v)) for v in itertools.product(*(LTR_GRID[k] for k in keys))]
 
@@ -156,6 +165,7 @@ def fit_or_load(train, valid, features, params, seed, tag, data_sha, resume, run
 
 
 def model_path(model, model_dir=LTR_MODEL_DIR):
+    """Path of a saved booster."""
     return model_dir / f"{model}.txt"
 
 
@@ -296,6 +306,7 @@ def score_frame(booster, frame, features, truth):
 
 
 def feature_family(name):
+    """Family of a feature: popularity, content, context or emotion."""
     if name == "pop_ctr":
         return "popularity"
     if name in ("m1_score", "m2_score", "category", "subcategory", "user_cat_affinity"):
@@ -321,6 +332,7 @@ def importance_table(booster, frame, features, n_impressions, seed):
 
 
 def family_shares(t):
+    """Gain and contribution share per feature family, with the number of features in each."""
     g = t.groupby("family")[["gain_share", "contrib_share"]].sum()
     return {f: {"gain_share": float(r["gain_share"]), "contrib_share": float(r["contrib_share"]), "n_features": int((t["family"] == f).sum())}
             for f, r in g.iterrows()}

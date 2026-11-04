@@ -20,14 +20,17 @@ RENAMES = RESULTS / "archive" / "tidy_renames.json"
 
 
 def git(*args):
+    """Run a git command in the project root and return its output."""
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=True).stdout
 
 
 def python_files():
+    """Every tracked .py file."""
     return sorted(p for p in git("ls-files", "*.py").split("\n") if p)
 
 
 def main():
+    """Record the baseline (--take) or compare the files with it (--check)."""
     ap = argparse.ArgumentParser()
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--take", action="store_true")

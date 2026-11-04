@@ -1,4 +1,7 @@
-"""M2 Sentence-BERT: resumable corpus encoding and history-profile cosine scores. Encoder pretrained, never fitted (D50)."""
+"""M2 Sentence-BERT: resumable corpus encoding and history-profile cosine scores. Encoder pretrained, never fitted (D50).
+
+Inputs: news texts and user histories. Outputs: embedding matrices in data/processed/sbert_*.npy and cosine scores.
+"""
 import json
 
 import numpy as np
@@ -83,6 +86,7 @@ def compare_encoders(a, b):
 
 
 def embedding_paths(text, processed=PROCESSED):
+    """Paths of the embedding matrix and its id table for one text variant."""
     return processed / f"sbert_{text}.npy", processed / f"sbert_{text}_ids.parquet"
 
 

@@ -15,6 +15,7 @@ from src.sbert import compare_encoders, load_embeddings
 
 
 def main():
+    """Compare the transformers encoding with sentence-transformers on a random sample and save the result."""
     from sentence_transformers import SentenceTransformer
     device = pick_device("auto")
     model = SentenceTransformer(SBERT_MODEL, revision=SBERT_REVISION, device=f"cuda:{device}" if device >= 0 else "cpu")

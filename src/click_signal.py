@@ -1,4 +1,7 @@
-"""Descriptive click-signal tests: within-impression clicked-minus-unclicked feature differences."""
+"""Descriptive click-signal tests: within-impression clicked-minus-unclicked feature differences.
+
+Inputs: impressions, histories and item features of one part (fit or valid, never dev). Outputs: signal tables (dz, CI, Holm).
+"""
 from collections.abc import Mapping
 from dataclasses import dataclass
 

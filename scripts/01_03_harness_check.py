@@ -1,4 +1,9 @@
-"""Prove the evaluation harness on real data with fake models whose results are known in advance."""
+"""Prove the evaluation harness on real data with fake models whose results are known in advance.
+
+Reads:  data/processed/impressions.parquet (fit and valid).
+Writes: nothing; prints each check and stops if one fails (random scores give AUC about 0.5, constant 0.5, oracle 1.0, anti-oracle 0).
+Run:    python scripts/01_03_harness_check.py
+"""
 import argparse
 import sys
 from pathlib import Path
@@ -11,6 +16,7 @@ from src.evaluate import evaluate, load_truth
 
 
 def fake_scores(truth, kind):
+    """Fake scores of one kind: random, constant, oracle (the labels) or anti_oracle (the negated labels)."""
     s = truth[["imp_key", "news_id"]].copy()
     label = truth["label"].to_numpy(dtype=float)
     s["score"] = {"random": lambda: np.random.default_rng(SEED).random(len(s)),
@@ -21,6 +27,7 @@ def fake_scores(truth, kind):
 
 
 def run_part(part, processed):
+    """Run all harness checks on one part and return whether they passed."""
     truth = load_truth(part, processed)
     clicks = truth.groupby("imp_key")["label"].sum().to_numpy()
     best_mrr = np.mean([np.sum(1 / np.arange(1, c + 1)) / c for c in clicks])  # ceiling when clicks > 1
@@ -42,6 +49,7 @@ def run_part(part, processed):
 
 
 def main():
+    """Run the harness checks on fit and valid."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--parts", nargs="+", default=["valid"], choices=["fit", "valid", "dev"],
                     help="valid by default; dev only on explicit request (never needed for analysis)")

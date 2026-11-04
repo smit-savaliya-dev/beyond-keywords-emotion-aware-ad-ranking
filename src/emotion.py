@@ -1,4 +1,8 @@
-"""GoEmotions (28 labels) -> 6 emotion classes, plus resumable corpus labelling."""
+"""GoEmotions (28 labels) -> 6 emotion classes, plus resumable corpus labelling.
+
+Inputs: news texts and the SamLowe/roberta-base-go_emotions classifier. Outputs: raw 28-label scores and a 6-class table;
+labelling writes chunks, so an interrupted run resumes.
+"""
 import hashlib
 import json
 
@@ -47,6 +51,7 @@ def collapse(raw):
 
 
 def pick_device(arg="auto"):
+    """GPU index 0 if CUDA is available and arg is 'auto', else -1 (CPU); a number is used as given."""
     if str(arg) != "auto":
         return int(arg)
     try:
@@ -57,6 +62,7 @@ def pick_device(arg="auto"):
 
 
 def load_classifier(model_name=EMOTION_MODEL, device=-1):
+    """Load the GoEmotions text-classification pipeline (all 28 scores per text)."""
     from transformers import pipeline
     return pipeline("text-classification", model=model_name, top_k=None, device=device)
 
@@ -77,6 +83,7 @@ def score_texts(clf, texts, batch_size=64, max_length=EMOTION_MAX_LENGTH):
 
 
 def texts_fingerprint(news, text_col="text"):
+    """Short hash of ids and texts, used to detect that a resumed run sees the same corpus."""
     h = hashlib.sha256()
     for nid, text in zip(news["news_id"], news[text_col]):
         h.update(nid.encode("utf-8"))
@@ -121,6 +128,7 @@ def label_corpus(news, clf, chunk_dir, settings, chunk_size=2000, batch_size=64,
 
 
 def build_emotion_table(raw):
+    """Six-class table (plus dominant class and score) from the raw 28-label scores."""
     out = pd.DataFrame(collapse(raw[GOEMOTIONS_LABELS].to_numpy()), columns=SIX_CLASSES)
     out.insert(0, "news_id", raw["news_id"].to_numpy())
     out["dominant_emotion"] = out[SIX_CLASSES].idxmax(axis=1)

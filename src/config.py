@@ -1,3 +1,8 @@
+"""Every constant of the project in one place: paths, seeds, model grids, emotion settings, chart lists.
+
+Nothing here runs code with side effects; other modules import the names they need. Changing a value that a pipeline step uses
+makes that step (and what follows) rerun.
+"""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -76,7 +81,7 @@ CROSS_SOURCE_PAIRS = [
 ]
 LOW_MASS_THRESHOLD = 0.1  # go_emotion_mass below this: go_dist_* mostly reflects label floors
 
-# Phase 5 signal analysis (fit only, descriptive).
+# Click signal analysis (fit only, descriptive).
 SIGNAL_ALPHA = 0.05
 SIGNAL_TOP_CATEGORIES = 6  # by fit clicks
 SIGNAL_CORE_FEATURES = (
@@ -197,7 +202,7 @@ CONTEXT_WINDOWS = {
 CONTEXT_CONTROL = {"older_5": {"skip": 5, "size": 5, "decay": 1.0}}  # same size as short_5, older items
 CONTEXT_CONTROL_MIN_HISTORY = 10
 
-# Story charts (base-v2 Step 3).
+# Story charts.
 STORY_DIR = FIGURES / "story"
 RESULTS_FIGS = FIGURES / "results"
 RESULT_CHARTS = ["1_model_ladder", "2_m3_gain_by_metric", "3_alpha_ablation", "4_m3_gain_by_category", "5_m3_gain_by_history",

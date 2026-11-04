@@ -1,3 +1,4 @@
+"""Tests for src/story_charts.py, src/results_charts.py and src/results_tables.py, with small fakes: no internet, GPU or real lexicons."""
 import pytest
 import numpy as np
 import pandas as pd
