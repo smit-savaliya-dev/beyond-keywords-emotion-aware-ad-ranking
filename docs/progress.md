@@ -251,3 +251,8 @@ M0 to M5 are complete. M4 is the best model on dev. Next, when asked: M6, M7. Sp
 - All six charts already existed in `results/figures/results/`, read from saved tables. Missing piece: M5 - M4. Chart 1 now shows paired-difference brackets (M3 - M2 +0.0029, M5 - M4 -0.0030) and chart 2 has a second panel, M5 minus M4, valid and dev side by side with Holm marking. Both read `m4m5_comparison.csv` (added as an input of the pipeline step). Max 6 charts unchanged.
 - Diff against the step 0 snapshot: only `1_model_ladder.png`, `2_m3_gain_by_metric.png` and `results_chart_captions.json` differ; the other four charts regenerate byte-identical. `docs/figures_guide.md` updated. 224 tests pass.
 - Step 0 baselines kept as `*_step0` / tag `tidy`; a second baseline (tag `tidy_charts`, new AST baseline) is taken on this commit so steps 2 to 5 are proven against it.
+
+## 2026-11-04 tidy-for-review step 2: cleanup plan v2
+- `docs/cleanup_plan_v2.md` lists every file (keep, rename, delete) with a reason, generated from git and the rename table. Audit result: no dead functions, no TODOs, no commented-out code, no temporary scripts; 4 unused imports kept so the syntax-tree proof stays strict.
+- Deleted (ignored, nothing depends on them): `__pycache__/` folders, `.pytest_cache/`, the empty `mlruns/` (MLflow is not used). No tracked file was deleted and nothing needed archiving; `data/`, caches, `config/`, annotation archive and `docs/decisions.md` untouched.
+- Rename table (49 files: 40 scripts, 4 modules, 5 tests) is in `results/archive/tidy_renames.json`; it is applied in step 3. Second baselines were taken on the step 1 commit (`tidy_ast_baseline.json`, tag `tidy_charts`).

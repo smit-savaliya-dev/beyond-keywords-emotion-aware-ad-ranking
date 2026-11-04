@@ -1,0 +1,63 @@
+{
+ "renames": {
+  "scripts/10_data_download.py": "scripts/01_01_download_mind.py",
+  "scripts/11_data_prepare.py": "scripts/01_02_prepare_mind.py",
+  "scripts/12_data_harness_check.py": "scripts/01_03_harness_check.py",
+  "scripts/13_data_eda.py": "scripts/01_04_eda.py",
+  "scripts/14_data_semeval_download.py": "scripts/01_05_download_semeval.py",
+  "scripts/20_emotion_label_combined.py": "scripts/02_01_label_combined.py",
+  "scripts/21_emotion_score_fields.py": "scripts/02_02_score_fields.py",
+  "scripts/22_emotion_lexicon_features.py": "scripts/02_03_lexicon_features.py",
+  "scripts/23_emotion_merge_features.py": "scripts/02_04_merge_features.py",
+  "scripts/24_emotion_diagnostics.py": "scripts/02_05_diagnostics.py",
+  "scripts/25_emotion_thresholds.py": "scripts/02_06_thresholds.py",
+  "scripts/26_emotion_v2_grid.py": "scripts/02_07_v2_grid.py",
+  "scripts/27_emotion_v2_features.py": "scripts/02_08_v2_features.py",
+  "scripts/28_emotion_label_variants.py": "scripts/02_09_label_variants.py",
+  "scripts/29_emotion_semeval_score.py": "scripts/02_10_semeval_score.py",
+  "scripts/30_analysis_click_signal.py": "scripts/03_01_click_signal.py",
+  "scripts/31_analysis_congruence.py": "scripts/03_02_congruence.py",
+  "scripts/32_analysis_spec_v1_replication.py": "scripts/03_03_spec_v1_replication.py",
+  "scripts/33_analysis_spec_v2_replication.py": "scripts/03_04_spec_v2_replication.py",
+  "scripts/34_analysis_context_windows.py": "scripts/03_05_context_windows.py",
+  "scripts/35_analysis_true_recency.py": "scripts/03_06_true_recency.py",
+  "scripts/36_analysis_percentile_robustness.py": "scripts/03_07_percentile_robustness.py",
+  "scripts/37_analysis_story_charts.py": "scripts/03_08_story_charts.py",
+  "scripts/38_analysis_semeval_validation.py": "scripts/03_09_semeval_validation.py",
+  "scripts/40_model_m0_popularity.py": "scripts/04_01_m0_popularity.py",
+  "scripts/41_model_m1_tfidf.py": "scripts/04_02_m1_tfidf.py",
+  "scripts/42_model_compare_baselines.py": "scripts/04_03_compare_baselines.py",
+  "scripts/43_model_m2_encode.py": "scripts/04_04_m2_encode.py",
+  "scripts/44_model_m2_sbert.py": "scripts/04_05_m2_sbert.py",
+  "scripts/45_model_m3_fusion.py": "scripts/04_06_m3_fusion.py",
+  "scripts/46_model_compare_m2m3.py": "scripts/04_07_compare_m2m3.py",
+  "scripts/47_model_m3_where_it_helps.py": "scripts/04_08_where_it_helps.py",
+  "scripts/48_model_ltr_features.py": "scripts/04_09_ltr_features.py",
+  "scripts/49_model_m4m5_lightgbm.py": "scripts/04_10_m4m5_lightgbm.py",
+  "scripts/50_results_m5_controls.py": "scripts/05_01_m5_controls.py",
+  "scripts/51_results_compare_m4m5.py": "scripts/05_02_compare_m4m5.py",
+  "scripts/52_results_feature_importance.py": "scripts/05_03_feature_importance.py",
+  "scripts/53_results_model_ladder.py": "scripts/05_04_model_ladder.py",
+  "scripts/54_results_charts.py": "scripts/05_05_results_charts.py",
+  "scripts/run_base.py": "scripts/run_pipeline.py",
+  "src/experiments.py": "src/run_registry.py",
+  "src/validation.py": "src/label_thresholds.py",
+  "src/summary.py": "src/terminal_summary.py",
+  "src/ltr.py": "src/lightgbm_ranker.py",
+  "tests/test_ltr.py": "tests/test_lightgbm_ranker.py",
+  "tests/test_summary.py": "tests/test_terminal_summary.py",
+  "tests/test_validation.py": "tests/test_label_thresholds.py",
+  "tests/test_stats_experiments_baselines.py": "tests/test_stats_run_registry_baselines.py",
+  "tests/test_run_base.py": "tests/test_run_pipeline.py"
+ },
+ "deleted": [],
+ "allowed": {
+  "scripts/run_pipeline.py": [
+   "resolve"
+  ],
+  "tests/test_run_pipeline.py": [
+   "test_every_step_script_exists_and_steps_are_in_number_order"
+  ]
+ },
+ "note": "Reviewed exceptions: resolve() and its test accept step prefixes of the form 04_06 (names now start with two numbers)."
+}
