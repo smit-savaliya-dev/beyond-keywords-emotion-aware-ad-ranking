@@ -55,12 +55,12 @@
     ],
     "n_candidates": 1222429
   },
-  "frozen_utc": "2026-11-02T19:16:45+00:00",
+  "frozen_utc": "2026-11-04T13:50:12+00:00",
   "run_info": {
-    "timestamp_utc": "2026-11-02T19:16:45+00:00",
+    "timestamp_utc": "2026-11-04T13:50:12+00:00",
     "python": "3.11.9",
     "platform": "Windows-10-10.0.26200-SP0",
-    "git_commit": "9422b95",
+    "git_commit": "50b3b15",
     "git_dirty": true,
     "pandas": "3.0.6",
     "numpy": "2.4.6",
