@@ -19,8 +19,8 @@ BLUE, ORANGE, GREEN, RED, INK, GREY = "#2a78d6", "#eb6834", "#1baf7a", "#d6452a"
 plt.rcParams.update({"font.size": 16, "axes.edgecolor": GREY, "axes.labelcolor": INK, "xtick.color": INK, "ytick.color": INK})
 
 
-def finish(fig, name, title, caption):
-    fig.text(0.02, 0.965, title, fontsize=26, fontweight="bold", color=INK, ha="left", va="top")
+def finish(fig, name, caption):
+    """Save the chart with a one-line caption; no title, the slide carries it."""
     fig.text(0.02, 0.025, caption, fontsize=14, color=GREY, ha="left", va="bottom")
     fig.savefig(OUT / name, dpi=200, facecolor="white")
     plt.close(fig)
@@ -43,20 +43,20 @@ ladder = ladder[ladder["part"] == "dev"].sort_values("auc")
 
 # 1. dev AUC per model
 fig, ax = plt.subplots(figsize=(13, 7.2))
-fig.subplots_adjust(left=0.22, right=0.96, top=0.82, bottom=0.2)
+fig.subplots_adjust(left=0.22, right=0.96, top=0.95, bottom=0.2)
 frame(ax, "x")
 colors = [ORANGE if e else BLUE for e in ladder["emotion"]]
 ax.barh(ladder["label"], ladder["auc"], color=colors, height=0.62)
 for y, v in enumerate(ladder["auc"]):
     ax.text(v + 0.002, y, f"{v:.3f}", va="center", fontsize=18, fontweight="bold", color=INK)
 ax.axvline(0.5, color=INK, linestyle="--", linewidth=1.8)
-ax.text(0.5025, len(ladder) - 0.45, "random guessing", fontsize=15, color=INK, va="bottom")
+ax.text(0.5025, len(ladder) - 0.45, "random guessing", fontsize=16, color=INK, va="bottom")
 ax.set_xlim(0.45, 0.72)
 ax.set_xlabel("AUC on the final test (higher is better)", fontsize=17)
 ax.tick_params(axis="y", labelsize=18)
 ax.legend(handles=[Patch(color=BLUE, label="Without emotion"), Patch(color=ORANGE, label="With emotion")], loc="lower right", frameon=False, fontsize=16)
 best = ladder.iloc[-1]
-finish(fig, "1_how_well_each_model_ranks.png", "How well each model ranks clicked news",
+finish(fig, "1_how_well_each_model_ranks.png",
        f"Final test, {int(ladder['n'].iloc[0]):,} impressions. {best['label']} is best at {best['auc']:.3f}; the emotion versions are the orange bars.")
 
 # 2. does emotion help
@@ -64,7 +64,7 @@ m23 = auc_row(pd.read_csv(TABLES / "m2m3_comparison.csv"), "M2_sbert", "M3_sbert
 m45 = auc_row(pd.read_csv(TABLES / "m4m5_comparison.csv"), "M4_lightgbm", "M5_lightgbm_emotion")
 rows = [("Sentence-BERT\n(M3 minus M2)", m23), ("LightGBM\n(M5 minus M4)", m45)]
 fig, ax = plt.subplots(figsize=(13, 7.2))
-fig.subplots_adjust(left=0.12, right=0.96, top=0.82, bottom=0.2)
+fig.subplots_adjust(left=0.12, right=0.96, top=0.95, bottom=0.2)
 frame(ax, "y")
 for i, (name, r) in enumerate(rows):
     color = GREEN if r["mean_diff"] > 0 else RED
@@ -81,7 +81,7 @@ ax.set_xticks(range(len(rows)), [n for n, _ in rows], fontsize=19)
 ax.set_xlim(-0.6, len(rows) - 0.4)
 ax.set_ylim(-0.0085, 0.0085)
 ax.set_ylabel("Change in AUC when emotion is added", fontsize=17)
-finish(fig, "2_does_adding_emotion_help.png", "Does adding emotion help?",
+finish(fig, "2_does_adding_emotion_help.png",
        f"Final test, with 95% confidence bars. Emotion adds {m23['mean_diff']:+.4f} to Sentence-BERT and {m45['mean_diff']:+.4f} to LightGBM "
        "(Holm-corrected test).")
 
@@ -93,7 +93,7 @@ pick = [("anger", "goemotions_group"), ("fear", "goemotions_group"), ("joy", "go
 vals = [float(sem[(sem["gold"] == g) & (sem["source"] == s)]["spearman"].iloc[0]) for g, s in pick]
 names = [g for g, _ in pick]
 fig, ax = plt.subplots(figsize=(13, 7.2))
-fig.subplots_adjust(left=0.1, right=0.96, top=0.82, bottom=0.2)
+fig.subplots_adjust(left=0.1, right=0.96, top=0.95, bottom=0.2)
 frame(ax, "y")
 ax.bar(names, vals, color=[BLUE] * 5 + [ORANGE], width=0.62)
 for i, v in enumerate(vals):
@@ -103,7 +103,7 @@ ax.text(-0.45, 0.80, "dashed line = the minimum we required (0.2)", ha="left", f
 ax.set_ylim(0, 0.85)
 ax.set_ylabel("Agreement with human ratings\n(correlation, 1 = perfect)", fontsize=17)
 ax.tick_params(axis="x", labelsize=19)
-finish(fig, "3_do_emotion_scores_agree_with_humans.png", "Do our emotion scores agree with humans?",
+finish(fig, "3_do_emotion_scores_agree_with_humans.png",
        f"{int(sem['n'].iloc[0]):,} news headlines rated by people (SemEval-2007 test set). Orange = positive-versus-negative feeling (valence).")
 
 # M4 / M5 summary, in plain words
