@@ -12,10 +12,10 @@ not built yet. Hand labelling was cancelled (D45), so there are no direct human 
 ```bash
 python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt
-python scripts/run_base.py --dry-run     # what would run and why; runs nothing
-python scripts/run_base.py               # run whatever is out of date, then print the summary
+python scripts/run_pipeline.py --dry-run     # what would run and why; runs nothing
+python scripts/run_pipeline.py               # run whatever is out of date, then print the summary
 python scripts/show_results.py           # only the summary, from saved tables
-python scripts/run_base.py --rebuild     # rerun everything except GPU scoring; dev runs are never in the pipeline
+python scripts/run_pipeline.py --rebuild     # rerun everything except GPU scoring; dev runs are never in the pipeline
 ```
 Put MIND-small in `data/raw/train/` and `data/raw/dev/`, and the NRC lexicons in `data/external/nrc/` (never commit them).
 Step 14 downloads SemEval-2007 into `data/external/semeval2007/` (git-ignored, needs `curl`).
@@ -28,7 +28,7 @@ Step 14 downloads SemEval-2007 into `data/external/semeval2007/` (git-ignored, n
 | `scripts/3x_analysis_*` | click signal, congruence, context, charts, SemEval validation |
 | `scripts/4x_model_*` | M0 to M5: `--tune` is in the pipeline; `--final-dev`, dev comparisons and script 47 are run once by hand |
 | `scripts/5x_results_*` | comparisons, feature importance, model ladder and the results charts |
-| `scripts/` (unnumbered) | `run_base.py`, `show_results.py`, `snapshot_results.py`, `check_goemotions.py` and `check_sbert_encoder.py` (optional) |
+| `scripts/` (unnumbered) | `run_pipeline.py`, `show_results.py`, `snapshot_results.py`, `check_goemotions.py` and `check_sbert_encoder.py` (optional) |
 | `src/` | all logic; `src/config.py` holds every constant |
 | `config/` | frozen emotion specifications (hash-locked by a test) |
 | `results/tables/` | every result table; `summary.csv` holds model metrics, `runs_log.csv` every run |

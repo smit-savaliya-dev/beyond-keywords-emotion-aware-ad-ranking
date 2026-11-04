@@ -73,10 +73,10 @@ def digest(statements):
     return hashlib.sha256(json.dumps(statements).encode("utf-8")).hexdigest()
 
 
-def differences(old_source, new_source, modules=None, stems=None, allowed=()):
-    """Labels of top-level statements that differ once old names are mapped; names in `allowed` are skipped."""
+def differences(old_source, new_source, modules=None, stems=None, allowed=(), added=()):
+    """Labels of top-level statements that differ once old names are mapped; names in `allowed` may differ and names in `added` may be new."""
     old = normalised_statements(old_source, modules, stems)
-    new = normalised_statements(new_source)
+    new = [(l, d) for l, d in normalised_statements(new_source) if l.split(":")[2] not in added]
     old_names, new_names = [l.split(":", 1)[1] for l, _ in old], [l.split(":", 1)[1] for l, _ in new]
     if old_names != new_names:
         return [f"statements differ: {sorted(set(old_names) ^ set(new_names)) or 'order'}"]

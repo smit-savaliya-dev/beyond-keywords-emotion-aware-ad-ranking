@@ -14,7 +14,7 @@ PARTS = ("fit", "valid", "dev")
 def find_split_dir(split, raw=RAW):
     hits = sorted((raw / split).rglob("behaviors.tsv"))
     if not hits:
-        raise FileNotFoundError(f"No behaviors.tsv under {raw / split}. Run scripts/10_data_download.py first.")
+        raise FileNotFoundError(f"No behaviors.tsv under {raw / split}. Run scripts/01_01_download_mind.py first.")
     return hits[0].parent
 
 

@@ -1,0 +1,60 @@
+import importlib.util
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def load_steps():
+    sys.path.insert(0, str(ROOT / "scripts"))
+    spec = importlib.util.spec_from_file_location("run_pipeline", ROOT / "scripts" / "run_pipeline.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.build_steps(False)
+
+
+def test_every_step_script_exists_and_steps_are_in_number_order():
+    steps = load_steps()
+    numbers = [tuple(int(t) for t in s.name.split("_")[:2] if t.isdigit()) for s in steps]
+    assert numbers == sorted(numbers) and len(set(numbers)) == len(numbers)
+    for s in steps:
+        if s.script is not None:
+            assert Path(s.script).exists(), s.name
+
+
+def test_pipeline_never_runs_a_dev_final():
+    for s in load_steps():
+        assert "--final-dev" not in [str(c) for c in s.cmd], s.name
+
+
+def test_only_the_scoring_steps_need_the_gpu():
+    assert {s.name for s in load_steps() if s.gpu} == {"02_01_label_combined", "02_02_score_fields",
+                                                       "02_10_semeval_score", "04_04_m2_encode"}
+
+
+def test_no_step_depends_on_the_annotation_folder():
+    for s in load_steps():
+        assert not any("annotation" in Path(p).parts and "archive" not in Path(p).parts for p in [*s.inputs, *s.outputs]), s.name
+
+
+def test_outputs_of_a_step_are_inputs_of_later_steps_only():
+    steps = load_steps()
+    made_by = {str(p): i for i, s in enumerate(steps) for p in s.outputs}
+    for i, s in enumerate(steps):
+        for p in s.inputs:
+            assert made_by.get(str(p), -1) < i or made_by.get(str(p)) == i, f"{s.name} reads {p} before it is made"
+
+
+def test_no_step_outputs_an_archived_file():
+    archived = {p.name for p in (ROOT / "results" / "archive" / "figures").glob("*")}
+    for s in load_steps():
+        assert not archived & {Path(p).name for p in s.outputs}, s.name
+
+
+def test_resolve_accepts_full_names_steps_and_stages():
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import run_pipeline
+    steps = run_pipeline.build_steps(False)
+    assert run_pipeline.resolve(["04_06"], steps) == ["04_06_m3_fusion"]
+    assert run_pipeline.resolve(["04_06_m3_fusion"], steps) == ["04_06_m3_fusion"]
+    assert all(n.startswith("05_") for n in run_pipeline.resolve(["05"], steps)) and len(run_pipeline.resolve(["05"], steps)) >= 3

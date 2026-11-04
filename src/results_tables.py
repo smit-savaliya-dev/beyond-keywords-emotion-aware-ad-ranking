@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from .config import METRIC_COLUMNS, MODEL_LADDER, PROCESSED
-from .ltr import impression_aucs
+from .lightgbm_ranker import impression_aucs
 from .stats import compare_models, paired_test
 
 

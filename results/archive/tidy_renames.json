@@ -57,7 +57,25 @@
   ],
   "tests/test_run_pipeline.py": [
    "test_every_step_script_exists_and_steps_are_in_number_order"
+  ],
+  "scripts/check_logic_unchanged.py": [
+   "main"
+  ],
+  "tests/test_logic_check.py": [
+   "OLD",
+   "test_renamed_modules_and_scripts_are_mapped"
+  ],
+  "src/logic_check.py": [
+   "differences"
   ]
  },
- "note": "Reviewed exceptions: resolve() and its test accept step prefixes of the form 04_06 (names now start with two numbers)."
+ "note": "Reviewed exceptions: resolve() and its test accept step prefixes such as 04_06 (names now start with two numbers); the checker script and its test only learned to map renamed path strings and use fake names in a fixture. differences() learned to accept listed new statements.",
+ "added": {
+  "tests/test_run_pipeline.py": [
+   "test_resolve_accepts_full_names_steps_and_stages"
+  ],
+  "tests/test_logic_check.py": [
+   "test_listed_new_statement_is_accepted"
+  ]
+ }
 }

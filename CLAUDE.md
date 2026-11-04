@@ -10,7 +10,7 @@ Recommenders match content context (words/meaning). Hypothesis: clicks are also 
 context + emotion improves recommendation (ads/news/similar content). Wording rule: write "emotional context inferred
 from the user's recent reading", never "the user's emotional state".
 
-## Data (data/processed/, built by `python scripts/run_base.py`)
+## Data (data/processed/, built by `python scripts/run_pipeline.py`)
 - news.parquet: news_id, category, subcategory, title, abstract, text (title + ". " + abstract). 65,238 items, 0 empty titles,
   3,415 (5.23%) empty abstracts.
 - impressions.parquet: imp_key, part, user_id, time, news_id, label, position. part = fit (train) / valid (tune) / dev (test once).
@@ -51,7 +51,7 @@ from the user's recent reading", never "the user's emotional state".
 - M5-all is a pre-declared robustness variant with all 19 item candidates (D37).
 - M2 frozen: title, mean (D57). M3 frozen: personal, alpha 0.8 (D58). Dev scores are saved in results/scores/; never rerun them.
 - Script 47 reads dev for RQ5 and is not a pipeline step (like --final-dev); script 53 reads saved dev result files for the ladder, also by hand.
-- M4/M5 (scripts 48-52, src/ltr.py): click-derived features use days strictly before the row's day (D64); training samples 4 non-clicks per click, scoring uses all candidates.
+- M4/M5 (scripts 48-52, src/lightgbm_ranker.py): click-derived features use days strictly before the row's day (D64); training samples 4 non-clicks per click, scoring uses all candidates.
   M5-all never runs on dev (D65). Boosters live in data/processed/ltr_models/; their sha256 is in the frozen config.
   M4 frozen: 31 leaves, rate 0.05, min child 50; M5: 63, 0.05, 200 (D69). M5 - M4 on dev is negative (D71). Item-level continuous scores act as an item ID and valid shares 70.8% of
   candidates with fit (dev 19.4%), so read any gain with the item-swap control and fresh-item split (scripts 50, 51; Q15).
@@ -68,7 +68,7 @@ from the user's recent reading", never "the user's emotional state".
 - Every new function gets a test with small fakes (fake classifier, tiny lexicon files in tmp_path); no internet/GPU/real lexicons.
 - NRC files live in data/external/nrc/ (git-ignored, research-only licence). Never download or commit them.
 - Windows, PowerShell, Python 3.11 venv (.venv), RTX 3050 6GB; use pick_device("auto").
-- `python scripts/run_base.py` runs the whole pipeline incrementally (src/pipeline.py). Every new script must be
+- `python scripts/run_pipeline.py` runs the whole pipeline incrementally (src/pipeline.py). Every new script must be
   registered there as a Step with its data inputs and outputs (code deps are found from its src imports).
 - Short code comments. Never push. Commit only when the user asks (autonomous runs commit locally on their own branch).
 - Work in phases and stop for review after each one; ask when the request conflicts with the code.

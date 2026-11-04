@@ -44,9 +44,11 @@ def main():
 
     base = json.loads(BASELINE.read_text(encoding="utf-8"))
     plan = json.loads(RENAMES.read_text(encoding="utf-8")) if RENAMES.exists() else {}
-    renames, deleted, allowed = plan.get("renames", {}), plan.get("deleted", []), plan.get("allowed", {})
+    renames, deleted = plan.get("renames", {}), plan.get("deleted", [])
+    allowed, added_ok = plan.get("allowed", {}), plan.get("added", {})
     modules = {o[len("src/"):-3]: n[len("src/"):-3] for o, n in renames.items() if o.startswith("src/")}
     stems = {o.split("/")[-1][:-3]: n.split("/")[-1][:-3] for o, n in renames.items() if o.startswith("scripts/")}
+    stems.update({o: n for o, n in renames.items() if not o.startswith("scripts/")})  # path strings such as "src/old.py"
     problems, checked = [], 0
     for old, recorded in base["files"].items():
         old_source = git("show", f"{base['base_commit']}:{old}")
@@ -59,7 +61,7 @@ def main():
         if not (ROOT / new).exists():
             problems.append(f"missing: {old} -> {new} (not listed as deleted)")
             continue
-        diff = differences(old_source, (ROOT / new).read_text(encoding="utf-8"), modules, stems, allowed.get(new, ()))
+        diff = differences(old_source, (ROOT / new).read_text(encoding="utf-8"), modules, stems, allowed.get(new, ()), added_ok.get(new, ()))
         checked += 1
         problems += [f"logic differs in {new}: {d}" for d in diff]
     added = sorted(set(python_files()) - {renames.get(o, o) for o in base["files"]})

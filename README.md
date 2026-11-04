@@ -19,8 +19,8 @@ External validation data: SemEval-2007 Task 14 Affective Text (Strapparava & Mih
 
 ## Run everything
 ```bash
-python scripts/run_base.py --dry-run     # what would run and why; runs nothing
-python scripts/run_base.py               # run what is out of date, then print the summary
+python scripts/run_pipeline.py --dry-run     # what would run and why; runs nothing
+python scripts/run_pipeline.py               # run what is out of date, then print the summary
 python scripts/show_results.py           # only the summary, from saved tables
 ```
 Steps run in number order and stop at the first failure. A step reruns only if its data inputs, its code (the script and the `src/`
@@ -35,56 +35,56 @@ modules it imports), the config constants it uses, its arguments or its outputs 
 ## Run order
 | Step | Script | Part | Output |
 |---|---|---|---|
-| 10 | `10_data_download.py` | - | `data/raw` (create-only) |
-| 11 | `11_data_prepare.py` | all | news, behaviors, impressions parquet |
-| 12 | `12_data_harness_check.py` | valid | fake-model checks of the harness (dev only with `--parts dev`) |
-| 13 | `13_data_eda.py` | fit | EDA figures |
-| 14 | `14_data_semeval_download.py` | - | SemEval-2007 Task 14 headlines and gold (create-only, needs `curl`) |
-| 20 | `20_emotion_label_combined.py` | items | combined-text GoEmotions baseline (GPU, resumable) |
-| 21 | `21_emotion_score_fields.py` | items | title, abstract, weighted GoEmotions, go_* (GPU, resumable) |
-| 22 | `22_emotion_lexicon_features.py` | items | nrc_*, vad_*, go_vad_* |
-| 23 | `23_emotion_merge_features.py` | items | `news_emotion_features.parquet` |
-| 24 | `24_emotion_diagnostics.py` | items | distributions, cross-source correlations |
-| 25 | `25_emotion_thresholds.py` | items | neutral share per pre-declared v1 threshold |
-| 26 | `26_emotion_v2_grid.py` | fit + valid | title weight and threshold grid, selection rule D30 |
-| 27 | `27_emotion_v2_features.py` | items | v2 raw scores, labels, features, 60 examples |
-| 28 | `28_emotion_label_variants.py` | items | stance-excluded labels v2b, v2c |
-| 29 | `29_emotion_semeval_score.py` | SemEval | GoEmotions on 1,250 headlines (small GPU job, resumable) |
-| 30 | `30_analysis_click_signal.py` | fit | item emotion vs clicks |
-| 31 | `31_analysis_congruence.py` | fit | history-profile congruence with controls |
-| 32 | `32_analysis_spec_v1_replication.py` | valid | evidence behind `config/emotion_spec_v1.json` |
-| 33 | `33_analysis_spec_v2_replication.py` | fit + valid | evidence behind `config/emotion_spec_v2.json` |
-| 34 | `34_analysis_context_windows.py` | fit + valid | short-term vs long-term context, history column |
-| 35 | `35_analysis_true_recency.py` | fit + valid | true recency from earlier log clicks, analysis only |
-| 36 | `36_analysis_percentile_robustness.py` | fit + valid | train-only percentile check |
-| 37 | `37_analysis_story_charts.py` | saved tables | the 8 charts in `results/figures/story/` |
-| 38 | `38_analysis_semeval_validation.py` | SemEval | trial selects the rule, test reports correlations, kappa, spec verdict |
-| 40 | `40_model_m0_popularity.py --tune` | valid | M0 grid, frozen settings |
-| 41 | `41_model_m1_tfidf.py --tune` | valid | M1 grid, frozen settings |
-| 42 | `42_model_compare_baselines.py --part valid` | valid | paired M1 vs M0 |
-| 43 | `43_model_m2_encode.py` | items | all-mpnet-base-v2 embeddings, title and title+abstract (GPU, resumable) |
-| 44 | `44_model_m2_sbert.py --tune` | valid | M2 grid, frozen settings |
-| 45 | `45_model_m3_fusion.py --tune` | valid | M3 grid (variant, alpha), checks, frozen settings |
-| 46 | `46_model_compare_m2m3.py --part valid` | valid | paired M2 vs M1 and M3 vs M2, user-level check |
-| 48 | `48_model_ltr_features.py` | fit + valid | M4 and M5 feature tables, time-safe popularity, checks against M0-M2 |
-| 49 | `49_model_m4m5_lightgbm.py --tune` | valid | M4, M5, M5-all grids, seeds, shuffled control, frozen settings |
-| 50 | `50_results_m5_controls.py --tune` | valid | item-identity controls for M5 (D69) |
-| 51 | `51_results_compare_m4m5.py --part valid` | valid | paired M5 vs M4, M5 vs M3, M4 vs M2, M5-all vs M5, fairness check, controls, fresh-item split |
-| 52 | `52_results_feature_importance.py` | valid | gain and mean absolute contribution for M5 |
-| 54 | `54_results_charts.py` | saved tables | the 6 charts in `results/figures/results/` |
+| 10 | `01_01_download_mind.py` | - | `data/raw` (create-only) |
+| 11 | `01_02_prepare_mind.py` | all | news, behaviors, impressions parquet |
+| 12 | `01_03_harness_check.py` | valid | fake-model checks of the harness (dev only with `--parts dev`) |
+| 13 | `01_04_eda.py` | fit | EDA figures |
+| 14 | `01_05_download_semeval.py` | - | SemEval-2007 Task 14 headlines and gold (create-only, needs `curl`) |
+| 20 | `02_01_label_combined.py` | items | combined-text GoEmotions baseline (GPU, resumable) |
+| 21 | `02_02_score_fields.py` | items | title, abstract, weighted GoEmotions, go_* (GPU, resumable) |
+| 22 | `02_03_lexicon_features.py` | items | nrc_*, vad_*, go_vad_* |
+| 23 | `02_04_merge_features.py` | items | `news_emotion_features.parquet` |
+| 24 | `02_05_diagnostics.py` | items | distributions, cross-source correlations |
+| 25 | `02_06_thresholds.py` | items | neutral share per pre-declared v1 threshold |
+| 26 | `02_07_v2_grid.py` | fit + valid | title weight and threshold grid, selection rule D30 |
+| 27 | `02_08_v2_features.py` | items | v2 raw scores, labels, features, 60 examples |
+| 28 | `02_09_label_variants.py` | items | stance-excluded labels v2b, v2c |
+| 29 | `02_10_semeval_score.py` | SemEval | GoEmotions on 1,250 headlines (small GPU job, resumable) |
+| 30 | `03_01_click_signal.py` | fit | item emotion vs clicks |
+| 31 | `03_02_congruence.py` | fit | history-profile congruence with controls |
+| 32 | `03_03_spec_v1_replication.py` | valid | evidence behind `config/emotion_spec_v1.json` |
+| 33 | `03_04_spec_v2_replication.py` | fit + valid | evidence behind `config/emotion_spec_v2.json` |
+| 34 | `03_05_context_windows.py` | fit + valid | short-term vs long-term context, history column |
+| 35 | `03_06_true_recency.py` | fit + valid | true recency from earlier log clicks, analysis only |
+| 36 | `03_07_percentile_robustness.py` | fit + valid | train-only percentile check |
+| 37 | `03_08_story_charts.py` | saved tables | the 8 charts in `results/figures/story/` |
+| 38 | `03_09_semeval_validation.py` | SemEval | trial selects the rule, test reports correlations, kappa, spec verdict |
+| 40 | `04_01_m0_popularity.py --tune` | valid | M0 grid, frozen settings |
+| 41 | `04_02_m1_tfidf.py --tune` | valid | M1 grid, frozen settings |
+| 42 | `04_03_compare_baselines.py --part valid` | valid | paired M1 vs M0 |
+| 43 | `04_04_m2_encode.py` | items | all-mpnet-base-v2 embeddings, title and title+abstract (GPU, resumable) |
+| 44 | `04_05_m2_sbert.py --tune` | valid | M2 grid, frozen settings |
+| 45 | `04_06_m3_fusion.py --tune` | valid | M3 grid (variant, alpha), checks, frozen settings |
+| 46 | `04_07_compare_m2m3.py --part valid` | valid | paired M2 vs M1 and M3 vs M2, user-level check |
+| 48 | `04_09_ltr_features.py` | fit + valid | M4 and M5 feature tables, time-safe popularity, checks against M0-M2 |
+| 49 | `04_10_m4m5_lightgbm.py --tune` | valid | M4, M5, M5-all grids, seeds, shuffled control, frozen settings |
+| 50 | `05_01_m5_controls.py --tune` | valid | item-identity controls for M5 (D69) |
+| 51 | `05_02_compare_m4m5.py --part valid` | valid | paired M5 vs M4, M5 vs M3, M4 vs M2, M5-all vs M5, fairness check, controls, fresh-item split |
+| 52 | `05_03_feature_importance.py` | valid | gain and mean absolute contribution for M5 |
+| 54 | `05_05_results_charts.py` | saved tables | the 6 charts in `results/figures/results/` |
 | - | `show_results.py` | saved tables | terminal summary (last step) |
 
 **Final test (never run by the pipeline, once per model, after its settings are frozen and recorded in `docs/decisions.md`):**
-`python scripts/40_model_m0_popularity.py --final-dev`, `python scripts/41_model_m1_tfidf.py --final-dev`, then
-`python scripts/42_model_compare_baselines.py --part dev`. For M2 and M3: `44_model_m2_sbert.py --final-dev`, `45_model_m3_fusion.py --final-dev`,
-`46_model_compare_m2m3.py --part dev`, then `47_model_m3_where_it_helps.py` (descriptive, reads dev, so never a pipeline step).
-For M4 and M5: `49_model_m4m5_lightgbm.py --final-dev --model M4_lightgbm`, the same with `--model M5_lightgbm_emotion`, `50_results_m5_controls.py --final-dev --model M5_permuted_items`, the same with `--model M5_congruence_only`, `51_results_compare_m4m5.py --part dev`,
-`47_model_m3_where_it_helps.py --base M4_lightgbm --model M5_lightgbm_emotion --out m5_where_it_helps --compact`, then `53_results_model_ladder.py`, which reads the saved dev
+`python scripts/04_01_m0_popularity.py --final-dev`, `python scripts/04_02_m1_tfidf.py --final-dev`, then
+`python scripts/04_03_compare_baselines.py --part dev`. For M2 and M3: `04_05_m2_sbert.py --final-dev`, `04_06_m3_fusion.py --final-dev`,
+`04_07_compare_m2m3.py --part dev`, then `04_08_where_it_helps.py` (descriptive, reads dev, so never a pipeline step).
+For M4 and M5: `04_10_m4m5_lightgbm.py --final-dev --model M4_lightgbm`, the same with `--model M5_lightgbm_emotion`, `05_01_m5_controls.py --final-dev --model M5_permuted_items`, the same with `--model M5_congruence_only`, `05_02_compare_m4m5.py --part dev`,
+`04_08_where_it_helps.py --base M4_lightgbm --model M5_lightgbm_emotion --out m5_where_it_helps --compact`, then `05_04_model_ladder.py`, which reads the saved dev
 results for the ladder chart. M5-all never runs on dev (D65).
 A second dev run needs `--rerun-dev "<reason>"`.
 
-**Optional:** `check_goemotions.py` (in-domain GoEmotions test, needs internet), `check_sbert_encoder.py` (our M2 embeddings vs the sentence-transformers package), `49_model_m4m5_lightgbm.py --tune --resume` (reuse finished runs after an interruption), `21_emotion_score_fields.py --measure / --smoke / --report`,
-`20_emotion_label_combined.py --smoke`, `snapshot_results.py --take / --check` (prove a change did not alter results).
+**Optional:** `check_goemotions.py` (in-domain GoEmotions test, needs internet), `check_sbert_encoder.py` (our M2 embeddings vs the sentence-transformers package), `04_10_m4m5_lightgbm.py --tune --resume` (reuse finished runs after an interruption), `02_02_score_fields.py --measure / --smoke / --report`,
+`02_01_label_combined.py --smoke`, `snapshot_results.py --take / --check` (prove a change did not alter results).
 
 ## Rules that protect the results
 - `fit` trains, `valid` (last day of train) tunes, `dev` is reported once. Never tune on dev.
