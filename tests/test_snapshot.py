@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from src.snapshot import compare, same_file, snapshot_files, take
+from src.snapshot import compare, compare_hashes, hash_files, same_file, snapshot_files, take
 
 
 def setup(tmp_path):
@@ -49,3 +49,17 @@ def test_same_file_text_columns(tmp_path):
     pd.DataFrame({"s": ["x"]}).to_csv(a, index=False)
     pd.DataFrame({"s": ["z"]}).to_csv(b, index=False)
     assert not same_file(a, b)
+
+
+def test_hash_manifest_flags_changed_and_missing_files(tmp_path):
+    folder = tmp_path / "scores"
+    (folder / "sub").mkdir(parents=True)
+    (folder / "a.bin").write_bytes(b"1")
+    (folder / "sub" / "b.bin").write_bytes(b"2")
+    roots = [("scores", folder)]
+    old = hash_files(roots)
+    assert set(old) == {"scores/a.bin", "scores/sub/b.bin"} and compare_hashes(old, roots) == []
+    (folder / "a.bin").write_bytes(b"x")
+    (folder / "sub" / "b.bin").unlink()
+    (folder / "new.bin").write_bytes(b"3")
+    assert sorted(compare_hashes(old, roots)) == ["different: scores/a.bin", "missing: scores/sub/b.bin"]

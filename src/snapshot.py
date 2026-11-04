@@ -100,3 +100,20 @@ def compare(manifest, copy_dir, roots):
         elif not same_file(copy_dir / name, current[name]):
             problems.append(f"different: {name}")
     return problems
+
+
+def hash_files(roots, patterns=("*",)):
+    """{relative name: sha256} of files that are compared byte for byte (scores, boosters, figures)."""
+    out = {}
+    for label, folder in roots:
+        for pattern in patterns:
+            for path in sorted(folder.rglob(pattern)):
+                if path.is_file():
+                    out[f"{label}/{path.relative_to(folder).as_posix()}"] = sha256_file(path)
+    return out
+
+
+def compare_hashes(old, roots, patterns=("*",)):
+    """-> list of problems; a file in `old` that is missing or has another hash. New files are allowed."""
+    now = hash_files(roots, patterns)
+    return [f"{'missing' if n not in now else 'different'}: {n}" for n in old if now.get(n) != old[n]]
